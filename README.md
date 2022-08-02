@@ -20,6 +20,3 @@
 |<span style="color:red;">24 августа 19:00|Алгоритмы|
 |<span style="color:red;">26 августа 19:00|Accessibility (факультатив)|
 |<span style="color:red;">31 августа 19:00|Инструменты контроля|
-
-
-<red> red </red>
