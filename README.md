@@ -9,7 +9,7 @@
 |<span style="color:green;">25 июля 19:00|Kotlin|[тут](https://www.youtube.com/watch?v=CxrVCB4XnX4)|[](linkurl)|
 |<span style="color:green;">27 июля 19:00|View в Android|[тут](https://www.youtube.com/watch?v=FESw0jmTQAw)|[Задание 1](https://disk.yandex.ru/i/0cAho3qfEDnuuA) / Решение |
 |<span style="color:green;">1 августа 19:00|Потоки и асинхронность|[тут](https://www.youtube.com/watch?v=M5Jl643cP34)|[Задание 2](https://disk.yandex.ru/i/0cAho3qfEDnuuA) / Решение |
-|<span style="color:red;">3 августа 19:00|Network в Android|
+|<span style="color:red;">3 августа 19:00|Network в Android|[тут](https://www.youtube.com/watch?v=jgfB7lgD6Kk)|[Задание 3](https://disk.yandex.ru/i/0cAho3qfEDnuuA) / Решение |
 |<span style="color:red;">8 августа 19:00|Архитектура|
 |<span style="color:red;">10 августа 19:00|DI|
 |<span style="color:red;">15 августа 19:00|Хранение данных|
