@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
+    android:layout_marginTop="15dp"
+    android:layout_marginBottom="7dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -11,15 +13,21 @@
         android:id="@+id/checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="CheckBox"
-        android:layout_weight="1" />
+        android:text="At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!
+At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!"
+        android:maxLines="3"
+        android:gravity="top"
+        android:layout_weight="1"
+        android:layout_marginRight="10dp"
+        android:ellipsize="end" />
 
     <ImageView
         android:id="@+id/imageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:srcCompat="@drawable/ic_baseline_plus_24"
-        app:tint="@android:color/black" />
+        tools:src="@drawable/ic_baseline_view_new_24"
+        android:src="@drawable/ic_baseline_view_new_24"
+        />
 
 
 </LinearLayout>

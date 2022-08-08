@@ -64,12 +64,13 @@
         android:layout_height="0dp"
         android:layout_marginHorizontal="10dp"
         android:background="@drawable/round_corner"
-        android:padding="15dp"
+        android:paddingHorizontal="15dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        
         tools:listitem="@layout/rv_item_task" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
