@@ -2,6 +2,9 @@ package com.glebalekseevjk.yasmrhomework.presentation.rv.callback
 
 import android.annotation.SuppressLint
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
@@ -17,10 +20,13 @@ enum class ButtonShowedState{
     RIGHT_VISIBLE
 }
 @SuppressLint("ClickableViewAccessibility")
-class SwipeController: Callback() {
+class SwipeController constructor(val swipeControllerActions: SwipeControllerActions): Callback() {
     private var swipeBack = false
     private val buttonWidth = 300
     private var buttonShowedState = ButtonShowedState.GONE
+    private var currentItemViewHolder: RecyclerView.ViewHolder? = null
+    private var buttonInstance: RectF? = null
+
 
     override fun getMovementFlags(
         recyclerView: RecyclerView,
@@ -71,6 +77,7 @@ class SwipeController: Callback() {
         if (buttonShowedState == ButtonShowedState.GONE){
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
         }
+        currentItemViewHolder = viewHolder
     }
 
     private fun setTouchListener(
@@ -136,9 +143,17 @@ class SwipeController: Callback() {
                     )
                     recyclerView.isClickable = true
                     swipeBack = false
-                    buttonShowedState = ButtonShowedState.GONE
+                    currentItemViewHolder = null
                     recyclerView.setOnScrollChangeListener{ view: View, i: Int, i1: Int, i2: Int, i3: Int -> }
                     recyclerView.setOnTouchListener { _, _ -> false }
+                    if (swipeControllerActions != null && buttonInstance != null && buttonInstance!!.contains(event.x,event.y)){
+                        if (buttonShowedState == ButtonShowedState.LEFT_VISIBLE){
+                            swipeControllerActions.onLeftClicked(viewHolder.bindingAdapterPosition)
+                        }else if(buttonShowedState == ButtonShowedState.RIGHT_VISIBLE){
+                            swipeControllerActions.onRightClicked(viewHolder.bindingAdapterPosition)
+                        }
+                    }
+                    buttonShowedState = ButtonShowedState.GONE
                 }
             }
             false
@@ -169,6 +184,36 @@ class SwipeController: Callback() {
                 actionState,
                 isCurrentlyActive
             )
+        }
+    }
+
+
+    private fun drawButtons(c: Canvas,viewHolder: RecyclerView.ViewHolder){
+
+        val itemView = viewHolder.itemView
+        val p = Paint()
+
+        val leftButton = RectF(itemView.left.toFloat(),itemView.top.toFloat(),itemView.left.toFloat() + buttonWidth,itemView.bottom.toFloat())
+        p.color = Color.GREEN
+        c.drawRect(leftButton,p)
+
+        val rightButton = RectF(itemView.right - buttonWidth.toFloat(),itemView.top.toFloat(),itemView.right.toFloat(),itemView.bottom.toFloat())
+        p.color = Color.RED
+        c.drawRect(rightButton,p)
+
+        buttonInstance = null
+        if (buttonShowedState == ButtonShowedState.RIGHT_VISIBLE){
+            buttonInstance = rightButton
+        }else if(buttonShowedState == ButtonShowedState.LEFT_VISIBLE){
+            buttonInstance = leftButton
+        }
+
+
+    }
+
+    fun onDraw(c: Canvas){
+        currentItemViewHolder?.let {
+            drawButtons(c, it)
         }
     }
 }

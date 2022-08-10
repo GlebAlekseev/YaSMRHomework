@@ -1,7 +1,9 @@
 package com.glebalekseevjk.yasmrhomework.presentation.activity
 
 import android.animation.ValueAnimator
+import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -14,6 +16,8 @@ import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
+import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeControllerActions
+import java.text.FieldPosition
 
 object TouchEventSettings {
     var stabilizedAnimation: Boolean = false
@@ -45,7 +49,23 @@ class MainActivity : AppCompatActivity() {
         with(recyclerView){
             adapter = taskListAdapter
             taskListAdapter.taskList = repositoryImpl.getTodoItems()
-            ItemTouchHelper(SwipeController()).attachToRecyclerView(this)
+            val swipeController = SwipeController(object: SwipeControllerActions() {
+                override fun onLeftClicked(position: Int){
+                    // Завершение
+                    Log.d("MainActivity","finished on position $position")
+                }
+
+                override fun onRightClicked(position: Int) {
+                    // Удаление
+                    Log.d("MainActivity","removed on position $position")
+                }
+            })
+            ItemTouchHelper(swipeController).attachToRecyclerView(this)
+            addItemDecoration(object : RecyclerView.ItemDecoration() {
+                override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+                    swipeController.onDraw(c)
+                }
+            })
         }
     }
 
