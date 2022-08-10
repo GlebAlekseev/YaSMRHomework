@@ -1,22 +1,19 @@
 package com.glebalekseevjk.yasmrhomework.presentation.activity
 
 import android.animation.ValueAnimator
-import android.graphics.Canvas
-import android.graphics.Paint
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updatePadding
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.presentation.adapter.TaskListAdapter
+import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
+import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 
 object TouchEventSettings {
     var stabilizedAnimation: Boolean = false
@@ -48,99 +45,10 @@ class MainActivity : AppCompatActivity() {
         with(recyclerView){
             adapter = taskListAdapter
             taskListAdapter.taskList = repositoryImpl.getTodoItems()
+            ItemTouchHelper(SwipeController()).attachToRecyclerView(this)
         }
-        val callback = object : ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        ){
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder,
-            ): Boolean {
-                Log.d("%%%onMove", "target: $target layoutPosition: ${viewHolder.layoutPosition}")
-                return false
-            }
-
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE){
-                    println("onChildDraw dX: $dX")
-                    var offsetX: Float = dX
-                    if (dX <= -250) offsetX = -249f
-                    if (dX >= 250) offsetX = 249f
-
-
-
-                    if (offsetX > -250 && offsetX < 0){
-                        viewHolder.itemView.translationX = offsetX
-                        with(viewHolder.itemView){
-                            c.drawRect(
-                                right.toFloat(),
-                                top.toFloat(),
-                                right.toFloat()+offsetX,
-                                bottom.toFloat(),
-                                Paint().apply { color = ContextCompat.getColor(context,R.color.red) }
-                            )
-                        }
-
-                    }
-                    if (offsetX > 0 && offsetX < 250){
-                        viewHolder.itemView.translationX = offsetX
-                        with(viewHolder.itemView){
-                            c.drawRect(
-                                left.toFloat(),
-                                top.toFloat(),
-                                left.toFloat()+offsetX,
-                                bottom.toFloat(),
-                                Paint().apply { color = ContextCompat.getColor(context,R.color.green) }
-                            )
-                        }
-                    }
-
-                }else{
-                    super.onChildDraw(c,
-                        recyclerView,
-                        viewHolder,
-                        dX,
-                        dY,
-                        actionState,
-                        isCurrentlyActive)
-                }
-            }
-
-            override fun onMoved(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                fromPos: Int,
-                target: RecyclerView.ViewHolder,
-                toPos: Int,
-                x: Int,
-                y: Int
-            ) {
-                super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
-                println("onMoved")
-            }
-
-            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                super.onSelectedChanged(viewHolder, actionState)
-                println("onSelectedChanged")
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                Log.d("%%%onSwiped", "direction: $direction layoutPosition: ${viewHolder.layoutPosition}")
-            }
-        }
-        val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(recyclerView)
     }
+
 
     private fun initDispatchTouchEventSettings(){
         TouchEventSettings.maxPaddingTop = (90 * dp).toInt() + 1
@@ -222,9 +130,5 @@ class MainActivity : AppCompatActivity() {
         }
         valueAnimator.start()
     }
-
-
-
-
 
 }

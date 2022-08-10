@@ -1,11 +1,10 @@
-package com.glebalekseevjk.yasmrhomework.presentation.adapter
+package com.glebalekseevjk.yasmrhomework.presentation.rv.adapter
 
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.CheckBox
-import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
