@@ -50,4 +50,6 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
         val checkBox: CheckBox = view.findViewById(R.id.checkBox)
         val imageView: ImageView = view.findViewById(R.id.imageButton)
     }
+
+
 }

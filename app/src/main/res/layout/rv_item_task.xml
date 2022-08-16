@@ -3,12 +3,20 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
-    android:layout_marginTop="15dp"
-    android:layout_marginBottom="7dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="7dp"
+    android:paddingHorizontal="15dp"
     android:background="@color/white"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
 
+    android:outlineSpotShadowColor="@color/white"
+    android:outlineAmbientShadowColor="@color/white"
+    android:elevation="0dp"
+
+    >
+
+<!--    android:background="@color/white"-->
 
     <CheckBox
         android:id="@+id/checkBox"
@@ -26,9 +34,9 @@ At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat au
         android:id="@+id/imageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:src="@drawable/ic_baseline_view_new_24"
-        android:src="@drawable/ic_baseline_view_new_24"
-        />
+        tools:src="@drawable/ic_baseline_info_24"
+        android:src="@drawable/ic_baseline_info_24"
+        app:tint="@color/gray" />
 
 
 </LinearLayout>
