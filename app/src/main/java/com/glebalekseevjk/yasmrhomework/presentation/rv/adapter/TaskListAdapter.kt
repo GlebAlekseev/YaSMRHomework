@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoFragment
 
 class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>() {
     var taskList = listOf<TodoItem>()
@@ -28,9 +29,9 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
     }
 
     override fun onBindViewHolder(holder: TaskItemViewHolder, position: Int) {
-        val todiItem = taskList[position]
+        val todoItem = taskList[position]
 
-        if (todiItem.finished){
+        if (todoItem.finished){
             holder.checkBox.setTextColor(ContextCompat.getColor(holder.itemView.context,R.color.label_disable))
             holder.checkBox.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         }else{
@@ -38,8 +39,13 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
             holder.checkBox.paintFlags = 1283
         }
 
-        holder.checkBox.text = todiItem.text
-        holder.checkBox.isChecked = todiItem.finished
+        holder.checkBox.text = todoItem.text
+        holder.checkBox.isChecked = todoItem.finished
+
+        holder.imageView.setOnClickListener{
+            // Запустить TodoFragment MODE_EDIT
+            val fragment = TodoFragment.newInstanceEditTodo(todoId = todoItem.id)
+        }
     }
 
     override fun getItemCount(): Int {
