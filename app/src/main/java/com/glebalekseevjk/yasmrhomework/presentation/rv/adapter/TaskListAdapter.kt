@@ -10,9 +10,12 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.presentation.activity.MainActivity
 import com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoFragment
+import com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoListFragment
 
 class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>() {
+    var editClickListener: ((id: String)->Unit)? = null
     var taskList = listOf<TodoItem>()
         set(value) {
             field = value
@@ -44,7 +47,7 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
 
         holder.imageView.setOnClickListener{
             // Запустить TodoFragment MODE_EDIT
-            val fragment = TodoFragment.newInstanceEditTodo(todoId = todoItem.id)
+            editClickListener?.invoke(todoItem.id)
         }
     }
 

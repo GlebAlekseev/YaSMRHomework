@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.glebalekseevjk.yasmrhomework.R
 import java.lang.RuntimeException
@@ -11,6 +12,7 @@ import java.lang.RuntimeException
 class TodoFragment: Fragment() {
     private var screenMode: String = MODE_ADD
     private var todoId: String = UNKNOWN_TODO_ID
+    private lateinit var exitButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +29,18 @@ class TodoFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initViews(view)
+        initListeners()
+    }
+
+    private fun initViews(view: View){
+        exitButton = view.findViewById(R.id.exit_button)
+    }
+
+    private fun initListeners(){
+        exitButton.setOnClickListener{
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun parseParams(){

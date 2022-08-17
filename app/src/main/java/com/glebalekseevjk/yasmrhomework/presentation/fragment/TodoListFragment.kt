@@ -58,6 +58,7 @@ class TodoListFragment : Fragment() {
         floatingActionButton.setOnClickListener{
             // Запустить TodoFragment ADD_EDIT
             val fragment = TodoFragment.newInstanceAddTodo()
+            launchFragment(fragment)
         }
     }
 
@@ -87,11 +88,22 @@ class TodoListFragment : Fragment() {
                 linearLayout,
                 countDoneTextView,
                 dp))
+            taskListAdapter.editClickListener = { id ->
+                val fragment = TodoFragment.newInstanceEditTodo(todoId = id)
+                launchFragment(fragment)
+            }
         }
     }
 
     private fun initDispatchTouchEventSettings() {
         TouchEventSettings.maxPaddingTop = (90 * dp).toInt() + 1
         TouchEventSettings.minPaddingTop = (15 * dp).toInt()
+    }
+
+    private fun launchFragment(fragment: Fragment){
+        parentFragmentManager.beginTransaction()
+            .add(R.id.main_container,fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }
