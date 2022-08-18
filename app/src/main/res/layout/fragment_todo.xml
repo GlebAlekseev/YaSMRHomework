@@ -1,19 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:background="@color/white"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/back_primary">
 
 
-    <Button
-        android:id="@+id/exit_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Exit"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/back_primary"
+        android:elevation="15dp"
+        android:gravity="center_vertical"
+
+        android:orientation="horizontal"
+        android:outlineSpotShadowColor="@android:color/black"
+        android:paddingHorizontal="15dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+        <ImageView
+            android:id="@+id/exit_icon_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:rotation="45"
+            android:clickable="true"
+            android:src="@drawable/ic_baseline_plus_24"
+            app:tint="@android:color/black" />
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="Сохранить"
+            android:textColor="@color/blue" />
+
+
+    </LinearLayout>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="40dp">
+
+            <EditText
+                android:id="@+id/editTextTextMultiLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:background="@drawable/round_corner"
+                android:elevation="4dp"
+                android:ems="10"
+                android:gravity="start|top"
+                android:hint="Что надо сделать..."
+                android:inputType="textMultiLine"
+                android:minHeight="150dp"
+                android:outlineSpotShadowColor="@android:color/black"
+                android:padding="15dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/textView12"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Важность"
+                    android:textColor="@color/blue"
+                    android:textSize="20sp" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Нет" />
+
+                <View
+                    android:layout_marginTop="15dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/support_separator"
+                    />
+            </LinearLayout>
+
+<!--            // sep //-->
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:paddingBottom="15dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:orientation="vertical"
+                    android:paddingBottom="15dp"
+
+                    >
+
+                    <TextView
+                        android:id="@+id/textView121"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Сделать до"
+                        android:textColor="@color/blue"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/textView1212"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2 июня 2021" />
+                </LinearLayout>
+
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+                <Switch
+                    android:id="@+id/switch1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_marginTop="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/support_separator"
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:gravity="left"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:paddingBottom="15dp">
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:tint="@color/red"
+                    app:srcCompat="@drawable/ic_baseline_remove_24" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/red"
+                    android:text="Удалить
+" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
