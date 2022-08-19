@@ -9,17 +9,13 @@
     android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-
     android:outlineSpotShadowColor="@color/white"
     android:outlineAmbientShadowColor="@color/white"
-    android:elevation="0dp"
+    android:elevation="0dp">
 
-    >
-
-<!--    android:background="@color/white"-->
 
     <CheckBox
-        android:id="@+id/checkBox"
+        android:id="@+id/status_cb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!
@@ -31,7 +27,7 @@ At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat au
         android:ellipsize="end" />
 
     <ImageView
-        android:id="@+id/imageButton"
+        android:id="@+id/info_iv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:src="@drawable/ic_baseline_info_24"

@@ -13,18 +13,18 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
-import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeControllerActions
+import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
+import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TodoListFragment : Fragment() {
-    private lateinit var linearLayout: LinearLayout
-    private lateinit var countDoneTextView: TextView
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var floatingActionButton: FloatingActionButton
+    private lateinit var headerLl: LinearLayout
+    private lateinit var headerCountTv: TextView
+    private lateinit var taskListRv: RecyclerView
+    private lateinit var addTaskBtn: FloatingActionButton
 
     private val dp: Float by lazy { resources.displayMetrics.density }
     private val repositoryImpl by lazy { TodoItemsRepositoryImpl() }
@@ -48,14 +48,15 @@ class TodoListFragment : Fragment() {
 
     private fun initViews(view: View) {
         with(view) {
-            linearLayout = findViewById(R.id.linearLayout)
-            countDoneTextView = findViewById(R.id.count_done)
-            recyclerView = findViewById(R.id.rv_task_list)
-            floatingActionButton = findViewById(R.id.button_add_task)
+            headerLl = findViewById(R.id.header_ll)
+            headerCountTv = findViewById(R.id.header_count_tv)
+            taskListRv = findViewById(R.id.task_list_rv)
+            addTaskBtn = findViewById(R.id.add_task_btn)
         }
     }
-    private fun initListeners(){
-        floatingActionButton.setOnClickListener{
+
+    private fun initListeners() {
+        addTaskBtn.setOnClickListener {
             // Запустить TodoFragment ADD_EDIT
             val fragment = TodoFragment.newInstanceAddTodo()
             launchFragment(fragment)
@@ -64,7 +65,7 @@ class TodoListFragment : Fragment() {
 
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
-        with(recyclerView) {
+        with(taskListRv) {
             adapter = taskListAdapter
             taskListAdapter.taskList = repositoryImpl.getTodoItems()
             val swipeController = SwipeController(object : SwipeControllerActions() {
@@ -85,8 +86,8 @@ class TodoListFragment : Fragment() {
                 }
             })
             setOnTouchListener(OnTouchListener(
-                linearLayout,
-                countDoneTextView,
+                headerLl,
+                headerCountTv,
                 dp))
             taskListAdapter.editClickListener = { id ->
                 val fragment = TodoFragment.newInstanceEditTodo(todoId = id)
@@ -100,9 +101,9 @@ class TodoListFragment : Fragment() {
         TouchEventSettings.minPaddingTop = (15 * dp).toInt()
     }
 
-    private fun launchFragment(fragment: Fragment){
+    private fun launchFragment(fragment: Fragment) {
         parentFragmentManager.beginTransaction()
-            .add(R.id.main_container,fragment)
+            .add(R.id.main_fcv, fragment)
             .addToBackStack(null)
             .commit()
     }

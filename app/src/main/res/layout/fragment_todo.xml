@@ -7,13 +7,12 @@
 
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/header_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/back_primary"
-        android:elevation="15dp"
+        android:elevation="0dp"
         android:gravity="center_vertical"
-
         android:orientation="horizontal"
         android:outlineSpotShadowColor="@android:color/black"
         android:paddingHorizontal="15dp"
@@ -21,15 +20,14 @@
         android:paddingBottom="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/exit_icon_button"
+            android:id="@+id/exit_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:rotation="45"
             android:clickable="true"
+            android:rotation="45"
             android:src="@drawable/ic_baseline_plus_24"
             app:tint="@android:color/black" />
 
@@ -39,7 +37,7 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/save_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -51,20 +49,22 @@
 
 
     <ScrollView
+        android:id="@+id/content_sv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+        app:layout_constraintTop_toBottomOf="@+id/header_ll">
 
         <LinearLayout
+            android:id="@+id/content_ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingBottom="40dp">
+            android:paddingBottom="100dp">
 
             <EditText
-                android:id="@+id/editTextTextMultiLine"
+                android:id="@+id/message_et"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="15dp"
@@ -79,13 +79,14 @@
                 android:padding="15dp" />
 
             <LinearLayout
+                android:id="@+id/important_ll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="15dp"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView12"
+                    android:id="@+id/important_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Важность"
@@ -93,23 +94,21 @@
                     android:textSize="20sp" />
 
                 <TextView
-                    android:id="@+id/textView2"
+                    android:id="@+id/important_state_tv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Нет" />
 
                 <View
-                    android:layout_marginTop="15dp"
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="@color/support_separator"
-                    />
+                    android:layout_marginTop="15dp"
+                    android:background="@color/support_separator" />
             </LinearLayout>
-
-<!--            // sep //-->
 
 
             <LinearLayout
+                android:id="@+id/deadline_ll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="15dp"
@@ -122,12 +121,10 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="15dp"
                     android:orientation="vertical"
-                    android:paddingBottom="15dp"
-
-                    >
+                    android:paddingBottom="15dp">
 
                     <TextView
-                        android:id="@+id/textView121"
+                        android:id="@+id/deadline_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Сделать до"
@@ -135,10 +132,11 @@
                         android:textSize="20sp" />
 
                     <TextView
-                        android:id="@+id/textView1212"
+                        android:id="@+id/deadline_date_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="2 июня 2021" />
+                        android:text="2 июня 2021"
+                        android:visibility="invisible" />
                 </LinearLayout>
 
 
@@ -148,7 +146,7 @@
                     android:layout_weight="1" />
 
                 <Switch
-                    android:id="@+id/switch1"
+                    android:id="@+id/deadline_sw"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
@@ -156,40 +154,40 @@
             </LinearLayout>
 
             <View
-                android:layout_marginTop="15dp"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/support_separator"
-                />
+                android:layout_marginTop="15dp"
+                android:background="@color/support_separator" />
+
             <LinearLayout
+                android:id="@+id/remove_ll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="15dp"
+                android:clickable="true"
                 android:gravity="left"
                 android:orientation="horizontal"
-                android:clickable="true"
                 android:paddingBottom="15dp">
 
                 <ImageView
-                    android:id="@+id/imageView"
+                    android:id="@+id/remove_iv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:tint="@color/red"
-                    app:srcCompat="@drawable/ic_baseline_remove_24" />
+                    app:srcCompat="@drawable/ic_baseline_remove_24"
+                    app:tint="@color/red" />
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/remove_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/red"
                     android:text="Удалить
-" />
+"
+                    android:textColor="@color/red" />
             </LinearLayout>
 
 
         </LinearLayout>
     </ScrollView>
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

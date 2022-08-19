@@ -10,9 +10,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.presentation.activity.MainActivity
-import com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoFragment
-import com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoListFragment
 
 class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>() {
     var editClickListener: ((id: String)->Unit)? = null
@@ -24,7 +21,7 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
-            R.layout.rv_item_task,
+            R.layout.task_item_rv,
             parent,
             false
         )
@@ -35,17 +32,17 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
         val todoItem = taskList[position]
 
         if (todoItem.finished){
-            holder.checkBox.setTextColor(ContextCompat.getColor(holder.itemView.context,R.color.label_disable))
-            holder.checkBox.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            holder.statusCb.setTextColor(ContextCompat.getColor(holder.itemView.context,R.color.label_disable))
+            holder.statusCb.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         }else{
-            holder.checkBox.setTextColor(ContextCompat.getColor(holder.itemView.context,R.color.label_primary))
-            holder.checkBox.paintFlags = 1283
+            holder.statusCb.setTextColor(ContextCompat.getColor(holder.itemView.context,R.color.label_primary))
+            holder.statusCb.paintFlags = 1283
         }
 
-        holder.checkBox.text = todoItem.text
-        holder.checkBox.isChecked = todoItem.finished
+        holder.statusCb.text = todoItem.text
+        holder.statusCb.isChecked = todoItem.finished
 
-        holder.imageView.setOnClickListener{
+        holder.infoIv.setOnClickListener{
             // Запустить TodoFragment MODE_EDIT
             editClickListener?.invoke(todoItem.id)
         }
@@ -56,8 +53,8 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
     }
 
     class TaskItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val checkBox: CheckBox = view.findViewById(R.id.checkBox)
-        val imageView: ImageView = view.findViewById(R.id.imageButton)
+        val statusCb: CheckBox = view.findViewById(R.id.status_cb)
+        val infoIv: ImageView = view.findViewById(R.id.info_iv)
     }
 
 

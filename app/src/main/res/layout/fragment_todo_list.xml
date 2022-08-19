@@ -2,30 +2,27 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-
-    android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.fragment.TodoListFragment"
-    android:background="@color/back_primary">
+    android:background="@color/back_primary"
+    tools:context=".presentation.fragment.TodoListFragment">
 
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/header_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/back_primary"
+        android:elevation="0dp"
         android:orientation="horizontal"
-        android:paddingBottom="25dp"
-        android:paddingTop="90dp"
+        android:outlineSpotShadowColor="@android:color/black"
         android:paddingLeft="75dp"
+        android:paddingTop="90dp"
         android:paddingRight="30dp"
-
+        android:paddingBottom="25dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/back_primary"
-        android:outlineSpotShadowColor="@android:color/black"
-        android:elevation="0dp">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <LinearLayout
@@ -35,7 +32,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/app_name"
+                android:id="@+id/header_name_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
@@ -44,19 +41,16 @@
                 android:textSize="28sp" />
 
             <TextView
-                android:id="@+id/count_done"
+                android:id="@+id/header_count_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/count_done"
                 android:textColor="@color/label_tertiary" />
-
-
-
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/imageButton"
+            android:id="@+id/header_view_iv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
@@ -65,9 +59,8 @@
     </LinearLayout>
 
 
-
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_task_list"
+        android:id="@+id/task_list_rv"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginHorizontal="10dp"
@@ -76,27 +69,22 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-
-        tools:listitem="@layout/rv_item_task" />
+        app:layout_constraintTop_toBottomOf="@+id/header_ll"
+        tools:listitem="@layout/task_item_rv" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/button_add_task"
-        android:layout_height="wrap_content"
+        android:id="@+id/add_task_btn"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="15dp"
         android:clickable="true"
         android:contentDescription="Add new task"
         android:focusable="true"
-        app:backgroundTint="@color/blue"
-        app:tint="@color/white"
         android:src="@drawable/ic_baseline_plus_24"
+        app:backgroundTint="@color/blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="15dp"
-        android:layout_marginEnd="15dp"
-
-
-
-        />
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
