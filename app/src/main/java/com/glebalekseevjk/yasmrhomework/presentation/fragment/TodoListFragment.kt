@@ -18,6 +18,7 @@ import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
+import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TodoListFragment : Fragment() {
@@ -27,7 +28,7 @@ class TodoListFragment : Fragment() {
     private lateinit var addTaskBtn: FloatingActionButton
 
     private val dp: Float by lazy { resources.displayMetrics.density }
-    private val repositoryImpl by lazy { TodoItemsRepositoryImpl() }
+    private var mainViewModel: MainViewModel = MainViewModel()
     private lateinit var taskListAdapter: TaskListAdapter
 
     override fun onCreateView(
@@ -67,15 +68,18 @@ class TodoListFragment : Fragment() {
         taskListAdapter = TaskListAdapter()
         with(taskListRv) {
             adapter = taskListAdapter
-            taskListAdapter.taskList = repositoryImpl.getTodoItems()
+            mainViewModel.getTodoList().observeForever {
+                taskListAdapter.taskList = it
+            }
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
                     // Завершение
+                    mainViewModel.finishTodo(taskListAdapter.taskList[position])
                     Log.d("MainActivity", "finished on position $position")
                 }
-
                 override fun onRightClicked(position: Int) {
                     // Удаление
+                    mainViewModel.deleteTodo(taskListAdapter.taskList[position])
                     Log.d("MainActivity", "removed on position $position")
                 }
             })
@@ -94,6 +98,7 @@ class TodoListFragment : Fragment() {
                 launchFragment(fragment)
             }
         }
+
     }
 
     private fun initDispatchTouchEventSettings() {

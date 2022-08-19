@@ -69,6 +69,7 @@ class TodoFragment : Fragment() {
             requireActivity().onBackPressed()
         }
         removeLl.setOnClickListener {
+            
             requireActivity().onBackPressed()
         }
 
