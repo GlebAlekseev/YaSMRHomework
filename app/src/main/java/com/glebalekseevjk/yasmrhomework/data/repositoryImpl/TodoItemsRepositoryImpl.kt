@@ -10,15 +10,15 @@ import java.lang.RuntimeException
 import java.time.LocalDateTime
 
 class TodoItemsRepositoryImpl: TodoItemsRepository {
-    private val todoList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    private var todoList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         mutableListOf(
             TodoItem(
-                id = "0",
+                id = "20",
                 text = "Est fugiat explicabo nam obcaecati consequatur aut modi maxime est eveniet nihil non numquam error. ",
                 importance = TodoItem.Companion.Importance.LOW,
                 finished = false,
                 created = LocalDateTime.now(),
-                deadline = null,
+                deadline = LocalDateTime.now().plusDays(1),
                 edited = null
             ),
             TodoItem(
@@ -27,7 +27,7 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
                 importance = TodoItem.Companion.Importance.NORMAL,
                 finished = true,
                 created = LocalDateTime.now(),
-                deadline = null,
+                deadline = LocalDateTime.now().plusDays(1),
                 edited = null
             ),
             TodoItem(
@@ -197,7 +197,6 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
     } else {
         throw RuntimeException("VERSION.SDK_INT < O")
     }
-
     private val todoListLiveData: MutableLiveData<List<TodoItem>> = MutableLiveData()
 
     init{
@@ -213,7 +212,14 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
     }
 
     override fun addTodoItem(todoItem: TodoItem) {
-        todoList.add(todoItem)
+        val lastId = todoList.last().id
+        todoList.add(todoItem.copy(id = lastId+1))
+        updateLiveData()
+    }
+
+    override fun deleteTodoItem(todoId: String) {
+        val item = todoList.first { it.id == todoId }
+        todoList.remove(item)
         updateLiveData()
     }
 
@@ -227,12 +233,12 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         if (todoList.contains(oldTodoItem)){
             todoList.remove(oldTodoItem)
         }
-        todoList.add(todoItem)
+        todoList.add(todoItem.copy(edited = LocalDateTime.now()))
         updateLiveData()
     }
     private fun updateLiveData(){
         todoList.sortBy {
-            it.id
+            it.id.toInt()
         }
         todoListLiveData.postValue(todoList)
     }

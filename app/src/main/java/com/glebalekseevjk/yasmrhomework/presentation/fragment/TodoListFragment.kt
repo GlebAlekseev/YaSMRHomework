@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeControllerActions
@@ -22,14 +24,18 @@ import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TodoListFragment : Fragment() {
+    private val mainViewModel: MainViewModel by lazy {
+        (context?.applicationContext as MainApplication).mainViewModel
+    }
     private lateinit var headerLl: LinearLayout
     private lateinit var headerCountTv: TextView
     private lateinit var taskListRv: RecyclerView
     private lateinit var addTaskBtn: FloatingActionButton
+    private lateinit var headerViewIv: ImageView
 
     private val dp: Float by lazy { resources.displayMetrics.density }
-    private var mainViewModel: MainViewModel = MainViewModel()
     private lateinit var taskListAdapter: TaskListAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +59,7 @@ class TodoListFragment : Fragment() {
             headerCountTv = findViewById(R.id.header_count_tv)
             taskListRv = findViewById(R.id.task_list_rv)
             addTaskBtn = findViewById(R.id.add_task_btn)
+            headerViewIv = findViewById(R.id.header_view_iv)
         }
     }
 
@@ -62,16 +69,28 @@ class TodoListFragment : Fragment() {
             val fragment = TodoFragment.newInstanceAddTodo()
             launchFragment(fragment)
         }
+        headerViewIv.setOnClickListener{
+            mainViewModel.isViewFinished = mainViewModel.isViewFinished != true
+        }
+
     }
 
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
         with(taskListRv) {
             adapter = taskListAdapter
-            mainViewModel.getTodoList().observeForever {
-                headerCountTv.text = String.format(resources.getString(R.string.count_done), it.size)
-                taskListAdapter.taskList = it
+            mainViewModel.isViewFinishedLiveData.observeForever{ isViewFinished ->
+                mainViewModel.getTodoList().observeForever { it ->
+                    val newTaskList = it.filter { !it.finished }
+                    headerCountTv.text = String.format(resources.getString(R.string.count_done), it.size - newTaskList.size)
+                    if (isViewFinished){
+                        taskListAdapter.taskList = newTaskList
+                    }else{
+                        taskListAdapter.taskList = it
+                    }
+                }
             }
+
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
                     // Завершение

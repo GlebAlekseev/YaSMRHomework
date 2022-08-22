@@ -18,5 +18,14 @@ data class TodoItem(
             NORMAL,
             URGENT
         }
+        val DEFAULT = TodoItem(
+        "0",
+        "",
+        Importance.LOW,
+        false,
+        LocalDateTime.now(),
+        null,
+        null
+        )
     }
 }

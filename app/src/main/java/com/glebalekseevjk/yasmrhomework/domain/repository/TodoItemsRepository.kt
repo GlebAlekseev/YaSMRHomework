@@ -8,5 +8,6 @@ interface TodoItemsRepository {
     fun getTodoItem(id: String): TodoItem?
     fun addTodoItem(todoItem: TodoItem)
     fun deleteTodoItem(todoItem: TodoItem)
+    fun deleteTodoItem(todoId: String)
     fun editTodoItem(todoItem: TodoItem)
 }
