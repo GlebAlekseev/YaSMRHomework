@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
+import java.util.concurrent.Flow
 
 class MainViewModel: ViewModel() {
     private val todoItemsRepositoryImpl = TodoItemsRepositoryImpl()
@@ -14,7 +15,7 @@ class MainViewModel: ViewModel() {
     private val getTodoItemUseCase = GetTodoItemUseCase(todoItemsRepositoryImpl)
     private val getTodoListUseCase = GetTodoListUseCase(todoItemsRepositoryImpl)
 
-    fun getTodo(id: String): TodoItem{
+    fun getTodo(id: String): TodoItem? {
         return getTodoItemUseCase(id)
     }
     fun getTodoList(): LiveData<List<TodoItem>>{
@@ -33,4 +34,8 @@ class MainViewModel: ViewModel() {
         val newTodoItem = todoItem.copy(finished = true)
         editTodoItemUseCase(newTodoItem)
     }
+
+
+//    private val _isViewFinished
+
 }

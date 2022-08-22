@@ -3,13 +3,14 @@ package com.glebalekseevjk.yasmrhomework.data.repositoryImpl
 import android.os.Build
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
 import java.lang.RuntimeException
 import java.time.LocalDateTime
 
 class TodoItemsRepositoryImpl: TodoItemsRepository {
-    private val todoList: MutableList<TodoItem> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    private val todoList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         mutableListOf(
             TodoItem(
                 id = "0",
@@ -197,9 +198,14 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         throw RuntimeException("VERSION.SDK_INT < O")
     }
 
+    private val todoListLiveData: MutableLiveData<List<TodoItem>> = MutableLiveData()
 
-    override fun getTodoList(): LiveData<List<TodoItem>> {
-        return MutableLiveData(todoList)
+    init{
+        updateLiveData()
+    }
+
+    override fun getTodoList(): LiveData<List<TodoItem>>{
+        return todoListLiveData
     }
 
     override fun getTodoItem(id: String): TodoItem {
@@ -208,10 +214,12 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
 
     override fun addTodoItem(todoItem: TodoItem) {
         todoList.add(todoItem)
+        updateLiveData()
     }
 
     override fun deleteTodoItem(todoItem: TodoItem) {
         todoList.remove(todoItem)
+        updateLiveData()
     }
 
     override fun editTodoItem(todoItem: TodoItem) {
@@ -220,5 +228,13 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
             todoList.remove(oldTodoItem)
         }
         todoList.add(todoItem)
+        updateLiveData()
     }
+    private fun updateLiveData(){
+        todoList.sortBy {
+            it.id
+        }
+        todoListLiveData.postValue(todoList)
+    }
+
 }

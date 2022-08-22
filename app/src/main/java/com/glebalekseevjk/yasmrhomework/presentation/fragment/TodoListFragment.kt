@@ -69,6 +69,7 @@ class TodoListFragment : Fragment() {
         with(taskListRv) {
             adapter = taskListAdapter
             mainViewModel.getTodoList().observeForever {
+                headerCountTv.text = String.format(resources.getString(R.string.count_done), it.size)
                 taskListAdapter.taskList = it
             }
             val swipeController = SwipeController(object : SwipeControllerActions() {
