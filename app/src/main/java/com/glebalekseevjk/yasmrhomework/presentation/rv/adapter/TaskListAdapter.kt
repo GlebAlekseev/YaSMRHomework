@@ -7,17 +7,14 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.TodoItemDiffCallBack
 
-class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>() {
+class TaskListAdapter : ListAdapter<TodoItem,TaskListAdapter.TaskItemViewHolder>(TodoItemDiffCallBack()) {
     var editClickListener: ((id: String)->Unit)? = null
-    var taskList = listOf<TodoItem>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
@@ -29,7 +26,7 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
     }
 
     override fun onBindViewHolder(holder: TaskItemViewHolder, position: Int) {
-        val todoItem = taskList[position]
+        val todoItem = getItem(position)
 
         if (todoItem.finished){
             holder.statusCb.setTextColor(ContextCompat.getColor(holder.itemView.context,R.color.label_disable))
@@ -48,8 +45,9 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
         }
     }
 
-    override fun getItemCount(): Int {
-        return taskList.size
+
+    override fun getItemViewType(position: Int): Int {
+        return VIEW_TYPE
     }
 
     class TaskItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -57,5 +55,8 @@ class TaskListAdapter : RecyclerView.Adapter<TaskListAdapter.TaskItemViewHolder>
         val infoIv: ImageView = view.findViewById(R.id.info_iv)
     }
 
+    companion object{
+        const val VIEW_TYPE = 1
+    }
 
 }

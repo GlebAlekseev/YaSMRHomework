@@ -16,6 +16,7 @@ import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
+import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter.Companion.VIEW_TYPE
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
@@ -35,6 +36,7 @@ class TodoListFragment : Fragment() {
 
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
+
 
 
     override fun onCreateView(
@@ -78,15 +80,16 @@ class TodoListFragment : Fragment() {
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
         with(taskListRv) {
+            recycledViewPool.setMaxRecycledViews(VIEW_TYPE,25)
             adapter = taskListAdapter
             mainViewModel.isViewFinishedLiveData.observeForever{ isViewFinished ->
                 mainViewModel.getTodoList().observeForever { it ->
                     val newTaskList = it.filter { !it.finished }
                     headerCountTv.text = String.format(resources.getString(R.string.count_done), it.size - newTaskList.size)
                     if (isViewFinished){
-                        taskListAdapter.taskList = newTaskList
+                        taskListAdapter.submitList(newTaskList)
                     }else{
-                        taskListAdapter.taskList = it
+                        taskListAdapter.submitList(it)
                     }
                 }
             }
@@ -94,12 +97,12 @@ class TodoListFragment : Fragment() {
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
                     // Завершение
-                    mainViewModel.finishTodo(taskListAdapter.taskList[position])
+                    mainViewModel.finishTodo(taskListAdapter.currentList[position])
                     Log.d("MainActivity", "finished on position $position")
                 }
                 override fun onRightClicked(position: Int) {
                     // Удаление
-                    mainViewModel.deleteTodo(taskListAdapter.taskList[position])
+                    mainViewModel.deleteTodo(taskListAdapter.currentList[position])
                     Log.d("MainActivity", "removed on position $position")
                 }
             })
