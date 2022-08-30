@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
@@ -25,8 +26,8 @@ import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TodoListFragment : Fragment() {
-    private val mainViewModel: MainViewModel by lazy {
-        (context?.applicationContext as MainApplication).mainViewModel
+    private val mainViewModel by lazy {
+        ViewModelProvider(this,(context?.applicationContext as MainApplication).mainViewModelFactory).get(MainViewModel::class.java)
     }
     private lateinit var headerLl: LinearLayout
     private lateinit var headerCountTv: TextView

@@ -10,8 +10,7 @@ import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import java.time.LocalDateTime
 
 
-class MainViewModel: ViewModel() {
-    private val todoItemsRepositoryImpl = TodoItemsRepositoryImpl()
+class MainViewModel(private val todoItemsRepositoryImpl: TodoItemsRepositoryImpl): ViewModel() {
     private val addTodoItemUseCase = AddTodoItemUseCase(todoItemsRepositoryImpl)
     private val editTodoItemUseCase = EditTodoItemUseCase(todoItemsRepositoryImpl)
     private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoItemsRepositoryImpl)
@@ -54,8 +53,5 @@ class MainViewModel: ViewModel() {
         set(value) {
             _currentTodoItem.value = value
         }
-
-
-
 
 }
