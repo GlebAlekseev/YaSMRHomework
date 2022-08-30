@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 
 interface TodoItemsRepository {
-    fun getTodoList(): LiveData<List<TodoItem>>
+    fun getTodoList(callback: (List<TodoItem>)->Unit): List<TodoItem>
     fun getTodoItem(id: String): TodoItem?
     fun addTodoItem(todoItem: TodoItem)
     fun deleteTodoItem(todoItem: TodoItem)

@@ -10,8 +10,8 @@ import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import java.time.LocalDateTime
 
 
-class MainViewModel: ViewModel() {
-    private val todoItemsRepositoryImpl = TodoItemsRepositoryImpl()
+class MainViewModel(private val todoItemsRepositoryImpl: TodoItemsRepositoryImpl): ViewModel() {
+//    private val todoItemsRepositoryImpl = TodoItemsRepositoryImpl()
     private val addTodoItemUseCase = AddTodoItemUseCase(todoItemsRepositoryImpl)
     private val editTodoItemUseCase = EditTodoItemUseCase(todoItemsRepositoryImpl)
     private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoItemsRepositoryImpl)
@@ -21,8 +21,8 @@ class MainViewModel: ViewModel() {
     fun getTodo(id: String): TodoItem? {
         return getTodoItemUseCase(id)
     }
-    fun getTodoList(): LiveData<List<TodoItem>>{
-        return getTodoListUseCase()
+    fun getTodoList(callback: (List<TodoItem>)->Unit): List<TodoItem>{
+        return getTodoListUseCase(callback)
     }
     fun addTodo(todoItem: TodoItem){
         addTodoItemUseCase(todoItem)

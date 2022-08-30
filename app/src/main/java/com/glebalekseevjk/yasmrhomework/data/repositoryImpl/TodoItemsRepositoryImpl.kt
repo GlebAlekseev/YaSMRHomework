@@ -1,6 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.data.repositoryImpl
 
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -10,6 +11,7 @@ import java.lang.RuntimeException
 import java.time.LocalDateTime
 
 class TodoItemsRepositoryImpl: TodoItemsRepository {
+    private var callbackListener: ((List<TodoItem>)->Unit)? = null
     private var todoList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         mutableListOf(
             TodoItem(
@@ -197,15 +199,14 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
     } else {
         throw RuntimeException("VERSION.SDK_INT < O")
     }
-    private val todoListLiveData: MutableLiveData<List<TodoItem>> = MutableLiveData()
 
-    init{
-        updateLiveData()
+
+    override fun getTodoList(callback: (List<TodoItem>)->Unit): List<TodoItem>{
+        callbackListener = callback
+        callback.invoke(todoList)
+        return todoList
     }
 
-    override fun getTodoList(): LiveData<List<TodoItem>>{
-        return todoListLiveData
-    }
 
     override fun getTodoItem(id: String): TodoItem {
         return todoList.first { it.id == id }
@@ -228,6 +229,7 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         updateLiveData()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun editTodoItem(todoItem: TodoItem) {
         val oldTodoItem = todoList.first { it.id == todoItem.id }
         if (todoList.contains(oldTodoItem)){
@@ -240,7 +242,7 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         todoList.sortBy {
             it.id.toInt()
         }
-        todoListLiveData.postValue(todoList)
+        callbackListener?.invoke(todoList)
     }
 
 }
