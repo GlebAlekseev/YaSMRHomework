@@ -12,7 +12,6 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DEFAULT
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
@@ -22,7 +21,7 @@ import java.time.LocalDateTime
 
 class TodoFragment : Fragment() {
     private val mainViewModel by lazy {
-        ViewModelProvider(this,(context?.applicationContext as MainApplication).mainViewModelFactory).get(MainViewModel::class.java)
+        ViewModelProvider(this,(context?.applicationContext as MainApplication).mainViewModelFactory)[MainViewModel::class.java]
     }
     private var screenMode: String = MODE_ADD
     private var todoId: String = UNKNOWN_TODO_ID

@@ -7,11 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import java.lang.RuntimeException
 import java.time.LocalDateTime
 
 class TodoItemsRepositoryImpl: TodoItemsRepository {
-    private var callbackListener: ((List<TodoItem>)->Unit)? = null
     private var todoList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         mutableListOf(
             TodoItem(
@@ -199,13 +202,10 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
     } else {
         throw RuntimeException("VERSION.SDK_INT < O")
     }
+    private val todoListChannel = ConflatedBroadcastChannel<List<TodoItem>>(todoList)
 
-
-    override fun getTodoList(callback: (List<TodoItem>)->Unit): List<TodoItem>{
-        callbackListener = callback
-        callback.invoke(todoList)
-        return todoList
-    }
+    @OptIn(ObsoleteCoroutinesApi::class)
+    override fun getTodoList(): Flow<List<TodoItem>> = todoListChannel.asFlow()
 
 
     override fun getTodoItem(id: String): TodoItem {
@@ -242,7 +242,7 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         todoList.sortBy {
             it.id.toInt()
         }
-        callbackListener?.invoke(todoList)
+        todoListChannel.trySend(todoList)
     }
 
 }

@@ -3,7 +3,8 @@ package com.glebalekseevjk.yasmrhomework.domain.interactor
 import androidx.lifecycle.LiveData
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
+import kotlinx.coroutines.flow.Flow
 
 class GetTodoListUseCase(private val todoItemsRepository: TodoItemsRepository) {
-    operator fun invoke(callback: (List<TodoItem>)->Unit): List<TodoItem> = todoItemsRepository.getTodoList(callback)
+    operator fun invoke(): Flow<List<TodoItem>> = todoItemsRepository.getTodoList()
 }

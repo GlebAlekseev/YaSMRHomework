@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter.Companion.VIEW_TYPE
@@ -27,7 +26,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TodoListFragment : Fragment() {
     private val mainViewModel by lazy {
-        ViewModelProvider(this,(context?.applicationContext as MainApplication).mainViewModelFactory).get(MainViewModel::class.java)
+        ViewModelProvider(this,(context?.applicationContext as MainApplication).mainViewModelFactory)[MainViewModel::class.java]
     }
     private lateinit var headerLl: LinearLayout
     private lateinit var headerCountTv: TextView
@@ -84,12 +83,13 @@ class TodoListFragment : Fragment() {
             recycledViewPool.setMaxRecycledViews(VIEW_TYPE,25)
             adapter = taskListAdapter
             mainViewModel.isViewFinishedLiveData.observeForever{ isViewFinished ->
-                mainViewModel.getTodoList{ it ->
+                mainViewModel.getTodoList().observe(viewLifecycleOwner) {
                     val newTaskList = it.filter { !it.finished }
-                    headerCountTv.text = String.format(resources.getString(R.string.count_done), it.size - newTaskList.size)
-                    if (isViewFinished){
+                    headerCountTv.text = String.format(resources.getString(R.string.count_done),
+                        it.size - newTaskList.size)
+                    if (isViewFinished) {
                         taskListAdapter.submitList(newTaskList)
-                    }else{
+                    } else {
                         taskListAdapter.submitList(it)
                     }
                 }

@@ -1,8 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
@@ -11,7 +9,6 @@ import java.time.LocalDateTime
 
 
 class MainViewModel(private val todoItemsRepositoryImpl: TodoItemsRepositoryImpl): ViewModel() {
-//    private val todoItemsRepositoryImpl = TodoItemsRepositoryImpl()
     private val addTodoItemUseCase = AddTodoItemUseCase(todoItemsRepositoryImpl)
     private val editTodoItemUseCase = EditTodoItemUseCase(todoItemsRepositoryImpl)
     private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoItemsRepositoryImpl)
@@ -21,9 +18,8 @@ class MainViewModel(private val todoItemsRepositoryImpl: TodoItemsRepositoryImpl
     fun getTodo(id: String): TodoItem? {
         return getTodoItemUseCase(id)
     }
-    fun getTodoList(callback: (List<TodoItem>)->Unit): List<TodoItem>{
-        return getTodoListUseCase(callback)
-    }
+    fun getTodoList(): LiveData<List<TodoItem>> =
+        getTodoListUseCase().asLiveData(viewModelScope.coroutineContext)
     fun addTodo(todoItem: TodoItem){
         addTodoItemUseCase(todoItem)
     }
@@ -54,8 +50,4 @@ class MainViewModel(private val todoItemsRepositoryImpl: TodoItemsRepositoryImpl
         set(value) {
             _currentTodoItem.value = value
         }
-
-
-
-
 }
