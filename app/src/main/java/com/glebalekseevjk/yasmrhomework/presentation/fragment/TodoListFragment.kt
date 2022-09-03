@@ -88,9 +88,9 @@ class TodoListFragment : Fragment() {
                     val newTaskList = it.filter { !it.finished }
                     headerCountTv.text = String.format(resources.getString(R.string.count_done), it.size - newTaskList.size)
                     if (isViewFinished){
-                        taskListAdapter.submitList(newTaskList)
+                        taskListAdapter.submitList(newTaskList.toList())
                     }else{
-                        taskListAdapter.submitList(it)
+                        taskListAdapter.submitList(it.toList())
                     }
                 }
             }
