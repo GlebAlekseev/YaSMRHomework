@@ -8,9 +8,10 @@ import androidx.lifecycle.Transformations
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
 import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.*
 import java.lang.RuntimeException
 import java.time.LocalDateTime
 
@@ -202,35 +203,39 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
     } else {
         throw RuntimeException("VERSION.SDK_INT < O")
     }
-    private val todoListChannel = ConflatedBroadcastChannel<List<TodoItem>>(todoList)
 
     @OptIn(ObsoleteCoroutinesApi::class)
-    override fun getTodoList(): Flow<List<TodoItem>> = todoListChannel.asFlow()
+    private val todoListChannel = ConflatedBroadcastChannel<List<TodoItem>>(todoList)
+
+    override fun getTodoList(): Flow<List<TodoItem>> {
+        updateLiveData()
+        return todoListChannel.asFlow()
+    }
 
 
     override fun getTodoItem(id: String): TodoItem {
         return todoList.first { it.id == id }
     }
 
-    override fun addTodoItem(todoItem: TodoItem) {
+    override suspend fun addTodoItem(todoItem: TodoItem) {
         val lastId = todoList.last().id
         todoList.add(todoItem.copy(id = lastId+1))
         updateLiveData()
     }
 
-    override fun deleteTodoItem(todoId: String) {
+    override suspend fun deleteTodoItem(todoId: String) {
         val item = todoList.first { it.id == todoId }
         todoList.remove(item)
         updateLiveData()
     }
 
-    override fun deleteTodoItem(todoItem: TodoItem) {
+    override suspend fun deleteTodoItem(todoItem: TodoItem) {
         todoList.remove(todoItem)
         updateLiveData()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun editTodoItem(todoItem: TodoItem) {
+    override suspend fun editTodoItem(todoItem: TodoItem) {
         val oldTodoItem = todoList.first { it.id == todoItem.id }
         if (todoList.contains(oldTodoItem)){
             todoList.remove(oldTodoItem)
@@ -238,11 +243,13 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         todoList.add(todoItem.copy(edited = LocalDateTime.now()))
         updateLiveData()
     }
+    @OptIn(ObsoleteCoroutinesApi::class)
     private fun updateLiveData(){
         todoList.sortBy {
             it.id.toInt()
         }
         todoListChannel.trySend(todoList)
     }
+
 
 }

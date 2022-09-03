@@ -10,10 +10,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter.Companion.VIEW_TYPE
@@ -23,6 +25,11 @@ import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import java.sql.Time
+import java.sql.Timestamp
+import java.util.*
 
 class TodoListFragment : Fragment() {
     private val mainViewModel by lazy {
@@ -72,7 +79,7 @@ class TodoListFragment : Fragment() {
             launchFragment(fragment)
         }
         headerViewIv.setOnClickListener{
-            mainViewModel.isViewFinished = mainViewModel.isViewFinished != true
+            mainViewModel.isViewFinished = !mainViewModel.isViewFinished!!
         }
 
     }
@@ -80,31 +87,30 @@ class TodoListFragment : Fragment() {
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
         with(taskListRv) {
-            recycledViewPool.setMaxRecycledViews(VIEW_TYPE,25)
             adapter = taskListAdapter
-            mainViewModel.isViewFinishedLiveData.observeForever{ isViewFinished ->
-                mainViewModel.getTodoList().observe(viewLifecycleOwner) {
-                    val newTaskList = it.filter { !it.finished }
-                    headerCountTv.text = String.format(resources.getString(R.string.count_done),
-                        it.size - newTaskList.size)
-                    if (isViewFinished) {
-                        taskListAdapter.submitList(newTaskList)
-                    } else {
-                        taskListAdapter.submitList(it)
-                    }
-                }
+            mainViewModel.getTodoList().observe(viewLifecycleOwner){
+                val newTaskList = if (mainViewModel.isViewFinished) it.filter { !it.finished } else it
+                headerCountTv.text = String.format(resources.getString(R.string.count_done),
+                    it.size - newTaskList.size)
+                taskListAdapter.submitList(newTaskList.toList())
+
             }
 
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
                     // Завершение
-                    mainViewModel.finishTodo(taskListAdapter.currentList[position])
-                    Log.d("MainActivity", "finished on position $position")
+                    lifecycleScope.launch{
+                        mainViewModel.finishTodo(taskListAdapter.currentList[position])
+                        Log.d("MainActivity", "finished on position $position")
+                    }
                 }
                 override fun onRightClicked(position: Int) {
                     // Удаление
-                    mainViewModel.deleteTodo(taskListAdapter.currentList[position])
-                    Log.d("MainActivity", "removed on position $position")
+                    lifecycleScope.launch{
+                        println("pos=$position ${taskListAdapter.currentList[position]}")
+                        mainViewModel.deleteTodo(taskListAdapter.currentList[position])
+                        Log.d("MainActivity", "removed on position $position")
+                    }
                 }
             })
             ItemTouchHelper(swipeController).attachToRecyclerView(this)

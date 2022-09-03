@@ -11,12 +11,14 @@ import android.widget.*
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DEFAULT
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class TodoFragment : Fragment() {
@@ -128,16 +130,20 @@ class TodoFragment : Fragment() {
             requireActivity().onBackPressed()
         }
         saveBtn.setOnClickListener {
-            if (screenMode == MODE_EDIT){
-                mainViewModel.editTodo(mainViewModel.currentTodoItem)
-            }else if(screenMode == MODE_ADD){
-                mainViewModel.addTodo(mainViewModel.currentTodoItem)
+            lifecycleScope.launch{
+                if (screenMode == MODE_EDIT){
+                    mainViewModel.editTodo(mainViewModel.currentTodoItem)
+                }else if(screenMode == MODE_ADD){
+                    mainViewModel.addTodo(mainViewModel.currentTodoItem)
+                }
             }
             requireActivity().onBackPressed()
         }
         removeLl.setOnClickListener {
-            if (screenMode == MODE_EDIT) {
-                mainViewModel.deleteTodo(mainViewModel.currentTodoItem.id)
+            lifecycleScope.launch{
+                if (screenMode == MODE_EDIT) {
+                    mainViewModel.deleteTodo(mainViewModel.currentTodoItem.id)
+                }
             }
             requireActivity().onBackPressed()
         }

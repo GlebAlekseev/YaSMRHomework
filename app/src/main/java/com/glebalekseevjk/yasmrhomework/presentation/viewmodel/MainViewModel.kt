@@ -5,6 +5,8 @@ import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.TodoItemsRepositoryI
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 
@@ -18,31 +20,34 @@ class MainViewModel(private val todoItemsRepositoryImpl: TodoItemsRepositoryImpl
     fun getTodo(id: String): TodoItem? {
         return getTodoItemUseCase(id)
     }
+
     fun getTodoList(): LiveData<List<TodoItem>> =
-        getTodoListUseCase().asLiveData(viewModelScope.coroutineContext)
-    fun addTodo(todoItem: TodoItem){
+        getTodoListUseCase().asLiveData()
+
+    suspend fun addTodo(todoItem: TodoItem){
         addTodoItemUseCase(todoItem)
     }
-    fun deleteTodo(todoItem: TodoItem){
+    suspend fun deleteTodo(todoItem: TodoItem){
         deleteTodoItemUseCase(todoItem)
     }
-    fun deleteTodo(todoId: String){
+    suspend fun deleteTodo(todoId: String){
         deleteTodoItemUseCase(todoId)
     }
-    fun editTodo(todoItem: TodoItem){
+    suspend fun editTodo(todoItem: TodoItem){
         editTodoItemUseCase(todoItem)
     }
-    fun finishTodo(todoItem: TodoItem){
+    suspend fun finishTodo(todoItem: TodoItem){
         val newTodoItem = todoItem.copy(finished = true)
         editTodoItemUseCase(newTodoItem)
-
     }
 
     val isViewFinishedLiveData: MutableLiveData<Boolean> = MutableLiveData(true)
     var isViewFinished: Boolean
         get() = isViewFinishedLiveData.value!!
-        set(value) = isViewFinishedLiveData.postValue(value)
-
+        set(value) {
+            isViewFinishedLiveData.value = value
+            getTodoList().distinctUntilChanged()
+        }
 
     private val _currentTodoItem: MutableLiveData<TodoItem> = MutableLiveData(TodoItem.DEFAULT)
     var currentTodoItem: TodoItem

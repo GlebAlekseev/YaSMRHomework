@@ -39,10 +39,16 @@ class TaskListAdapter : ListAdapter<TodoItem,TaskListAdapter.TaskItemViewHolder>
         holder.statusCb.text = todoItem.text
         holder.statusCb.isChecked = todoItem.finished
 
+
         holder.infoIv.setOnClickListener{
             // Запустить TodoFragment MODE_EDIT
             editClickListener?.invoke(todoItem.id)
         }
+    }
+
+    override fun onViewRecycled(holder: TaskItemViewHolder) {
+        super.onViewRecycled(holder)
+//        holder.infoIv.setOnClickListener(null)
     }
 
 

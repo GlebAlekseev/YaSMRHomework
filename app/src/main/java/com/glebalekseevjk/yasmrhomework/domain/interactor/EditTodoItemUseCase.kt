@@ -4,5 +4,5 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
 
 class EditTodoItemUseCase(private val todoItemsRepository: TodoItemsRepository) {
-    operator fun invoke(todoItem: TodoItem) = todoItemsRepository.editTodoItem(todoItem)
+    suspend operator fun invoke(todoItem: TodoItem) = todoItemsRepository.editTodoItem(todoItem)
 }
