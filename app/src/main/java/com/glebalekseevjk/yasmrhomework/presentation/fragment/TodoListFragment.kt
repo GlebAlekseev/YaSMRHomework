@@ -2,7 +2,6 @@ package com.glebalekseevjk.yasmrhomework.presentation.fragment
 
 import android.graphics.Canvas
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +20,7 @@ import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModel
+import com.glebalekseevjk.yasmrhomework.utils.observe
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TodoListFragment : Fragment() {
@@ -51,6 +51,18 @@ class TodoListFragment : Fragment() {
         initListeners()
         initDispatchTouchEventSettings()
         setupRecyclerView()
+        observeViewModel()
+    }
+    private fun observeViewModel(){
+        observe(todoListViewModel.todoList,::submitListAdapter)
+    }
+    private fun submitListAdapter(){
+        todoListViewModel.todoList.observe(viewLifecycleOwner){
+            val newTaskList = if (todoListViewModel.isViewFinished) it.filter { !it.finished } else it
+            headerCountTv.text = String.format(resources.getString(R.string.count_done),
+                it.size - newTaskList.size)
+            taskListAdapter.submitList(newTaskList.toList())
+        }
     }
 
     private fun initViews(view: View) {
@@ -79,13 +91,6 @@ class TodoListFragment : Fragment() {
         taskListAdapter = TaskListAdapter()
         with(taskListRv) {
             adapter = taskListAdapter
-            todoListViewModel.todoList.observe(viewLifecycleOwner){
-                val newTaskList = if (todoListViewModel.isViewFinished) it.filter { !it.finished } else it
-                headerCountTv.text = String.format(resources.getString(R.string.count_done),
-                    it.size - newTaskList.size)
-                taskListAdapter.submitList(newTaskList.toList())
-            }
-
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
                     todoListViewModel.finishTodo(taskListAdapter.currentList[position])
