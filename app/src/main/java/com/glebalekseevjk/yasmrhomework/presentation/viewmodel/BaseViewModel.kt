@@ -1,40 +1,22 @@
 package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.local.TodoItemsRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.interactor.*
-import kotlinx.coroutines.flow.distinctUntilChanged
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
-abstract class BaseViewModel(private val todoItemsRepositoryImpl: TodoItemsRepositoryImpl): ViewModel() {
-    private val addTodoItemUseCase = AddTodoItemUseCase(todoItemsRepositoryImpl)
-    private val editTodoItemUseCase = EditTodoItemUseCase(todoItemsRepositoryImpl)
-    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoItemsRepositoryImpl)
-    private val getTodoItemUseCase = GetTodoItemUseCase(todoItemsRepositoryImpl)
-    private val getTodoListUseCase = GetTodoListUseCase(todoItemsRepositoryImpl)
-
-    val todoList: LiveData<List<TodoItem>> = getTodoListUseCase().asLiveData()
-    fun updateTodoList() = getTodoListUseCase().distinctUntilChanged()
-
-    fun getTodo(id: String): TodoItem? {
-        return getTodoItemUseCase(id)
-    }
-    fun addTodo(todoItem: TodoItem){
-        addTodoItemUseCase(todoItem)
-    }
-    fun deleteTodo(todoItem: TodoItem){
-        deleteTodoItemUseCase(todoItem)
-    }
-    fun deleteTodo(todoId: String){
-        deleteTodoItemUseCase(todoId)
-    }
-    fun editTodo(todoItem: TodoItem){
-        editTodoItemUseCase(todoItem)
-    }
-    fun finishTodo(todoItem: TodoItem){
-        val newTodoItem = todoItem.copy(finished = true)
-        editTodoItemUseCase(newTodoItem)
+abstract class BaseViewModel: ViewModel() {
+    protected val _errorHandler = MutableLiveData<Int>()
+    val errorHandler: LiveData<Int>
+        get() = _errorHandler
+    abstract val coroutineExceptionHandler: CoroutineExceptionHandler
+    protected fun launchCoroutine(block: suspend CoroutineScope.() -> Unit): Job {
+        return viewModelScope.launch(coroutineExceptionHandler) {
+            block()
+        }
     }
 }

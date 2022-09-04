@@ -2,20 +2,10 @@ package com.glebalekseevjk.yasmrhomework.domain.interactor
 
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
+import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 
 class DeleteTodoItemUseCase(private val todoItemsRepository: TodoItemsRepository) {
-    operator fun invoke(todoItem: TodoItem){
-        CoroutineScope(Dispatchers.IO).launch{
-            todoItemsRepository.deleteTodoItem(todoItem)
-        }
-    }
-    operator fun invoke(todoId: String){
-        CoroutineScope(Dispatchers.IO).launch{
-            todoItemsRepository.deleteTodoItem(todoId)
-        }
-    }
+    operator fun invoke(todoItem: TodoItem): Flow<Result<TodoItem>> =  todoItemsRepository.deleteTodoItem(todoItem)
+    operator fun invoke(todoId: String): Flow<Result<TodoItem>> = todoItemsRepository.deleteTodoItem(todoId)
 }

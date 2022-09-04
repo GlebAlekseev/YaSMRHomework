@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Мои дела</string>
     <string name="count_done">Выполнено — %d</string>
+
+    <string name="error_runtime_exception">Ошибка выполнения</string>
+    <string name="error_oops">Неизвестная ошибка</string>
 </resources>

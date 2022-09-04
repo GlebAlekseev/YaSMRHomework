@@ -20,6 +20,7 @@ import com.glebalekseevjk.yasmrhomework.presentation.listener.TodoOnScrollChange
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 
 class TodoFragment : Fragment() {
@@ -59,10 +60,17 @@ class TodoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initErrorHandler()
         initViews(view)
         initListeners()
         initData()
 
+    }
+
+    private fun initErrorHandler(){
+        todoViewModel.errorHandler.observe(viewLifecycleOwner){
+            Toast.makeText(context,resources.getString(it),Toast.LENGTH_LONG).show()
+        }
     }
 
     private fun setTextMessageView(){
@@ -206,9 +214,7 @@ class TodoFragment : Fragment() {
         if (screenMode == MODE_EDIT) {
             if (!args.containsKey(TODO_ID)) throw RuntimeException("Param todo id is absent")
             todoId = args.getString(TODO_ID).toString()
-            lifecycleScope.launch(Dispatchers.IO) {
-                todoViewModel.currentTodoItem = todoViewModel.getTodo(todoId)!!
-            }
+            todoViewModel.setCurrentTodoItemById(todoId)
         }
     }
 

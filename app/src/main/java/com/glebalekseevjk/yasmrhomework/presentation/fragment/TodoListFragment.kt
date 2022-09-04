@@ -8,11 +8,16 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.domain.entity.Result
+import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.domain.entity.state.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
@@ -47,22 +52,37 @@ class TodoListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initErrorHandler()
         initViews(view)
         initListeners()
         initDispatchTouchEventSettings()
         setupRecyclerView()
         observeViewModel()
     }
-    private fun observeViewModel(){
-        observe(todoListViewModel.todoList,::submitListAdapter)
-    }
-    private fun submitListAdapter(){
-        todoListViewModel.todoList.observe(viewLifecycleOwner){
-            val newTaskList = if (todoListViewModel.isViewFinished) it.filter { !it.finished } else it
-            headerCountTv.text = String.format(resources.getString(R.string.count_done),
-                it.size - newTaskList.size)
-            taskListAdapter.submitList(newTaskList.toList())
+    private fun initErrorHandler(){
+        todoListViewModel.errorHandler.observe(viewLifecycleOwner){
+            Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
         }
+    }
+    private fun observeViewModel(){
+        observe(todoListViewModel.todoListViewState,::submitListAdapter)
+    }
+    private fun submitListAdapter(it: TodoListViewState){
+            when(it.result.status ){
+                ResultStatus.SUCCESS -> {
+                    val list = it.result.data
+                    val newTaskList = if (todoListViewModel.isViewFinished) list.filter { !it.finished } else list
+                    headerCountTv.text = String.format(resources.getString(R.string.count_done),
+                        list.size - newTaskList.size)
+                    taskListAdapter.submitList(newTaskList.toList())
+                }
+                ResultStatus.LOADING -> {
+                    println("LOADING...")
+                }
+                ResultStatus.FAILURE -> {
+                    println("ERROR: ${it.errorMessage}.")
+                }
+            }
     }
 
     private fun initViews(view: View) {

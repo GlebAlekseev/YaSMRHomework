@@ -2,8 +2,11 @@ package com.glebalekseevjk.yasmrhomework.data.repositoryImpl.local
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.glebalekseevjk.yasmrhomework.domain.entity.Result
+import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.delay
@@ -203,41 +206,75 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
     @OptIn(ObsoleteCoroutinesApi::class)
     private val todoListChannel = ConflatedBroadcastChannel<List<TodoItem>>(todoList)
 
-    override fun getTodoList(): Flow<List<TodoItem>> {
+    override fun getTodoList(): Flow<Result<List<TodoItem>>> {
         updateLiveData()
-        return todoListChannel.asFlow()
+        return todoListChannel.asFlow().map {
+            Result(ResultStatus.SUCCESS, it)
+        }.flowOn(Dispatchers.IO)
     }
 
-    override fun getTodoItem(id: String): TodoItem {
-        return todoList.first { it.id == id }
-    }
+    override fun getTodoItem(id: String) = flow{
+        emit(Result(ResultStatus.LOADING,TodoItem.DEFAULT))
+        updateLiveData()
+        val result = todoList.first { it.id == id }
+        if (todoList.size != 0){
+            emit(Result(ResultStatus.SUCCESS,result))
+        }else{
+            emit(Result(ResultStatus.FAILURE,TodoItem.DEFAULT))
+        }
+    }.flowOn(Dispatchers.IO)
 
-    override fun addTodoItem(todoItem: TodoItem) {
+    override fun addTodoItem(todoItem: TodoItem) = flow {
+        emit(Result(ResultStatus.LOADING,todoItem))
         val lastId = todoList.last().id
-        todoList.add(todoItem.copy(id = lastId+1))
+        val result = todoList.add(todoItem.copy(id = lastId+1))
+        if (result){
+            emit(Result(ResultStatus.SUCCESS,todoItem))
+        }else{
+            emit(Result(ResultStatus.FAILURE,todoItem))
+        }
         updateLiveData()
-    }
+    }.flowOn(Dispatchers.IO)
 
-    override fun deleteTodoItem(todoId: String) {
-        val item = todoList.first { it.id == todoId }
-        todoList.remove(item)
+    override fun deleteTodoItem(todoItem: TodoItem) = flow{
+        emit(Result(ResultStatus.LOADING,TodoItem.DEFAULT))
+        val result = todoList.remove(todoItem)
+        if (result){
+            emit(Result(ResultStatus.SUCCESS,todoItem))
+        }else{
+            emit(Result(ResultStatus.FAILURE,todoItem))
+        }
         updateLiveData()
-    }
+    }.flowOn(Dispatchers.IO)
 
-    override fun deleteTodoItem(todoItem: TodoItem) {
-        todoList.remove(todoItem)
+    override fun deleteTodoItem(todoId: String) = flow{
+        emit(Result(ResultStatus.LOADING,TodoItem.DEFAULT))
+        val todoItem = todoList.first { it.id == todoId }
+        val result = todoList.remove(todoItem)
+        if (result){
+            emit(Result(ResultStatus.SUCCESS,todoItem))
+        }else{
+            emit(Result(ResultStatus.FAILURE,todoItem))
+        }
         updateLiveData()
-    }
+    }.flowOn(Dispatchers.IO)
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun editTodoItem(todoItem: TodoItem) {
+    override fun editTodoItem(todoItem: TodoItem) = flow{
+        emit(Result(ResultStatus.LOADING,todoItem))
         val oldTodoItem = todoList.first { it.id == todoItem.id }
         if (todoList.contains(oldTodoItem)){
             todoList.remove(oldTodoItem)
         }
-        todoList.add(todoItem.copy(edited = LocalDateTime.now()))
+        val result = todoList.add(todoItem.copy(edited = LocalDateTime.now()))
+        if (result){
+            emit(Result(ResultStatus.SUCCESS,todoItem))
+        }else{
+            emit(Result(ResultStatus.FAILURE,todoItem))
+        }
         updateLiveData()
-    }
+    }.flowOn(Dispatchers.IO)
+
     @OptIn(ObsoleteCoroutinesApi::class)
     private fun updateLiveData(){
         todoList.sortBy {
@@ -245,6 +282,4 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         }
         todoListChannel.trySend(todoList)
     }
-
-
 }
