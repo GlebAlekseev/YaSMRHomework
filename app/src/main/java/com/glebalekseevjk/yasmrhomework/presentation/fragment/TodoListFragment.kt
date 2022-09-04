@@ -11,29 +11,21 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
-import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter.Companion.VIEW_TYPE
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
-import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
+import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import java.sql.Time
-import java.sql.Timestamp
-import java.util.*
 
 class TodoListFragment : Fragment() {
-    private val mainViewModel by lazy {
-        ViewModelProvider(this,(context?.applicationContext as MainApplication).mainViewModelFactory)[MainViewModel::class.java]
+    private val todoListViewModel by lazy {
+        ViewModelProvider(this,(context?.applicationContext as MainApplication).todoListViewModelFactory)[TodoListViewModel::class.java]
     }
     private lateinit var headerLl: LinearLayout
     private lateinit var headerCountTv: TextView
@@ -43,7 +35,6 @@ class TodoListFragment : Fragment() {
 
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
-
 
 
     override fun onCreateView(
@@ -79,7 +70,7 @@ class TodoListFragment : Fragment() {
             launchFragment(fragment)
         }
         headerViewIv.setOnClickListener{
-            mainViewModel.isViewFinished = !mainViewModel.isViewFinished!!
+            todoListViewModel.isViewFinished = !todoListViewModel.isViewFinished
         }
 
     }
@@ -88,29 +79,19 @@ class TodoListFragment : Fragment() {
         taskListAdapter = TaskListAdapter()
         with(taskListRv) {
             adapter = taskListAdapter
-            mainViewModel.getTodoList().observe(viewLifecycleOwner){
-                val newTaskList = if (mainViewModel.isViewFinished) it.filter { !it.finished } else it
+            todoListViewModel.todoList.observe(viewLifecycleOwner){
+                val newTaskList = if (todoListViewModel.isViewFinished) it.filter { !it.finished } else it
                 headerCountTv.text = String.format(resources.getString(R.string.count_done),
                     it.size - newTaskList.size)
                 taskListAdapter.submitList(newTaskList.toList())
-
             }
 
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
-                    // Завершение
-                    lifecycleScope.launch{
-                        mainViewModel.finishTodo(taskListAdapter.currentList[position])
-                        Log.d("MainActivity", "finished on position $position")
-                    }
+                    todoListViewModel.finishTodo(taskListAdapter.currentList[position])
                 }
                 override fun onRightClicked(position: Int) {
-                    // Удаление
-                    lifecycleScope.launch{
-                        println("pos=$position ${taskListAdapter.currentList[position]}")
-                        mainViewModel.deleteTodo(taskListAdapter.currentList[position])
-                        Log.d("MainActivity", "removed on position $position")
-                    }
+                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position])
                 }
             })
             ItemTouchHelper(swipeController).attachToRecyclerView(this)

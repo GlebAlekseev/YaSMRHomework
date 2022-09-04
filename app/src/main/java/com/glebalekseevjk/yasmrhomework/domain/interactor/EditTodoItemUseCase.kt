@@ -2,7 +2,15 @@ package com.glebalekseevjk.yasmrhomework.domain.interactor
 
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EditTodoItemUseCase(private val todoItemsRepository: TodoItemsRepository) {
-    suspend operator fun invoke(todoItem: TodoItem) = todoItemsRepository.editTodoItem(todoItem)
+    operator fun invoke(todoItem: TodoItem) {
+        CoroutineScope(Dispatchers.IO).launch{
+            todoItemsRepository.editTodoItem(todoItem)
+        }
+    }
 }

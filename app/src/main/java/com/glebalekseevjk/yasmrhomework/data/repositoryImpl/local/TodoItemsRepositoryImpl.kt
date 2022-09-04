@@ -1,16 +1,12 @@
-package com.glebalekseevjk.yasmrhomework.data.repositoryImpl
+package com.glebalekseevjk.yasmrhomework.data.repositoryImpl.local
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
 import kotlinx.coroutines.ObsoleteCoroutinesApi
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import java.lang.RuntimeException
 import java.time.LocalDateTime
@@ -212,30 +208,29 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         return todoListChannel.asFlow()
     }
 
-
     override fun getTodoItem(id: String): TodoItem {
         return todoList.first { it.id == id }
     }
 
-    override suspend fun addTodoItem(todoItem: TodoItem) {
+    override fun addTodoItem(todoItem: TodoItem) {
         val lastId = todoList.last().id
         todoList.add(todoItem.copy(id = lastId+1))
         updateLiveData()
     }
 
-    override suspend fun deleteTodoItem(todoId: String) {
+    override fun deleteTodoItem(todoId: String) {
         val item = todoList.first { it.id == todoId }
         todoList.remove(item)
         updateLiveData()
     }
 
-    override suspend fun deleteTodoItem(todoItem: TodoItem) {
+    override fun deleteTodoItem(todoItem: TodoItem) {
         todoList.remove(todoItem)
         updateLiveData()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override suspend fun editTodoItem(todoItem: TodoItem) {
+    override fun editTodoItem(todoItem: TodoItem) {
         val oldTodoItem = todoList.first { it.id == todoItem.id }
         if (todoList.contains(oldTodoItem)){
             todoList.remove(oldTodoItem)

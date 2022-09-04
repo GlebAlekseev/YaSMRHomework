@@ -17,13 +17,14 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DEFAULT
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.listener.TodoOnScrollChangeListener
-import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
+import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class TodoFragment : Fragment() {
-    private val mainViewModel by lazy {
-        ViewModelProvider(this,(context?.applicationContext as MainApplication).mainViewModelFactory)[MainViewModel::class.java]
+    private val todoViewModel by lazy {
+        ViewModelProvider(this,(context?.applicationContext as MainApplication).todoViewModelFactory)[TodoViewModel::class.java]
     }
     private var screenMode: String = MODE_ADD
     private var todoId: String = UNKNOWN_TODO_ID
@@ -61,14 +62,15 @@ class TodoFragment : Fragment() {
         initViews(view)
         initListeners()
         initData()
+
     }
 
     private fun setTextMessageView(){
-        messageEt.text = mainViewModel.currentTodoItem.text
+        messageEt.text = todoViewModel.currentTodoItem.text
     }
 
     private fun setImportanceView(){
-        importantStateTv.text = when (mainViewModel.currentTodoItem.importance) {
+        importantStateTv.text = when (todoViewModel.currentTodoItem.importance) {
             Importance.LOW -> {
                 "Нет"
             }
@@ -82,9 +84,9 @@ class TodoFragment : Fragment() {
     }
 
     private fun setDeadlineView(){
-        if (mainViewModel.currentTodoItem.deadline != null){
+        if (todoViewModel.currentTodoItem.deadline != null){
             deadlineSw.isChecked = true
-            deadlineDataTv.text = mainViewModel.currentTodoItem.deadline.toString()
+            deadlineDataTv.text = todoViewModel.currentTodoItem.deadline.toString()
             deadlineDataTv.visibility = View.VISIBLE
         }else{
             deadlineSw.isChecked = false
@@ -130,26 +132,22 @@ class TodoFragment : Fragment() {
             requireActivity().onBackPressed()
         }
         saveBtn.setOnClickListener {
-            lifecycleScope.launch{
                 if (screenMode == MODE_EDIT){
-                    mainViewModel.editTodo(mainViewModel.currentTodoItem)
+                    todoViewModel.editTodo(todoViewModel.currentTodoItem)
                 }else if(screenMode == MODE_ADD){
-                    mainViewModel.addTodo(mainViewModel.currentTodoItem)
+                    todoViewModel.addTodo(todoViewModel.currentTodoItem)
                 }
-            }
             requireActivity().onBackPressed()
         }
         removeLl.setOnClickListener {
-            lifecycleScope.launch{
                 if (screenMode == MODE_EDIT) {
-                    mainViewModel.deleteTodo(mainViewModel.currentTodoItem.id)
+                    todoViewModel.deleteTodo(todoViewModel.currentTodoItem.id)
                 }
-            }
             requireActivity().onBackPressed()
         }
         messageEt.addTextChangedListener {
-            mainViewModel.currentTodoItem =
-                mainViewModel.currentTodoItem.copy(text = it.toString())
+            todoViewModel.currentTodoItem =
+                todoViewModel.currentTodoItem.copy(text = it.toString())
         }
 
         contentSv.setOnScrollChangeListener(TodoOnScrollChangeListener(
@@ -161,14 +159,14 @@ class TodoFragment : Fragment() {
         deadlineSw.setOnClickListener {
             if ((it as Switch).isChecked) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    mainViewModel.currentTodoItem =
-                        mainViewModel.currentTodoItem.copy(
+                    todoViewModel.currentTodoItem =
+                        todoViewModel.currentTodoItem.copy(
                             deadline = LocalDateTime.now().plusDays(1)
                         )
                 }
             } else {
-                mainViewModel.currentTodoItem =
-                    mainViewModel.currentTodoItem.copy(
+                todoViewModel.currentTodoItem =
+                    todoViewModel.currentTodoItem.copy(
                         deadline = null
                     )
             }
@@ -191,8 +189,8 @@ class TodoFragment : Fragment() {
                 "Высокий" -> Importance.URGENT
                 else -> throw RuntimeException("Importance $it is bad")
             }
-            mainViewModel.currentTodoItem =
-                mainViewModel.currentTodoItem.copy(importance = importance)
+            todoViewModel.currentTodoItem =
+                todoViewModel.currentTodoItem.copy(importance = importance)
             setImportanceView()
             true
         }
@@ -200,6 +198,7 @@ class TodoFragment : Fragment() {
     }
 
     private fun parseParams() {
+        todoViewModel.currentTodoItem = DEFAULT
         val args = requireArguments()
         if (!args.containsKey(SCREEN_MODE)) throw RuntimeException("Param screen mode is absent")
         screenMode = args.getString(SCREEN_MODE).toString()
@@ -207,9 +206,9 @@ class TodoFragment : Fragment() {
         if (screenMode == MODE_EDIT) {
             if (!args.containsKey(TODO_ID)) throw RuntimeException("Param todo id is absent")
             todoId = args.getString(TODO_ID).toString()
-            mainViewModel.currentTodoItem = mainViewModel.getTodo(todoId)!!
-        }else{
-            mainViewModel.currentTodoItem = DEFAULT
+            lifecycleScope.launch(Dispatchers.IO) {
+                todoViewModel.currentTodoItem = todoViewModel.getTodo(todoId)!!
+            }
         }
     }
 
