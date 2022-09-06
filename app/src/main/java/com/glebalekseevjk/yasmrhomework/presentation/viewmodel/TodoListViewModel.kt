@@ -9,6 +9,8 @@ import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewModel(){
@@ -21,19 +23,17 @@ class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseV
         _errorHandler.value = message
         when(coroutineContext){
             getTodoListJob -> {
-                _todoListViewState.value = _todoListViewState.value?.copy(errorMessage = message)
+                _todoListViewState.value = _todoListViewState.value.copy(errorMessage = message)
             }
         }
     }
+
     private var getTodoListJob: Job? = null
-    private var deleteTodoJob: Job? = null
-    private var finishTodoJob: Job? = null
 
-
-    private var _todoListViewState = MutableLiveData(TodoListViewState.DEFAULT)
-    val todoListViewState: LiveData<TodoListViewState>
+    private var _todoListViewState = MutableStateFlow(TodoListViewState.DEFAULT)
+    val todoListViewState: StateFlow<TodoListViewState>
         get() {
-            getTodoListJob = launchCoroutine {
+            getTodoListJob = viewModelScope.launchCoroutine {
                 loadTodoList()
             }
             return _todoListViewState
@@ -45,12 +45,10 @@ class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseV
         }
     }
 
-    private fun updateTodoList() {
-        _todoListViewState.value = _todoListViewState.value
-    }
+
 
     fun deleteTodo(todoItem: TodoItem){
-        deleteTodoJob = launchCoroutine {
+        viewModelScope.launchCoroutine {
             deleteTodoItemUseCase(todoItem).collect{
                 when(it.status){
                     ResultStatus.SUCCESS -> {
@@ -66,9 +64,10 @@ class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseV
             }
         }
     }
+
     fun finishTodo(todoItem: TodoItem){
         val newTodoItem = todoItem.copy(finished = true)
-        finishTodoJob = launchCoroutine {
+        viewModelScope.launchCoroutine {
             editTodoItemUseCase(newTodoItem).collect{
                 when(it.status){
                     ResultStatus.SUCCESS -> {
@@ -86,16 +85,6 @@ class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseV
 
     }
 
-    var isViewFinished: Boolean = true
-        set(value) {
-            field = value
-            updateTodoList()
-        }
+    var isViewFinished = MutableStateFlow(true)
 
-    override fun onCleared() {
-        super.onCleared()
-        getTodoListJob?.cancel()
-        deleteTodoJob?.cancel()
-        finishTodoJob?.cancel()
-    }
 }

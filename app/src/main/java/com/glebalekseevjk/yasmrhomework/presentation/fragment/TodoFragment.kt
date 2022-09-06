@@ -68,8 +68,12 @@ class TodoFragment : Fragment() {
     }
 
     private fun initErrorHandler(){
-        todoViewModel.errorHandler.observe(viewLifecycleOwner){
-            Toast.makeText(context,resources.getString(it),Toast.LENGTH_LONG).show()
+        lifecycleScope.launch{
+            todoViewModel.errorHandler.collect{
+                if (it != -1) {
+                    Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 

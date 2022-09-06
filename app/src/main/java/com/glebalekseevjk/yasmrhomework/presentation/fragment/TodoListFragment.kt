@@ -27,6 +27,9 @@ import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModel
 import com.glebalekseevjk.yasmrhomework.utils.observe
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 class TodoListFragment : Fragment() {
     private val todoListViewModel by lazy {
@@ -60,18 +63,38 @@ class TodoListFragment : Fragment() {
         observeViewModel()
     }
     private fun initErrorHandler(){
-        todoListViewModel.errorHandler.observe(viewLifecycleOwner){
-            Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
+        lifecycleScope.launch{
+            todoListViewModel.errorHandler.collect{
+                if (it != -1) {
+                    Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
+
     private fun observeViewModel(){
-        observe(todoListViewModel.todoListViewState,::submitListAdapter)
+        observeSubmitListAdapter()
     }
-    private fun submitListAdapter(it: TodoListViewState){
-            when(it.result.status ){
+
+    private fun observeSubmitListAdapter(){
+        lifecycleScope.launch {
+            with(todoListViewModel){
+                todoListViewState
+                    .combine(isViewFinished){ state, isViewFinished ->
+                        Pair(state,isViewFinished)
+                    }
+                    .collect{ (state, isViewFinished) ->
+                        submitListAdapter(state, isViewFinished)
+                    }
+            }
+        }
+    }
+
+    private fun submitListAdapter(state: TodoListViewState, isViewFinished: Boolean){
+            when(state.result.status ){
                 ResultStatus.SUCCESS -> {
-                    val list = it.result.data
-                    val newTaskList = if (todoListViewModel.isViewFinished) list.filter { !it.finished } else list
+                    val list = state.result.data
+                    val newTaskList = if (isViewFinished) list.filter { !it.finished } else list
                     headerCountTv.text = String.format(resources.getString(R.string.count_done),
                         list.size - newTaskList.size)
                     taskListAdapter.submitList(newTaskList.toList())
@@ -80,7 +103,7 @@ class TodoListFragment : Fragment() {
                     println("LOADING...")
                 }
                 ResultStatus.FAILURE -> {
-                    println("ERROR: ${it.errorMessage}.")
+                    println("ERROR: ${state.errorMessage}.")
                 }
             }
     }
@@ -102,7 +125,7 @@ class TodoListFragment : Fragment() {
             launchFragment(fragment)
         }
         headerViewIv.setOnClickListener{
-            todoListViewModel.isViewFinished = !todoListViewModel.isViewFinished
+            todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
         }
 
     }

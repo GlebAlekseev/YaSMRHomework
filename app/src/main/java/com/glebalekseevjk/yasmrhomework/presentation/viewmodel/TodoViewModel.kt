@@ -1,5 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
+import androidx.lifecycle.viewModelScope
 import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.local.TodoItemsRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
@@ -8,6 +9,7 @@ import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 
@@ -22,10 +24,6 @@ class TodoViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewM
         _errorHandler.value = message
     }
 
-    private var addTodoJob: Job? = null
-    private var deleteTodoJob: Job? = null
-    private var editTodoJob: Job? = null
-
     fun setCurrentTodoItemById(id: String){
         runBlocking {
             currentTodoItem = getTodoItemUseCase(id).last().data
@@ -33,7 +31,7 @@ class TodoViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewM
     }
 
     fun addTodo(todoItem: TodoItem){
-        editTodoJob = launchCoroutine {
+        viewModelScope.launchCoroutine {
             addTodoItemUseCase(todoItem).collect{
                 when(it.status){
                     ResultStatus.SUCCESS -> {
@@ -51,7 +49,7 @@ class TodoViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewM
     }
 
     fun editTodo(todoItem: TodoItem){
-        editTodoJob = launchCoroutine {
+        viewModelScope.launchCoroutine {
             editTodoItemUseCase(todoItem).collect{
                 when(it.status){
                     ResultStatus.SUCCESS -> {
@@ -69,7 +67,7 @@ class TodoViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewM
     }
 
     fun deleteTodo(todoId: String){
-        deleteTodoJob = launchCoroutine {
+        viewModelScope.launchCoroutine {
             deleteTodoItemUseCase(todoId).collect{
                 when(it.status){
                     ResultStatus.SUCCESS -> {
@@ -87,10 +85,4 @@ class TodoViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewM
     }
 
     var currentTodoItem: TodoItem = TodoItem.DEFAULT
-    override fun onCleared() {
-        super.onCleared()
-        addTodoJob?.cancel()
-        deleteTodoJob?.cancel()
-        editTodoJob?.cancel()
-    }
 }
