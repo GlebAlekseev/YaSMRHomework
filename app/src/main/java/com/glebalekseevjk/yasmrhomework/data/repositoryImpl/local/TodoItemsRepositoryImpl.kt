@@ -6,10 +6,8 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import java.lang.RuntimeException
 import java.time.LocalDateTime
@@ -203,12 +201,12 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         throw RuntimeException("VERSION.SDK_INT < O")
     }
 
-    @OptIn(ObsoleteCoroutinesApi::class)
-    private val todoListChannel = ConflatedBroadcastChannel<List<TodoItem>>(todoList)
+
+    private val todoListFlow = MutableStateFlow<List<TodoItem>>(todoList)
 
     override fun getTodoList(): Flow<Result<List<TodoItem>>> {
         updateLiveData()
-        return todoListChannel.asFlow().map {
+        return todoListFlow.map {
             Result(ResultStatus.SUCCESS, it)
         }.flowOn(Dispatchers.IO)
     }
@@ -275,11 +273,12 @@ class TodoItemsRepositoryImpl: TodoItemsRepository {
         updateLiveData()
     }.flowOn(Dispatchers.IO)
 
-    @OptIn(ObsoleteCoroutinesApi::class)
     private fun updateLiveData(){
         todoList.sortBy {
             it.id.toInt()
         }
-        todoListChannel.trySend(todoList)
+        // Обновление ссылки для StateFlow
+        todoListFlow.value = listOf()
+        todoListFlow.value += todoList
     }
 }
