@@ -30,7 +30,7 @@ class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseV
     private var finishTodoJob: Job? = null
 
 
-    private var _todoListViewState = MutableLiveData<TodoListViewState>(TodoListViewState.DEFAULT)
+    private var _todoListViewState = MutableLiveData(TodoListViewState.DEFAULT)
     val todoListViewState: LiveData<TodoListViewState>
         get() {
             getTodoListJob = launchCoroutine {
@@ -45,7 +45,9 @@ class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseV
         }
     }
 
-    private fun updateTodoList() = getTodoListUseCase().distinctUntilChanged()
+    private fun updateTodoList() {
+        _todoListViewState.value = _todoListViewState.value
+    }
 
     fun deleteTodo(todoItem: TodoItem){
         deleteTodoJob = launchCoroutine {
