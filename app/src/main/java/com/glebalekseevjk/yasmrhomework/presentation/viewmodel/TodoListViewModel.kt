@@ -1,9 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
 import androidx.lifecycle.*
-import com.glebalekseevjk.yasmrhomework.data.local.repository.TodoListLocalRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.remote.repository.AuthRemoteRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.remote.repository.TodoListRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
@@ -15,39 +13,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class TodoListViewModel(
-    todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
-    todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
-    authRemoteRepositoryImpl: AuthRemoteRepositoryImpl
+    todoListRepositoryImpl: TodoListRepositoryImpl,
     ): BaseViewModel(){
-    private val editTodoItemUseCase = EditTodoItemUseCase(
-        todoListLocalRepositoryImpl,
-        todoListRemoteRepositoryImpl,
-        authRemoteRepositoryImpl
-    )
-    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(
-        todoListLocalRepositoryImpl,
-        todoListRemoteRepositoryImpl,
-        authRemoteRepositoryImpl
-    )
-    private val getTodoListUseCase = GetTodoListUseCase(
-        todoListLocalRepositoryImpl,
-        todoListRemoteRepositoryImpl,
-        authRemoteRepositoryImpl
-    )
+    private val editTodoItemUseCase = EditTodoItemUseCase(todoListRepositoryImpl)
+    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoListRepositoryImpl)
+    private val getTodoListUseCase = GetTodoListUseCase(todoListRepositoryImpl)
 
     override val coroutineExceptionHandler = CoroutineExceptionHandler{ coroutineContext, exception ->
         val message = ExceptionHandler.parse(exception)
         _errorHandler.value = message
         when(coroutineContext){
             getTodoListJob -> {
-                _todoListViewState.value = _todoListViewState.value.copy(errorMessage = message)
+                _todoListViewState.value = _todoListViewState.value.copy()
             }
         }
     }
 
     private var getTodoListJob: Job? = null
 
-    private var _todoListViewState = MutableStateFlow(TodoListViewState.DEFAULT)
+    private var _todoListViewState = MutableStateFlow(TodoListViewState.PLUG)
     val todoListViewState: StateFlow<TodoListViewState>
         get() {
             getTodoListJob = viewModelScope.launchCoroutine {
@@ -58,20 +42,20 @@ class TodoListViewModel(
 
     private suspend fun loadTodoList(){
         getTodoListUseCase().collect{
-            _todoListViewState.value = _todoListViewState.value!!.copy(result = it)
+            _todoListViewState.value = _todoListViewState.value.copy(result = it)
         }
     }
 
     fun deleteTodo(todoItem: TodoItem, block: (Result<TodoItem>)->Unit){
         viewModelScope.launchCoroutine {
-            deleteTodoItemUseCase(todoItem).collect{
+            deleteTodoItemUseCase(todoItem.id).collect{
                 block(it)
             }
         }
     }
 
     fun finishTodo(todoItem: TodoItem, block: (Result<TodoItem>)->Unit){
-        val newTodoItem = todoItem.copy(finished = true)
+        val newTodoItem = todoItem.copy(done = true)
         viewModelScope.launchCoroutine {
             editTodoItemUseCase(newTodoItem).collect{
                 block(it)

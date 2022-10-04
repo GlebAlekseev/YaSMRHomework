@@ -41,7 +41,6 @@ class TodoListFragment : Fragment() {
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
 
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -78,7 +77,7 @@ class TodoListFragment : Fragment() {
             with(todoListViewModel){
                 todoListViewState
                     .combine(isViewFinished){ state, isViewFinished ->
-                        Pair(state,isViewFinished)
+                        Pair(state, isViewFinished)
                     }
                     .collect{ (state, isViewFinished) ->
                         submitListAdapter(state, isViewFinished)
@@ -91,7 +90,7 @@ class TodoListFragment : Fragment() {
             when(state.result.status ){
                 ResultStatus.SUCCESS -> {
                     val list = state.result.data
-                    val newTaskList = if (isViewFinished) list.filter { !it.finished } else list
+                    val newTaskList = if (isViewFinished) list.filter { !it.done } else list
                     headerCountTv.text = String.format(resources.getString(R.string.count_done),
                         list.size - newTaskList.size)
                     taskListAdapter.submitList(newTaskList.toList())
@@ -100,12 +99,11 @@ class TodoListFragment : Fragment() {
                     println("LOADING...")
                 }
                 ResultStatus.FAILURE -> {
-                    println("ERROR: ${state.errorMessage}.")
+                    println("ERROR: ${getString(state.errorMessageResourceId)}.")
                 }
-                ResultStatus.SYN_REQUIRED -> {
-                    println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                ResultStatus.UNAUTHORIZED ->{
+                    println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                 }
-                else ->{}
             }
     }
 
@@ -148,10 +146,9 @@ class TodoListFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка завершения элемента id: ${it.data.id}")
                             }
-                            ResultStatus.SYN_REQUIRED -> {
-                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            ResultStatus.UNAUTHORIZED ->{
+                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             }
-                            else ->{}
                         }
                     }
                 }
@@ -167,10 +164,9 @@ class TodoListFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка удаления элемента id: ${it.data.id}")
                             }
-                            ResultStatus.SYN_REQUIRED -> {
-                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            ResultStatus.UNAUTHORIZED ->{
+                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             }
-                            else ->{}
                         }
                     }
                 }

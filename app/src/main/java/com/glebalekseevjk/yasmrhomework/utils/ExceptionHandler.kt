@@ -5,7 +5,6 @@ import com.glebalekseevjk.yasmrhomework.R
 import java.lang.RuntimeException
 
 internal object ExceptionHandler {
-
     @StringRes
     fun parse(t: Throwable): Int {
         return when (t) {
@@ -13,5 +12,4 @@ internal object ExceptionHandler {
             else -> R.string.error_oops
         }
     }
-
 }

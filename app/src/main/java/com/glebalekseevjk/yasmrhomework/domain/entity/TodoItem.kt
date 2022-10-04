@@ -1,31 +1,27 @@
 package com.glebalekseevjk.yasmrhomework.domain.entity
 
-import java.time.LocalDateTime
-
-
 data class TodoItem(
-    val id: String,
+    val id: Long = UNDEFINED,
     val text: String,
-    val importance: Importance,
-    val finished: Boolean,
-    val created: LocalDateTime,
-    val deadline: LocalDateTime? = null,
-    val edited: LocalDateTime? = null
+    val importance: Importance = Importance.LOW,
+    val deadline: Long? = null,
+    val done: Boolean,
+    val color: String = "#FFFFFF",
+    val createdAt: Long = System.currentTimeMillis(),
+    val changedAt: Long? = null,
+    val lastUpdatedBy: Long = UNDEFINED
 ){
     companion object{
         enum class Importance{
             LOW,
-            NORMAL,
-            URGENT
+            BASIC,
+            IMPORTANT
         }
-        val DEFAULT = TodoItem(
-        "0",
-        "",
-        Importance.LOW,
-        false,
-        LocalDateTime.now(),
-        null,
-        null
+        const val UNDEFINED = 0L
+        val PLUG = TodoItem(
+            text = "plug",
+            done = false
         )
+        const val DAY_MILLIS = 86400000
     }
 }

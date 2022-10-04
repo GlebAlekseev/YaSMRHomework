@@ -14,8 +14,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DEFAULT
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DAY_MILLIS
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.PLUG
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.listener.TodoOnScrollChangeListener
@@ -28,7 +30,7 @@ class TodoFragment : Fragment() {
         ViewModelProvider(this,(context?.applicationContext as MainApplication).todoViewModelFactory)[TodoViewModel::class.java]
     }
     private var screenMode: String = MODE_ADD
-    private var todoId: String = UNKNOWN_TODO_ID
+    private var todoId: Long = TodoItem.UNDEFINED
 
     private lateinit var headerLl: LinearLayout
     private lateinit var contentLl: LinearLayout
@@ -64,7 +66,6 @@ class TodoFragment : Fragment() {
         initViews(view)
         initListeners()
         initData()
-
     }
 
     private fun initErrorHandler(){
@@ -86,10 +87,10 @@ class TodoFragment : Fragment() {
             Importance.LOW -> {
                 "Нет"
             }
-            Importance.NORMAL -> {
+            Importance.BASIC -> {
                 "Низкий"
             }
-            Importance.URGENT -> {
+            Importance.IMPORTANT -> {
                 "Высокий"
             }
         }
@@ -135,7 +136,6 @@ class TodoFragment : Fragment() {
             messageEt = findViewById(R.id.message_et)
             importantStateTv = findViewById(R.id.important_state_tv)
         }
-
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -156,10 +156,9 @@ class TodoFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка редактирования элемента id: ${it.data.id}")
                             }
-                            ResultStatus.SYN_REQUIRED -> {
-                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            ResultStatus.UNAUTHORIZED ->{
+                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             }
-                            else ->{}
                         }
                     }
                 }else if(screenMode == MODE_ADD){
@@ -174,10 +173,9 @@ class TodoFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка добавления элемента id: ${it.data.id}")
                             }
-                            ResultStatus.SYN_REQUIRED -> {
-                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            ResultStatus.UNAUTHORIZED ->{
+                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             }
-                            else ->{}
                         }
                     }
                 }
@@ -196,10 +194,9 @@ class TodoFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка удаления элемента id: ${it.data.id}")
                             }
-                            ResultStatus.SYN_REQUIRED -> {
-                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            ResultStatus.UNAUTHORIZED ->{
+                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             }
-                            else ->{}
                         }
                     }
                 }
@@ -209,7 +206,6 @@ class TodoFragment : Fragment() {
             todoViewModel.currentTodoItem =
                 todoViewModel.currentTodoItem.copy(text = it.toString())
         }
-
         contentSv.setOnScrollChangeListener(TodoOnScrollChangeListener(
             headerLl
         ))
@@ -218,12 +214,10 @@ class TodoFragment : Fragment() {
         }
         deadlineSw.setOnClickListener {
             if ((it as Switch).isChecked) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    todoViewModel.currentTodoItem =
-                        todoViewModel.currentTodoItem.copy(
-                            deadline = LocalDateTime.now().plusDays(1)
-                        )
-                }
+                todoViewModel.currentTodoItem =
+                    todoViewModel.currentTodoItem.copy(
+                        deadline = System.currentTimeMillis() + DAY_MILLIS,
+                    )
             } else {
                 todoViewModel.currentTodoItem =
                     todoViewModel.currentTodoItem.copy(
@@ -245,8 +239,8 @@ class TodoFragment : Fragment() {
         popup.setOnMenuItemClickListener {
             val importance = when(it.toString()){
                 "Нет" -> Importance.LOW
-                "Низкий" -> Importance.NORMAL
-                "Высокий" -> Importance.URGENT
+                "Низкий" -> Importance.BASIC
+                "Высокий" -> Importance.IMPORTANT
                 else -> throw RuntimeException("Importance $it is bad")
             }
             todoViewModel.currentTodoItem =
@@ -258,14 +252,14 @@ class TodoFragment : Fragment() {
     }
 
     private fun parseParams() {
-        todoViewModel.currentTodoItem = DEFAULT
+        todoViewModel.currentTodoItem = PLUG
         val args = requireArguments()
         if (!args.containsKey(SCREEN_MODE)) throw RuntimeException("Param screen mode is absent")
         screenMode = args.getString(SCREEN_MODE).toString()
         if (screenMode != MODE_EDIT && screenMode != MODE_ADD) throw RuntimeException("Unknown screen mode $screenMode")
         if (screenMode == MODE_EDIT) {
             if (!args.containsKey(TODO_ID)) throw RuntimeException("Param todo id is absent")
-            todoId = args.getString(TODO_ID).toString()
+            todoId = args.getLong(TODO_ID)
             todoViewModel.setCurrentTodoItemById(todoId)
         }
     }
@@ -275,7 +269,6 @@ class TodoFragment : Fragment() {
         private const val SCREEN_MODE = "screen_mode"
         private const val MODE_ADD = "mode_add"
         private const val MODE_EDIT = "mode_edit"
-        private const val UNKNOWN_TODO_ID = "0"
 
         fun newInstanceAddTodo(): TodoFragment {
             return TodoFragment().apply {
@@ -285,11 +278,11 @@ class TodoFragment : Fragment() {
             }
         }
 
-        fun newInstanceEditTodo(todoId: String): TodoFragment {
+        fun newInstanceEditTodo(todoId: Long): TodoFragment {
             return TodoFragment().apply {
                 arguments = Bundle().apply {
                     putString(SCREEN_MODE, MODE_EDIT)
-                    putString(TODO_ID, todoId)
+                    putLong(TODO_ID, todoId)
                 }
             }
         }

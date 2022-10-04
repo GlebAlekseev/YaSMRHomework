@@ -14,7 +14,7 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.TodoItemDiffCallBack
 
 class TaskListAdapter : ListAdapter<TodoItem,TaskListAdapter.TaskItemViewHolder>(TodoItemDiffCallBack()) {
-    var editClickListener: ((id: String)->Unit)? = null
+    var editClickListener: ((id: Long)->Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskItemViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(
@@ -28,7 +28,7 @@ class TaskListAdapter : ListAdapter<TodoItem,TaskListAdapter.TaskItemViewHolder>
     override fun onBindViewHolder(holder: TaskItemViewHolder, position: Int) {
         val todoItem = getItem(position)
 
-        if (todoItem.finished){
+        if (todoItem.done){
             holder.statusCb.setTextColor(ContextCompat.getColor(holder.itemView.context,R.color.label_disable))
             holder.statusCb.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
         }else{
@@ -37,8 +37,7 @@ class TaskListAdapter : ListAdapter<TodoItem,TaskListAdapter.TaskItemViewHolder>
         }
 
         holder.statusCb.text = todoItem.text
-        holder.statusCb.isChecked = todoItem.finished
-
+        holder.statusCb.isChecked = todoItem.done
 
         holder.infoIv.setOnClickListener{
             // Запустить TodoFragment MODE_EDIT
@@ -64,5 +63,4 @@ class TaskListAdapter : ListAdapter<TodoItem,TaskListAdapter.TaskItemViewHolder>
     companion object{
         const val VIEW_TYPE = 1
     }
-
 }

@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">Мои дела</string>
     <string name="count_done">Выполнено — %d</string>
-
     <string name="error_runtime_exception">Ошибка выполнения</string>
     <string name="error_oops">Неизвестная ошибка</string>
+    <string name="app_preferences">prefs</string>
+    <string name="app_preferences_refresh_token">refreshToken</string>
+    <string name="app_preferences_revision">revision</string>
 </resources>

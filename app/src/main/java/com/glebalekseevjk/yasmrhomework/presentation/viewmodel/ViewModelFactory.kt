@@ -2,35 +2,25 @@ package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.glebalekseevjk.yasmrhomework.data.local.repository.TodoListLocalRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.remote.repository.AuthRemoteRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.remote.repository.TodoListRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
 
 
 class TodoViewModelFactory(
-    private val todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
-    private val todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
-    private val authRemoteRepositoryImpl: AuthRemoteRepositoryImpl
+    private val todoListRepositoryImpl: TodoListRepositoryImpl,
     ): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoViewModel(
-            todoListLocalRepositoryImpl,
-            todoListRemoteRepositoryImpl,
-            authRemoteRepositoryImpl
+            todoListRepositoryImpl
         ) as T
     }
 }
 
 class TodoListViewModelFactory(
-    private val todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
-    private val todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
-    private val authRemoteRepositoryImpl: AuthRemoteRepositoryImpl
+    private val todoListRepositoryImpl: TodoListRepositoryImpl,
 ): ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoListViewModel(
-            todoListLocalRepositoryImpl,
-            todoListRemoteRepositoryImpl,
-            authRemoteRepositoryImpl
+            todoListRepositoryImpl
         ) as T
     }
 }

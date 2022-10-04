@@ -80,7 +80,6 @@ class SwipeController constructor(val swipeControllerActions: SwipeControllerAct
                     if (buttonShowedState == ButtonShowedState.RIGHT_VISIBLE) dX = Math.min(dX, -buttonWH.toFloat());
                     super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                 }
-
             }else{
                 setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             }
@@ -99,7 +98,6 @@ class SwipeController constructor(val swipeControllerActions: SwipeControllerAct
             elevation = 0f
 
         }
-
     }
 
     private fun setTouchListener(

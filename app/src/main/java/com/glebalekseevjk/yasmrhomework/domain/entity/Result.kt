@@ -1,11 +1,10 @@
 package com.glebalekseevjk.yasmrhomework.domain.entity
 
 enum class ResultStatus {
-    SUCCESS,
-    LOADING,
-    FAILURE,
-    SYN_REQUIRED,
-    UNAUTHORIZED
+    SUCCESS,        // Успекх
+    LOADING,        // Загрузка
+    FAILURE,        // Ошибка
+    UNAUTHORIZED    // Выбросить в окно авторизации
 }
 
 data class Result<T>(

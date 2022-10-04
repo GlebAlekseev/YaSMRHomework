@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModel: ViewModel() {
+abstract class BaseViewModel(): ViewModel() {
     protected val _errorHandler = MutableStateFlow(OK)
     val errorHandler: StateFlow<Int>
         get() = _errorHandler

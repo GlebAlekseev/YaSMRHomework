@@ -1,9 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.glebalekseevjk.yasmrhomework.data.local.repository.TodoListLocalRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.remote.repository.AuthRemoteRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.remote.repository.TodoListRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
@@ -14,39 +12,21 @@ import kotlinx.coroutines.runBlocking
 
 
 class TodoViewModel(
-    todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
-    todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
-    authRemoteRepositoryImpl: AuthRemoteRepositoryImpl
-): BaseViewModel(){
-    private val addTodoItemUseCase = AddTodoItemUseCase(
-        todoListLocalRepositoryImpl,
-        todoListRemoteRepositoryImpl,
-        authRemoteRepositoryImpl
-    )
-    private val editTodoItemUseCase = EditTodoItemUseCase(
-        todoListLocalRepositoryImpl,
-        todoListRemoteRepositoryImpl,
-        authRemoteRepositoryImpl
-    )
-    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(
-        todoListLocalRepositoryImpl,
-        todoListRemoteRepositoryImpl,
-        authRemoteRepositoryImpl
-    )
-    private val getTodoItemUseCase = GetTodoItemUseCase(
-        todoListLocalRepositoryImpl,
-        todoListRemoteRepositoryImpl,
-        authRemoteRepositoryImpl
-    )
+    todoListRepositoryImpl: TodoListRepositoryImpl,
+    ): BaseViewModel(){
+    private val addTodoItemUseCase = AddTodoItemUseCase(todoListRepositoryImpl)
+    private val editTodoItemUseCase = EditTodoItemUseCase(todoListRepositoryImpl)
+    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoListRepositoryImpl)
+    private val getTodoItemUseCase = GetTodoItemUseCase(todoListRepositoryImpl)
 
     override val coroutineExceptionHandler = CoroutineExceptionHandler{ coroutineContext, exception ->
         val message = ExceptionHandler.parse(exception)
         _errorHandler.value = message
     }
 
-    fun setCurrentTodoItemById(id: String){
+    fun setCurrentTodoItemById(todoId: Long){
         runBlocking {
-            currentTodoItem = getTodoItemUseCase(id).last().data
+            currentTodoItem = getTodoItemUseCase(todoId).last().data
         }
     }
 
@@ -66,7 +46,7 @@ class TodoViewModel(
         }
     }
 
-    fun deleteTodo(todoId: String, block: (Result<TodoItem>)->Unit){
+    fun deleteTodo(todoId: Long, block: (Result<TodoItem>)->Unit){
         viewModelScope.launchCoroutine {
             deleteTodoItemUseCase(todoId).collect{
                 block(it)
@@ -74,5 +54,5 @@ class TodoViewModel(
         }
     }
 
-    var currentTodoItem: TodoItem = TodoItem.DEFAULT
+    var currentTodoItem: TodoItem = TodoItem.PLUG
 }

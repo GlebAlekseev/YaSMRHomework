@@ -16,6 +16,5 @@ class TodoOnScrollChangeListener(private val headerLl: LinearLayout) :
             isScrollYZero = false
             headerLl.elevation = 15f
         }
-
     }
 }
