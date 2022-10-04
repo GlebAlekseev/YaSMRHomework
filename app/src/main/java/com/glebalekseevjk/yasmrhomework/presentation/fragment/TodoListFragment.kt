@@ -14,10 +14,9 @@ import androidx.lifecycle.*
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.entity.state.TodoListViewState
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
@@ -25,9 +24,7 @@ import com.glebalekseevjk.yasmrhomework.presentation.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModel
-import com.glebalekseevjk.yasmrhomework.utils.observe
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -65,7 +62,7 @@ class TodoListFragment : Fragment() {
     private fun initErrorHandler(){
         lifecycleScope.launch{
             todoListViewModel.errorHandler.collect{
-                if (it != -1) {
+                if (it != OK) {
                     Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
                 }
             }
@@ -105,6 +102,10 @@ class TodoListFragment : Fragment() {
                 ResultStatus.FAILURE -> {
                     println("ERROR: ${state.errorMessage}.")
                 }
+                ResultStatus.SYN_REQUIRED -> {
+                    println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                }
+                else ->{}
             }
     }
 
@@ -136,10 +137,42 @@ class TodoListFragment : Fragment() {
             adapter = taskListAdapter
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
-                    todoListViewModel.finishTodo(taskListAdapter.currentList[position])
+                    todoListViewModel.finishTodo(taskListAdapter.currentList[position]){
+                        when(it.status){
+                            ResultStatus.SUCCESS -> {
+                                println("Завершен элемент с id: ${it.data.id}")
+                            }
+                            ResultStatus.LOADING -> {
+                                println("Завершение...")
+                            }
+                            ResultStatus.FAILURE -> {
+                                println("Ошибка завершения элемента id: ${it.data.id}")
+                            }
+                            ResultStatus.SYN_REQUIRED -> {
+                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            }
+                            else ->{}
+                        }
+                    }
                 }
                 override fun onRightClicked(position: Int) {
-                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position])
+                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position]){
+                        when(it.status){
+                            ResultStatus.SUCCESS -> {
+                                println("Удален элемент с id: ${it.data.id}")
+                            }
+                            ResultStatus.LOADING -> {
+                                println("Удаление...")
+                            }
+                            ResultStatus.FAILURE -> {
+                                println("Ошибка удаления элемента id: ${it.data.id}")
+                            }
+                            ResultStatus.SYN_REQUIRED -> {
+                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            }
+                            else ->{}
+                        }
+                    }
                 }
             })
             ItemTouchHelper(swipeController).attachToRecyclerView(this)

@@ -1,23 +1,43 @@
 package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
-import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.local.TodoItemsRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
+import com.glebalekseevjk.yasmrhomework.data.local.repository.TodoListLocalRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.remote.repository.AuthRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.remote.repository.TodoListRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 
-class TodoViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewModel(){
-    private val addTodoItemUseCase = AddTodoItemUseCase(todoItemsRepositoryImpl)
-    private val editTodoItemUseCase = EditTodoItemUseCase(todoItemsRepositoryImpl)
-    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoItemsRepositoryImpl)
-    private val getTodoItemUseCase = GetTodoItemUseCase(todoItemsRepositoryImpl)
+class TodoViewModel(
+    todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
+    todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
+    authRemoteRepositoryImpl: AuthRemoteRepositoryImpl
+): BaseViewModel(){
+    private val addTodoItemUseCase = AddTodoItemUseCase(
+        todoListLocalRepositoryImpl,
+        todoListRemoteRepositoryImpl,
+        authRemoteRepositoryImpl
+    )
+    private val editTodoItemUseCase = EditTodoItemUseCase(
+        todoListLocalRepositoryImpl,
+        todoListRemoteRepositoryImpl,
+        authRemoteRepositoryImpl
+    )
+    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(
+        todoListLocalRepositoryImpl,
+        todoListRemoteRepositoryImpl,
+        authRemoteRepositoryImpl
+    )
+    private val getTodoItemUseCase = GetTodoItemUseCase(
+        todoListLocalRepositoryImpl,
+        todoListRemoteRepositoryImpl,
+        authRemoteRepositoryImpl
+    )
 
     override val coroutineExceptionHandler = CoroutineExceptionHandler{ coroutineContext, exception ->
         val message = ExceptionHandler.parse(exception)
@@ -30,56 +50,26 @@ class TodoViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewM
         }
     }
 
-    fun addTodo(todoItem: TodoItem){
+    fun addTodo(todoItem: TodoItem, block: (Result<TodoItem>)->Unit){
         viewModelScope.launchCoroutine {
             addTodoItemUseCase(todoItem).collect{
-                when(it.status){
-                    ResultStatus.SUCCESS -> {
-                        println("Добавлен элемент с id: ${it.data.id}")
-                    }
-                    ResultStatus.LOADING -> {
-                        println("Добавление...")
-                    }
-                    ResultStatus.FAILURE -> {
-                        println("Ошибка добавления элемента id: ${it.data.id}")
-                    }
-                }
+                block(it)
             }
         }
     }
 
-    fun editTodo(todoItem: TodoItem){
+    fun editTodo(todoItem: TodoItem, block: (Result<TodoItem>)->Unit){
         viewModelScope.launchCoroutine {
             editTodoItemUseCase(todoItem).collect{
-                when(it.status){
-                    ResultStatus.SUCCESS -> {
-                        println("Отредактирован элемент с id: ${it.data.id}")
-                    }
-                    ResultStatus.LOADING -> {
-                        println("Редактирование...")
-                    }
-                    ResultStatus.FAILURE -> {
-                        println("Ошибка редактирования элемента id: ${it.data.id}")
-                    }
-                }
+                block(it)
             }
         }
     }
 
-    fun deleteTodo(todoId: String){
+    fun deleteTodo(todoId: String, block: (Result<TodoItem>)->Unit){
         viewModelScope.launchCoroutine {
             deleteTodoItemUseCase(todoId).collect{
-                when(it.status){
-                    ResultStatus.SUCCESS -> {
-                        println("Удален элемент с id: ${it.data.id}")
-                    }
-                    ResultStatus.LOADING -> {
-                        println("Удаление...")
-                    }
-                    ResultStatus.FAILURE -> {
-                        println("Ошибка удаления элемента id: ${it.data.id}")
-                    }
-                }
+                block(it)
             }
         }
     }

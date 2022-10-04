@@ -1,22 +1,39 @@
 package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
 import androidx.lifecycle.*
-import com.glebalekseevjk.yasmrhomework.data.repositoryImpl.local.TodoItemsRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
+import com.glebalekseevjk.yasmrhomework.data.local.repository.TodoListLocalRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.remote.repository.AuthRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.remote.repository.TodoListRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.entity.state.TodoListViewState
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 
-class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseViewModel(){
-    private val editTodoItemUseCase = EditTodoItemUseCase(todoItemsRepositoryImpl)
-    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoItemsRepositoryImpl)
-    private val getTodoListUseCase = GetTodoListUseCase(todoItemsRepositoryImpl)
+class TodoListViewModel(
+    todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
+    todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
+    authRemoteRepositoryImpl: AuthRemoteRepositoryImpl
+    ): BaseViewModel(){
+    private val editTodoItemUseCase = EditTodoItemUseCase(
+        todoListLocalRepositoryImpl,
+        todoListRemoteRepositoryImpl,
+        authRemoteRepositoryImpl
+    )
+    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(
+        todoListLocalRepositoryImpl,
+        todoListRemoteRepositoryImpl,
+        authRemoteRepositoryImpl
+    )
+    private val getTodoListUseCase = GetTodoListUseCase(
+        todoListLocalRepositoryImpl,
+        todoListRemoteRepositoryImpl,
+        authRemoteRepositoryImpl
+    )
 
     override val coroutineExceptionHandler = CoroutineExceptionHandler{ coroutineContext, exception ->
         val message = ExceptionHandler.parse(exception)
@@ -45,46 +62,21 @@ class TodoListViewModel(todoItemsRepositoryImpl: TodoItemsRepositoryImpl): BaseV
         }
     }
 
-
-
-    fun deleteTodo(todoItem: TodoItem){
+    fun deleteTodo(todoItem: TodoItem, block: (Result<TodoItem>)->Unit){
         viewModelScope.launchCoroutine {
             deleteTodoItemUseCase(todoItem).collect{
-                when(it.status){
-                    ResultStatus.SUCCESS -> {
-                        println("Удален элемент с id: ${it.data.id}")
-                    }
-                    ResultStatus.LOADING -> {
-                        println("Удаление...")
-                    }
-                    ResultStatus.FAILURE -> {
-                        println("Ошибка удаления элемента id: ${it.data.id}")
-                    }
-                }
+                block(it)
             }
         }
     }
 
-    fun finishTodo(todoItem: TodoItem){
+    fun finishTodo(todoItem: TodoItem, block: (Result<TodoItem>)->Unit){
         val newTodoItem = todoItem.copy(finished = true)
         viewModelScope.launchCoroutine {
             editTodoItemUseCase(newTodoItem).collect{
-                when(it.status){
-                    ResultStatus.SUCCESS -> {
-                        println("Завершен элемент с id: ${it.data.id}")
-                    }
-                    ResultStatus.LOADING -> {
-                        println("Завершение...")
-                    }
-                    ResultStatus.FAILURE -> {
-                        println("Ошибка завершения элемента id: ${it.data.id}")
-                    }
-                }
+                block(it)
             }
         }
-
     }
-
     var isViewFinished = MutableStateFlow(true)
-
 }

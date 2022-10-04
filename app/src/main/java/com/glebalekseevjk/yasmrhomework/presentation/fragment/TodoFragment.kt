@@ -13,14 +13,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DEFAULT
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
 
 class TodoFragment : Fragment() {
@@ -70,7 +70,7 @@ class TodoFragment : Fragment() {
     private fun initErrorHandler(){
         lifecycleScope.launch{
             todoViewModel.errorHandler.collect{
-                if (it != -1) {
+                if (it != OK) {
                     Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
                 }
             }
@@ -145,15 +145,63 @@ class TodoFragment : Fragment() {
         }
         saveBtn.setOnClickListener {
                 if (screenMode == MODE_EDIT){
-                    todoViewModel.editTodo(todoViewModel.currentTodoItem)
+                    todoViewModel.editTodo(todoViewModel.currentTodoItem){
+                        when(it.status){
+                            ResultStatus.SUCCESS -> {
+                                println("Отредактирован элемент с id: ${it.data.id}")
+                            }
+                            ResultStatus.LOADING -> {
+                                println("Редактирование...")
+                            }
+                            ResultStatus.FAILURE -> {
+                                println("Ошибка редактирования элемента id: ${it.data.id}")
+                            }
+                            ResultStatus.SYN_REQUIRED -> {
+                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            }
+                            else ->{}
+                        }
+                    }
                 }else if(screenMode == MODE_ADD){
-                    todoViewModel.addTodo(todoViewModel.currentTodoItem)
+                    todoViewModel.addTodo(todoViewModel.currentTodoItem){
+                        when(it.status){
+                            ResultStatus.SUCCESS -> {
+                                println("Добавлен элемент с id: ${it.data.id}")
+                            }
+                            ResultStatus.LOADING -> {
+                                println("Добавление...")
+                            }
+                            ResultStatus.FAILURE -> {
+                                println("Ошибка добавления элемента id: ${it.data.id}")
+                            }
+                            ResultStatus.SYN_REQUIRED -> {
+                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            }
+                            else ->{}
+                        }
+                    }
                 }
             requireActivity().onBackPressed()
         }
         removeLl.setOnClickListener {
                 if (screenMode == MODE_EDIT) {
-                    todoViewModel.deleteTodo(todoViewModel.currentTodoItem.id)
+                    todoViewModel.deleteTodo(todoViewModel.currentTodoItem.id){
+                        when(it.status){
+                            ResultStatus.SUCCESS -> {
+                                println("Удален элемент с id: ${it.data.id}")
+                            }
+                            ResultStatus.LOADING -> {
+                                println("Удаление...")
+                            }
+                            ResultStatus.FAILURE -> {
+                                println("Ошибка удаления элемента id: ${it.data.id}")
+                            }
+                            ResultStatus.SYN_REQUIRED -> {
+                                println("ТРЕБУЕТСЯ СИНХРОНИЗИРОВАТЬ СЕРВЕР С КЛИЕНТОМ - ALERT")
+                            }
+                            else ->{}
+                        }
+                    }
                 }
             requireActivity().onBackPressed()
         }

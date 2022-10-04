@@ -3,7 +3,9 @@ package com.glebalekseevjk.yasmrhomework.domain.entity
 enum class ResultStatus {
     SUCCESS,
     LOADING,
-    FAILURE
+    FAILURE,
+    SYN_REQUIRED,
+    UNAUTHORIZED
 }
 
 data class Result<T>(

@@ -1,18 +1,17 @@
-package com.glebalekseevjk.yasmrhomework.data.repositoryImpl.local
+package com.glebalekseevjk.yasmrhomework.data.local.repository
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.repository.TodoItemsRepository
+import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListLocalRepository
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.*
 import java.lang.RuntimeException
 import java.time.LocalDateTime
 
-class TodoItemsRepositoryImpl: TodoItemsRepository {
+class TodoListLocalRepositoryImpl: TodoListLocalRepository {
     private var todoList = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         mutableListOf(
             TodoItem(
