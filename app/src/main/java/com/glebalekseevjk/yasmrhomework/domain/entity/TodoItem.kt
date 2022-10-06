@@ -1,6 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.domain.entity
 
 data class TodoItem(
+    val userId: Long = UNDEFINED,
     val id: Long = UNDEFINED,
     val text: String,
     val importance: Importance = Importance.LOW,

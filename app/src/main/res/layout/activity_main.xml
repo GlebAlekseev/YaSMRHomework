@@ -5,8 +5,8 @@
     android:id="@+id/main_fcv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.fragment.TodoListFragment"
-    android:name="com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoListFragment"
+    tools:context=".presentation.fragment.AuthFragment"
+    android:name="com.glebalekseevjk.yasmrhomework.presentation.fragment.AuthFragment"
     android:background="@color/back_primary"
-    tools:layout="@layout/fragment_todo_list"
+    tools:layout="@layout/fragment_auth"
     />
