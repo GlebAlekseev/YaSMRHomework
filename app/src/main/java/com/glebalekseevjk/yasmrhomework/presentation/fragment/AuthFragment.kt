@@ -35,7 +35,7 @@ class AuthFragment : Fragment() {
 
     private fun initListeners() {
         yandexAuthIBtn.setOnClickListener {
-            val uri = "https://192.168.0.102:443/auth/login".toUri()
+            val uri = getString(R.string.authorize_url).toUri()
             val customTabsIntent = CustomTabsIntent.Builder().build()
             customTabsIntent.intent.setPackage("com.android.chrome")
             customTabsIntent.launchUrl(requireContext() ,uri)
