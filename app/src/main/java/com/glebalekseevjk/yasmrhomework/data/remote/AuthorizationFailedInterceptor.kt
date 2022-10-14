@@ -2,6 +2,7 @@ package com.glebalekseevjk.yasmrhomework.data.remote
 
 import com.glebalekseevjk.yasmrhomework.data.remote.model.RefreshToken
 import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
+import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -12,6 +13,7 @@ import java.util.concurrent.TimeUnit
 
 class AuthorizationFailedInterceptor(
     private val tokenStorage: TokenStorage,
+    private val revisionStorage: RevisionStorage,
     private val authService: AuthService
 ): Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -107,6 +109,8 @@ class AuthorizationFailedInterceptor(
             tokenUpdateTime = System.currentTimeMillis()
         } else {
             // Неверный refresh_token, выйти из аккаунта
+            tokenStorage.clear()
+            revisionStorage.clear()
             println("Неверный Refresh")
         }
         getLatch()?.countDown()
