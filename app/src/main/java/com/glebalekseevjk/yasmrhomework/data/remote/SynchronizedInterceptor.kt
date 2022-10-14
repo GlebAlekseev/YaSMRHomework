@@ -1,6 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesSynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.data.remote.model.RefreshToken
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
@@ -16,8 +17,9 @@ import retrofit2.awaitResponse
 
 class SynchronizedInterceptor(
     private val synchronizedStorage: SynchronizedStorage,
-    private val todoService: TodoService,
     private val revisionStorage: RevisionStorage,
+    private val todoService: TodoService,
+    private val todoItemDao: TodoItemDao
 ): Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         // Если synchronizedStorage, то делаю сначала запрос на патч, иначе передаю дальше
