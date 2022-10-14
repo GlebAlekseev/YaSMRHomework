@@ -47,7 +47,7 @@ class MainViewModel(
         }
     }
 
-    fun getAndSetTokens(code: String, block: (Result<TokenPair>, SharedPreferencesTokenStorage)->Unit){
+    fun getAndSetTokens(code: String, block: (Result<Boolean>, SharedPreferencesTokenStorage)->Unit){
         viewModelScope.launch {
             getTokenPairUseCase(code).collect{
                 block(it, sharedPreferencesTokenStorage)

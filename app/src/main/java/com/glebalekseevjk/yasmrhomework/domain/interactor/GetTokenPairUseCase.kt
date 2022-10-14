@@ -9,5 +9,5 @@ import kotlinx.coroutines.flow.Flow
 class GetTokenPairUseCase(
     private val authRepository: AuthRepository,
 ) {
-    operator fun invoke(code: String): Flow<Result<TokenPair>> = authRepository.getTokenPair(code)
+    operator fun invoke(code: String): Flow<Result<Boolean>> = authRepository.getTokenPair(code)
 }

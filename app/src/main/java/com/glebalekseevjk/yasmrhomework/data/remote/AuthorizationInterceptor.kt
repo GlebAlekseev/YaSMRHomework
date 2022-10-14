@@ -22,6 +22,5 @@ class AuthorizationInterceptor(private val tokenStorage: TokenStorage): Intercep
             }
             .build()
     }
-
     private fun String.withBearer() = "Bearer $this"
 }

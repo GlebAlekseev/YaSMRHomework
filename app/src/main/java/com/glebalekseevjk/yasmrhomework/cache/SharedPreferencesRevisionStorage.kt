@@ -15,27 +15,23 @@ class SharedPreferencesRevisionStorage(context: Context): RevisionStorage {
 
     override fun getRevision(): Revision? {
         val revision = revisionPref.getLong(PREF_KEY_REVISION, 0)
-        val userId = revisionPref.getLong(PREF_KEY_USER_ID, 0)
-        if (revision == 0L || userId == 0L){
+        if (revision == 0L){
             return null
         }else{
-            return Revision(userId, revision)
+            return Revision(revision)
         }
     }
 
     override fun setRevision(revision: Revision) {
         revisionPref.edit().putLong(PREF_KEY_REVISION,revision.revision).apply()
-        revisionPref.edit().putLong(PREF_KEY_USER_ID,revision.userId).apply()
     }
 
     override fun clear() {
         revisionPref.edit().remove(PREF_KEY_REVISION).apply()
-        revisionPref.edit().remove(PREF_KEY_USER_ID).apply()
     }
 
     companion object {
         private val PREF_PACKAGE_NAME = "com.glebalekseevjk.yasmrhomework"
         private val PREF_KEY_REVISION = "revision"
-        private val PREF_KEY_USER_ID = "user_id"
     }
 }
