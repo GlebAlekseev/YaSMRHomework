@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.glebalekseevjk.yasmrhomework.domain.features.synchronized.SynchronizedStorage
 
-class SharedPreferencesSynchronizedStorage(context: Context): SynchronizedStorage {
+class SharedPreferencesSynchronizedStorage(context: Context) : SynchronizedStorage {
     private val syncPref: SharedPreferences
+
     init {
-        syncPref = context.getSharedPreferences(PREF_PACKAGE_NAME,Context.MODE_PRIVATE)
+        syncPref = context.getSharedPreferences(PREF_PACKAGE_NAME, Context.MODE_PRIVATE)
     }
 
     override fun getSynchronizedStatus(): Boolean {

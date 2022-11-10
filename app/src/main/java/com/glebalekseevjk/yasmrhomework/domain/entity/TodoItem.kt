@@ -11,13 +11,14 @@ data class TodoItem(
     val createdAt: Long = System.currentTimeMillis(),
     val changedAt: Long? = null,
     val lastUpdatedBy: Long = UNDEFINED
-){
-    companion object{
-        enum class Importance{
+) {
+    companion object {
+        enum class Importance {
             LOW,
             BASIC,
             IMPORTANT
         }
+
         const val UNDEFINED = 0L
         val PLUG = TodoItem(
             text = "plug",

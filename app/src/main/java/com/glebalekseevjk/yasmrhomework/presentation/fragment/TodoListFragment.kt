@@ -10,7 +10,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.*
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
@@ -25,12 +26,15 @@ import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class TodoListFragment : Fragment() {
     private val todoListViewModel by lazy {
-        ViewModelProvider(this,(context?.applicationContext as MainApplication).todoListViewModelFactory)[TodoListViewModel::class.java]
+        ViewModelProvider(
+            this,
+            (context?.applicationContext as MainApplication).todoListViewModelFactory
+        )[TodoListViewModel::class.java]
     }
     private lateinit var headerLl: LinearLayout
     private lateinit var headerCountTv: TextView
@@ -58,53 +62,56 @@ class TodoListFragment : Fragment() {
         setupRecyclerView()
         observeViewModel()
     }
-    private fun initErrorHandler(){
-        lifecycleScope.launch{
-            todoListViewModel.errorHandler.collect{
+
+    private fun initErrorHandler() {
+        lifecycleScope.launch {
+            todoListViewModel.errorHandler.collect {
                 if (it != OK) {
-                    Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, resources.getString(it), Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    private fun observeViewModel(){
+    private fun observeViewModel() {
         observeSubmitListAdapter()
     }
 
-    private fun observeSubmitListAdapter(){
+    private fun observeSubmitListAdapter() {
         lifecycleScope.launch {
-            with(todoListViewModel){
+            with(todoListViewModel) {
                 todoListViewState
-                    .combine(isViewFinished){ state, isViewFinished ->
+                    .combine(isViewFinished) { state, isViewFinished ->
                         Pair(state, isViewFinished)
                     }
-                    .collect{ (state, isViewFinished) ->
+                    .collect { (state, isViewFinished) ->
                         submitListAdapter(state, isViewFinished)
                     }
             }
         }
     }
 
-    private fun submitListAdapter(state: TodoListViewState, isViewFinished: Boolean){
-            when(state.result.status ){
-                ResultStatus.SUCCESS -> {
-                    val list = state.result.data
-                    val newTaskList = if (isViewFinished) list.filter { !it.done } else list
-                    headerCountTv.text = String.format(resources.getString(R.string.count_done),
-                        list.size - newTaskList.size)
-                    taskListAdapter.submitList(newTaskList.toList())
-                }
-                ResultStatus.LOADING -> {
-                    println("LOADING...")
-                }
-                ResultStatus.FAILURE -> {
-                    println("ERROR: ${getString(state.errorMessageResourceId)}.")
-                }
-                ResultStatus.UNAUTHORIZED ->{
-                    println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
-                }
+    private fun submitListAdapter(state: TodoListViewState, isViewFinished: Boolean) {
+        when (state.result.status) {
+            ResultStatus.SUCCESS -> {
+                val list = state.result.data
+                val newTaskList = if (isViewFinished) list.filter { !it.done } else list
+                headerCountTv.text = String.format(
+                    resources.getString(R.string.count_done),
+                    list.size - newTaskList.size
+                )
+                taskListAdapter.submitList(newTaskList.toList())
             }
+            ResultStatus.LOADING -> {
+                println("LOADING...")
+            }
+            ResultStatus.FAILURE -> {
+                println("ERROR: ${getString(state.errorMessageResourceId)}.")
+            }
+            ResultStatus.UNAUTHORIZED -> {
+                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+            }
+        }
     }
 
     private fun initViews(view: View) {
@@ -123,7 +130,7 @@ class TodoListFragment : Fragment() {
             val fragment = TodoFragment.newInstanceAddTodo()
             launchFragment(fragment)
         }
-        headerViewIv.setOnClickListener{
+        headerViewIv.setOnClickListener {
             todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
         }
 
@@ -135,8 +142,8 @@ class TodoListFragment : Fragment() {
             adapter = taskListAdapter
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
-                    todoListViewModel.finishTodo(taskListAdapter.currentList[position]){
-                        when(it.status){
+                    todoListViewModel.finishTodo(taskListAdapter.currentList[position]) {
+                        when (it.status) {
                             ResultStatus.SUCCESS -> {
                                 println("Завершен элемент с id: ${it.data.id}")
                             }
@@ -146,15 +153,16 @@ class TodoListFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка завершения элемента id: ${it.data.id}")
                             }
-                            ResultStatus.UNAUTHORIZED ->{
+                            ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             }
                         }
                     }
                 }
+
                 override fun onRightClicked(position: Int) {
-                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position]){
-                        when(it.status){
+                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position]) {
+                        when (it.status) {
                             ResultStatus.SUCCESS -> {
                                 println("Удален элемент с id: ${it.data.id}")
                             }
@@ -164,7 +172,7 @@ class TodoListFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка удаления элемента id: ${it.data.id}")
                             }
-                            ResultStatus.UNAUTHORIZED ->{
+                            ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             }
                         }
@@ -177,10 +185,13 @@ class TodoListFragment : Fragment() {
                     swipeController.onDraw(c)
                 }
             })
-            setOnTouchListener(OnTouchListener(
-                headerLl,
-                headerCountTv,
-                dp))
+            setOnTouchListener(
+                OnTouchListener(
+                    headerLl,
+                    headerCountTv,
+                    dp
+                )
+            )
             taskListAdapter.editClickListener = { id ->
                 val fragment = TodoFragment.newInstanceEditTodo(todoId = id)
                 launchFragment(fragment)

@@ -1,7 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
-import com.glebalekseevjk.yasmrhomework.data.remote.model.RefreshToken
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
 import kotlinx.coroutines.runBlocking
@@ -18,13 +17,14 @@ class RevisionFailedInterceptor(
     private val revisionStorage: RevisionStorage,
     private val todoService: TodoService,
     private val todoItemDao: TodoItemDao
-): Interceptor {
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalResponse = chain.proceed(chain.request())
         return originalResponse
             .takeIf { it.code != 400 }
             ?: handleBadRevisionResponse(chain, originalResponse)
     }
+
     private fun handleBadRevisionResponse(
         chain: Interceptor.Chain,
         originalResponse: Response
@@ -81,13 +81,13 @@ class RevisionFailedInterceptor(
             runCatching {
                 todoService.getTodoList().awaitResponse()
             }.getOrNull()?.let { todoListResponse ->
-                if (todoListResponse.code() == 200){
+                if (todoListResponse.code() == 200) {
                     val todoList = todoListResponse.body()?.list ?: return@let false
                     val revision = todoListResponse.body()?.revision ?: return@let false
                     revisionStorage.setRevision(Revision(revision))
                     // set list in db
                     true
-                }else{
+                } else {
                     false
                 }
             } ?: false
@@ -97,13 +97,15 @@ class RevisionFailedInterceptor(
         return revisionRefreshed
     }
 
-    companion object{
+    companion object {
         private const val REQUEST_TIMEOUT = 30L
         private var countDownLatch: CountDownLatch? = null
+
         @Synchronized
         fun initLatch() {
             countDownLatch = CountDownLatch(1)
         }
+
         @Synchronized
         fun getLatch() = countDownLatch
     }

@@ -10,31 +10,35 @@ import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
 
 
 class TodoViewModelFactory(
+    private val application: Application,
     private val todoListRepositoryImpl: TodoListRepositoryImpl,
-    ): ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoViewModel(
+            application,
             todoListRepositoryImpl
         ) as T
     }
 }
 
 class TodoListViewModelFactory(
+    private val application: Application,
     private val todoListRepositoryImpl: TodoListRepositoryImpl,
-): ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoListViewModel(
+            application,
             todoListRepositoryImpl
         ) as T
     }
 }
 
-class MainListViewModelFactory(
+class MainViewModelFactory(
     private val application: Application,
     private val authRepositoryImpl: AuthRepositoryImpl,
     private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage,
     private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage
-): ViewModelProvider.Factory {
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MainViewModel(
             application,

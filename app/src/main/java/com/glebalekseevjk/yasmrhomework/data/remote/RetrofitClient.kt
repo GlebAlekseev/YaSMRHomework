@@ -20,20 +20,33 @@ object RetrofitClient {
         revisionStorage: RevisionStorage,
         synchronizedStorage: SynchronizedStorage,
         todoItemDao: TodoItemDao
-    ){
+    ) {
         okHttpClient = OkHttpClient.Builder()
             .addNetworkInterceptor(
                 HttpLoggingInterceptor {
-                    Log.d("Network",it)
+                    Log.d("Network", it)
                 }
                     .setLevel(HttpLoggingInterceptor.Level.BODY)
             )
             .addNetworkInterceptor(AuthorizationInterceptor(tokenStorage))
-            .addNetworkInterceptor(SynchronizedInterceptor(synchronizedStorage, revisionStorage, todoApi, todoItemDao))
+            .addNetworkInterceptor(
+                SynchronizedInterceptor(
+                    synchronizedStorage,
+                    revisionStorage,
+                    todoApi,
+                    todoItemDao
+                )
+            )
             .addNetworkInterceptor(RevisionInterceptor(revisionStorage))
 
             .addNetworkInterceptor(RevisionFailedInterceptor(revisionStorage, todoApi, todoItemDao))
-            .addNetworkInterceptor(AuthorizationFailedInterceptor(tokenStorage, revisionStorage, authApi))
+            .addNetworkInterceptor(
+                AuthorizationFailedInterceptor(
+                    tokenStorage,
+                    revisionStorage,
+                    authApi
+                )
+            )
             .build()
         retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)

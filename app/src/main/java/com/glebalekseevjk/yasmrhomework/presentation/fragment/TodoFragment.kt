@@ -2,7 +2,6 @@ package com.glebalekseevjk.yasmrhomework.presentation.fragment
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,11 +22,13 @@ import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 
 class TodoFragment : Fragment() {
     private val todoViewModel by lazy {
-        ViewModelProvider(this,(context?.applicationContext as MainApplication).todoViewModelFactory)[TodoViewModel::class.java]
+        ViewModelProvider(
+            this,
+            (context?.applicationContext as MainApplication).todoViewModelFactory
+        )[TodoViewModel::class.java]
     }
     private var screenMode: String = MODE_ADD
     private var todoId: Long = TodoItem.UNDEFINED
@@ -47,7 +48,7 @@ class TodoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             parseParams()
         }
     }
@@ -68,21 +69,21 @@ class TodoFragment : Fragment() {
         initData()
     }
 
-    private fun initErrorHandler(){
-        lifecycleScope.launch{
-            todoViewModel.errorHandler.collect{
+    private fun initErrorHandler() {
+        lifecycleScope.launch {
+            todoViewModel.errorHandler.collect {
                 if (it != OK) {
-                    Toast.makeText(context,resources.getString(it), Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, resources.getString(it), Toast.LENGTH_LONG).show()
                 }
             }
         }
     }
 
-    private fun setTextMessageView(){
+    private fun setTextMessageView() {
         messageEt.text = todoViewModel.currentTodoItem.text
     }
 
-    private fun setImportanceView(){
+    private fun setImportanceView() {
         importantStateTv.text = when (todoViewModel.currentTodoItem.importance) {
             Importance.LOW -> {
                 "Нет"
@@ -96,26 +97,26 @@ class TodoFragment : Fragment() {
         }
     }
 
-    private fun setDeadlineView(){
-        if (todoViewModel.currentTodoItem.deadline != null){
+    private fun setDeadlineView() {
+        if (todoViewModel.currentTodoItem.deadline != null) {
             deadlineSw.isChecked = true
             deadlineDataTv.text = todoViewModel.currentTodoItem.deadline.toString()
             deadlineDataTv.visibility = View.VISIBLE
-        }else{
+        } else {
             deadlineSw.isChecked = false
             deadlineDataTv.visibility = View.INVISIBLE
         }
     }
 
-    private fun setRemoveButtonView(){
-        if (screenMode == MODE_EDIT){
+    private fun setRemoveButtonView() {
+        if (screenMode == MODE_EDIT) {
             removeLl.visibility = View.VISIBLE
-        }else if(screenMode == MODE_ADD){
+        } else if (screenMode == MODE_ADD) {
             removeLl.visibility = View.GONE
         }
     }
 
-    private fun initData(){
+    private fun initData() {
         setTextMessageView()
         setImportanceView()
         setDeadlineView()
@@ -144,71 +145,73 @@ class TodoFragment : Fragment() {
             requireActivity().onBackPressed()
         }
         saveBtn.setOnClickListener {
-                if (screenMode == MODE_EDIT){
-                    todoViewModel.editTodo(todoViewModel.currentTodoItem){
-                        when(it.status){
-                            ResultStatus.SUCCESS -> {
-                                println("Отредактирован элемент с id: ${it.data.id}")
-                            }
-                            ResultStatus.LOADING -> {
-                                println("Редактирование...")
-                            }
-                            ResultStatus.FAILURE -> {
-                                println("Ошибка редактирования элемента id: ${it.data.id}")
-                            }
-                            ResultStatus.UNAUTHORIZED ->{
-                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
-                            }
+            if (screenMode == MODE_EDIT) {
+                todoViewModel.editTodo(todoViewModel.currentTodoItem) {
+                    when (it.status) {
+                        ResultStatus.SUCCESS -> {
+                            println("Отредактирован элемент с id: ${it.data.id}")
                         }
-                    }
-                }else if(screenMode == MODE_ADD){
-                    todoViewModel.addTodo(todoViewModel.currentTodoItem){
-                        when(it.status){
-                            ResultStatus.SUCCESS -> {
-                                println("Добавлен элемент с id: ${it.data.id}")
-                            }
-                            ResultStatus.LOADING -> {
-                                println("Добавление...")
-                            }
-                            ResultStatus.FAILURE -> {
-                                println("Ошибка добавления элемента id: ${it.data.id}")
-                            }
-                            ResultStatus.UNAUTHORIZED ->{
-                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
-                            }
+                        ResultStatus.LOADING -> {
+                            println("Редактирование...")
+                        }
+                        ResultStatus.FAILURE -> {
+                            println("Ошибка редактирования элемента id: ${it.data.id}")
+                        }
+                        ResultStatus.UNAUTHORIZED -> {
+                            println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                         }
                     }
                 }
+            } else if (screenMode == MODE_ADD) {
+                todoViewModel.addTodo(todoViewModel.currentTodoItem) {
+                    when (it.status) {
+                        ResultStatus.SUCCESS -> {
+                            println("Добавлен элемент с id: ${it.data.id}")
+                        }
+                        ResultStatus.LOADING -> {
+                            println("Добавление...")
+                        }
+                        ResultStatus.FAILURE -> {
+                            println("Ошибка добавления элемента id: ${it.data.id}")
+                        }
+                        ResultStatus.UNAUTHORIZED -> {
+                            println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+                        }
+                    }
+                }
+            }
             requireActivity().onBackPressed()
         }
         removeLl.setOnClickListener {
-                if (screenMode == MODE_EDIT) {
-                    todoViewModel.deleteTodo(todoViewModel.currentTodoItem.id){
-                        when(it.status){
-                            ResultStatus.SUCCESS -> {
-                                println("Удален элемент с id: ${it.data.id}")
-                            }
-                            ResultStatus.LOADING -> {
-                                println("Удаление...")
-                            }
-                            ResultStatus.FAILURE -> {
-                                println("Ошибка удаления элемента id: ${it.data.id}")
-                            }
-                            ResultStatus.UNAUTHORIZED ->{
-                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
-                            }
+            if (screenMode == MODE_EDIT) {
+                todoViewModel.deleteTodo(todoViewModel.currentTodoItem.id) {
+                    when (it.status) {
+                        ResultStatus.SUCCESS -> {
+                            println("Удален элемент с id: ${it.data.id}")
+                        }
+                        ResultStatus.LOADING -> {
+                            println("Удаление...")
+                        }
+                        ResultStatus.FAILURE -> {
+                            println("Ошибка удаления элемента id: ${it.data.id}")
+                        }
+                        ResultStatus.UNAUTHORIZED -> {
+                            println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                         }
                     }
                 }
+            }
             requireActivity().onBackPressed()
         }
         messageEt.addTextChangedListener {
             todoViewModel.currentTodoItem =
                 todoViewModel.currentTodoItem.copy(text = it.toString())
         }
-        contentSv.setOnScrollChangeListener(TodoOnScrollChangeListener(
-            headerLl
-        ))
+        contentSv.setOnScrollChangeListener(
+            TodoOnScrollChangeListener(
+                headerLl
+            )
+        )
         importantLl.setOnClickListener {
             setPopupMenu()
         }
@@ -237,7 +240,7 @@ class TodoFragment : Fragment() {
         val popup = PopupMenu(requireActivity(), importantLl)
         popup.inflate(R.menu.popup_menu)
         popup.setOnMenuItemClickListener {
-            val importance = when(it.toString()){
+            val importance = when (it.toString()) {
                 "Нет" -> Importance.LOW
                 "Низкий" -> Importance.BASIC
                 "Высокий" -> Importance.IMPORTANT

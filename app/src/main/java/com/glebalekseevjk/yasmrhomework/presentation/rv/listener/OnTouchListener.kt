@@ -26,7 +26,8 @@ class OnTouchListener(
                 return@let
             }
             if (it.action == MotionEvent.ACTION_MOVE) return@let
-            val firstItemPos = (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+            val firstItemPos =
+                (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
 
             if (currentOffset > 0 && firstItemPos > 5) return@let
 
@@ -45,16 +46,22 @@ class OnTouchListener(
 
 
             if (TouchEventSettings.stabilizedAnimation) {
-                animateValue(countDoneTextView.height,
-                    TouchEventSettings.heightCountDoneTextView) {
+                animateValue(
+                    countDoneTextView.height,
+                    TouchEventSettings.heightCountDoneTextView
+                ) {
                     countDoneTextView.updateLayoutParams { height = it }
                 }
-                animateValue(linearLayout.paddingLeft,
-                    TouchEventSettings.paddingLeftLinearLayout) {
+                animateValue(
+                    linearLayout.paddingLeft,
+                    TouchEventSettings.paddingLeftLinearLayout
+                ) {
                     linearLayout.updatePadding(left = it)
                 }
-                animateValue(linearLayout.paddingRight,
-                    TouchEventSettings.paddingRightLinearLayout) {
+                animateValue(
+                    linearLayout.paddingRight,
+                    TouchEventSettings.paddingRightLinearLayout
+                ) {
                     linearLayout.updatePadding(right = it)
                 }
                 TouchEventSettings.stabilizedAnimation = false

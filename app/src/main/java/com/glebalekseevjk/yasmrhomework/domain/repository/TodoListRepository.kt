@@ -1,8 +1,8 @@
 package com.glebalekseevjk.yasmrhomework.domain.repository
 
+import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import kotlinx.coroutines.flow.Flow
-import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 
 interface TodoListRepository {
     fun getTodoList(): Flow<Result<List<TodoItem>>>

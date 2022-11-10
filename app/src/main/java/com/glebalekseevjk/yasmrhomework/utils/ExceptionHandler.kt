@@ -2,7 +2,6 @@ package com.glebalekseevjk.yasmrhomework.utils
 
 import androidx.annotation.StringRes
 import com.glebalekseevjk.yasmrhomework.R
-import java.lang.RuntimeException
 
 internal object ExceptionHandler {
     @StringRes

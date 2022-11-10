@@ -8,5 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class EditTodoItemUseCase(
     private val todoListRepository: TodoListRepository,
 ) {
-    operator fun invoke(todoItem: TodoItem): Flow<Result<TodoItem>> = todoListRepository.editTodoItem(todoItem)
+    operator fun invoke(todoItem: TodoItem): Flow<Result<TodoItem>> =
+        todoListRepository.editTodoItem(todoItem)
 }

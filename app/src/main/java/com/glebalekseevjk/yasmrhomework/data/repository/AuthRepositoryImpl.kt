@@ -1,17 +1,9 @@
 package com.glebalekseevjk.yasmrhomework.data.repository
 
-import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
-import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
 import com.glebalekseevjk.yasmrhomework.data.remote.AuthService
-import com.glebalekseevjk.yasmrhomework.data.remote.TodoService
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.entity.TokenPair
 import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
-import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
-import com.glebalekseevjk.yasmrhomework.domain.features.synchronized.SynchronizedStorage
-import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import com.glebalekseevjk.yasmrhomework.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -22,26 +14,26 @@ import retrofit2.awaitResponse
 class AuthRepositoryImpl(
     private val authService: AuthService,
     private val tokenStorage: TokenStorage,
-): AuthRepository {
-    override fun getTokenPair(code: String): Flow<Result<Boolean>> = flow {
-        emit(Result(ResultStatus.LOADING,false))
+) : AuthRepository {
+    override fun getTokenPair(code: String): Flow<Result<Unit>> = flow {
+        emit(Result(ResultStatus.LOADING, Unit))
         val authResponse = authService.getTokenPair(code).awaitResponse()
         val tokenPair = authResponse.body()?.data
-        if (authResponse.code() == 200 && tokenPair != null){
+        if (authResponse.code() == 200 && tokenPair != null) {
             tokenStorage.setTokenPair(tokenPair)
-            emit(Result(ResultStatus.SUCCESS,true))
-        }else{
-            emit(Result(ResultStatus.FAILURE,false))
+            emit(Result(ResultStatus.SUCCESS, Unit))
+        } else {
+            emit(Result(ResultStatus.FAILURE, Unit))
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun logout(accessToken: String): Flow<Result<Boolean>> = flow {
-        emit(Result(ResultStatus.LOADING, false))
+    override fun logout(accessToken: String): Flow<Result<Unit>> = flow {
+        emit(Result(ResultStatus.LOADING, Unit))
         val authResponse = authService.logout(accessToken).awaitResponse()
-        if (authResponse.code() == 200){
-            emit(Result(ResultStatus.SUCCESS,true))
-        }else{
-            emit(Result(ResultStatus.FAILURE,false))
+        if (authResponse.code() == 200) {
+            emit(Result(ResultStatus.SUCCESS, Unit))
+        } else {
+            emit(Result(ResultStatus.FAILURE, Unit))
         }
     }.flowOn(Dispatchers.IO)
 }

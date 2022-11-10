@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class TodoItemDbModel (
+data class TodoItemDbModel(
     @ColumnInfo(name = "user_id") val userId: Long,
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id") val id: Long,

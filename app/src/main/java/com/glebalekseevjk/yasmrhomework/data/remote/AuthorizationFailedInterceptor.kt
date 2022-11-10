@@ -15,7 +15,7 @@ class AuthorizationFailedInterceptor(
     private val tokenStorage: TokenStorage,
     private val revisionStorage: RevisionStorage,
     private val authService: AuthService
-): Interceptor {
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequestTimestamp = System.currentTimeMillis()
         val originalResponse = chain.proceed(chain.request())
@@ -29,11 +29,15 @@ class AuthorizationFailedInterceptor(
         chain: Interceptor.Chain,
         originalResponse: Response,
         requestTimestamp: Long
-    ): Response{
+    ): Response {
         val latch = getLatch()
         return when {
             // Если включена защелка, выполняется refresh (атомарное поведение), надо ждать завершения операции
-            latch != null && latch.count > 0 -> handleTokenIsUpdating(chain, latch, requestTimestamp)
+            latch != null && latch.count > 0 -> handleTokenIsUpdating(
+                chain,
+                latch,
+                requestTimestamp
+            )
                 ?: originalResponse
             // Пока шел ответ со старым токеном, другой запрос уже рефрешнул токены
             tokenUpdateTime > requestTimestamp -> updateTokenAndProceedChain(chain)
@@ -77,6 +81,7 @@ class AuthorizationFailedInterceptor(
         val newRequest = updateOriginalCallWithNewToken(chain.request())
         return chain.proceed(newRequest)
     }
+
     // Вернет модифицированный заголовок с токеном авторизации
     private fun updateOriginalCallWithNewToken(request: Request): Request {
         return tokenStorage.getAccessToken()?.let { newAccessToken ->
@@ -86,6 +91,7 @@ class AuthorizationFailedInterceptor(
                 .build()
         } ?: request
     }
+
     // Атомарное обновление токенов
     private fun refreshToken(): Boolean {
         initLatch()
@@ -93,13 +99,14 @@ class AuthorizationFailedInterceptor(
         val tokenRefreshed = runBlocking {
             val lastRefreshToken = tokenStorage.getRefreshToken().orEmpty()
             runCatching {
-                authService.refreshTokenPair(RefreshToken(refreshToken = lastRefreshToken)).awaitResponse()
+                authService.refreshTokenPair(RefreshToken(refreshToken = lastRefreshToken))
+                    .awaitResponse()
             }.getOrNull()?.let { authResponse ->
-                if (authResponse.code() == 200){
+                if (authResponse.code() == 200) {
                     val tokenPair = authResponse.body()?.data ?: return@let false
                     tokenStorage.setTokenPair(tokenPair)
                     true
-                }else{
+                } else {
                     false
                 }
             } ?: false
@@ -117,13 +124,15 @@ class AuthorizationFailedInterceptor(
         return tokenRefreshed
     }
 
-    companion object{
+    companion object {
         // Время ожидания других запросов, атомарного обновления рефреша
         private const val REQUEST_TIMEOUT = 30L
+
         // Не кешируется процессором, устанавливается значение последнего обновления
         // Другой поток будет получать только последний экземпляр
         @Volatile
         private var tokenUpdateTime: Long = 0L
+
         //  Защелка для осуществления атомарного выоплнения refresh
         private var countDownLatch: CountDownLatch? = null
 

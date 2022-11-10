@@ -5,14 +5,14 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 
 
-class TodoItemMapperImpl: Mapper<TodoItem, TodoItemDbModel> {
+class TodoItemMapperImpl : Mapper<TodoItem, TodoItemDbModel> {
     override fun mapItemToDbModel(item: TodoItem): TodoItemDbModel {
-        with(item){
+        with(item) {
             return TodoItemDbModel(
                 userId,
                 id,
                 text,
-                when(importance){
+                when (importance) {
                     TodoItem.Companion.Importance.LOW -> TodoItemDbModel.Companion.Importance.LOW
                     TodoItem.Companion.Importance.BASIC -> TodoItemDbModel.Companion.Importance.BASIC
                     TodoItem.Companion.Importance.IMPORTANT -> TodoItemDbModel.Companion.Importance.IMPORTANT
@@ -28,12 +28,12 @@ class TodoItemMapperImpl: Mapper<TodoItem, TodoItemDbModel> {
     }
 
     override fun mapDbModelToItem(dbModel: TodoItemDbModel): TodoItem {
-        with(dbModel){
+        with(dbModel) {
             return TodoItem(
                 userId,
                 id,
                 text,
-                when(importance){
+                when (importance) {
                     TodoItemDbModel.Companion.Importance.LOW -> TodoItem.Companion.Importance.LOW
                     TodoItemDbModel.Companion.Importance.BASIC -> TodoItem.Companion.Importance.BASIC
                     TodoItemDbModel.Companion.Importance.IMPORTANT -> TodoItem.Companion.Importance.IMPORTANT

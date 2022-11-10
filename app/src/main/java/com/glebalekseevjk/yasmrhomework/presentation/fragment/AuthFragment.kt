@@ -38,7 +38,7 @@ class AuthFragment : Fragment() {
             val uri = getString(R.string.authorize_url).toUri()
             val customTabsIntent = CustomTabsIntent.Builder().build()
             customTabsIntent.intent.setPackage("com.android.chrome")
-            customTabsIntent.launchUrl(requireContext() ,uri)
+            customTabsIntent.launchUrl(requireContext(), uri)
         }
     }
 }

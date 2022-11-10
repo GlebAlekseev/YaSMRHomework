@@ -5,27 +5,29 @@ import android.content.SharedPreferences
 import com.glebalekseevjk.yasmrhomework.domain.entity.TokenPair
 import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
 
-class SharedPreferencesTokenStorage(context: Context): TokenStorage {
+class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
     private val tokenPref: SharedPreferences
+
     init {
-        tokenPref = context.getSharedPreferences(PREF_PACKAGE_NAME,Context.MODE_PRIVATE)
+        tokenPref = context.getSharedPreferences(PREF_PACKAGE_NAME, Context.MODE_PRIVATE)
     }
 
     override fun getTokenPair(): TokenPair? {
         val access = tokenPref.getString(PREF_KEY_ACCESS_TOKEN, "")
         val refresh = tokenPref.getString(PREF_KEY_REFRESH_TOKEN, "")
         val expiresAt = tokenPref.getLong(PREF_KEY_EXPIRES_AT, 0)
-        if (expiresAt != 0L && expiresAt < System.currentTimeMillis()){
+        if (expiresAt != 0L && expiresAt < System.currentTimeMillis()) {
             return TokenPair(access!!, refresh!!, expiresAt)
-        }else{
+        } else {
+            clear()
             return null
         }
     }
 
     override fun setTokenPair(tokenPair: TokenPair) {
-        tokenPref.edit().putString(PREF_KEY_ACCESS_TOKEN,tokenPair.accessToken).apply()
-        tokenPref.edit().putString(PREF_KEY_REFRESH_TOKEN,tokenPair.refreshToken).apply()
-        tokenPref.edit().putLong(PREF_KEY_EXPIRES_AT,tokenPair.expiresAt).apply()
+        tokenPref.edit().putString(PREF_KEY_ACCESS_TOKEN, tokenPair.accessToken).apply()
+        tokenPref.edit().putString(PREF_KEY_REFRESH_TOKEN, tokenPair.refreshToken).apply()
+        tokenPref.edit().putLong(PREF_KEY_EXPIRES_AT, tokenPair.expiresAt).apply()
     }
 
     override fun clear() {

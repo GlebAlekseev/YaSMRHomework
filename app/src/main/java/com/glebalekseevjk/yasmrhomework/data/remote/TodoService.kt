@@ -19,7 +19,10 @@ interface TodoService {
     suspend fun addTodoItem(@Body todoItem: TodoItem): Call<TodoListResponse>
 
     @PUT("api/list/{id}")
-    suspend fun putTodoItem(@Path("id") todoId: Long,@Body todoItem: TodoItem): Call<TodoListResponse>
+    suspend fun putTodoItem(
+        @Path("id") todoId: Long,
+        @Body todoItem: TodoItem
+    ): Call<TodoListResponse>
 
     @DELETE("api/list/{id}")
     suspend fun deleteTodoItem(@Path("id") todoId: Long): Call<TodoListResponse>
