@@ -2,6 +2,9 @@ package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.viewModelScope
+import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesRevisionStorage
+import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesTokenStorage
+import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
@@ -9,6 +12,7 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.domain.interactor.DeleteTodoItemUseCase
 import com.glebalekseevjk.yasmrhomework.domain.interactor.EditTodoItemUseCase
 import com.glebalekseevjk.yasmrhomework.domain.interactor.GetTodoListUseCase
+import com.glebalekseevjk.yasmrhomework.domain.interactor.LogoutUseCase
 import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
@@ -17,11 +21,17 @@ import kotlinx.coroutines.flow.StateFlow
 
 class TodoListViewModel(
     application: Application,
+    authRepositoryImpl: AuthRepositoryImpl,
     todoListRepositoryImpl: TodoListRepositoryImpl,
 ) : BaseViewModel(application) {
+    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage = SharedPreferencesTokenStorage(application)
+    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage = SharedPreferencesRevisionStorage(application)
+
     private val editTodoItemUseCase = EditTodoItemUseCase(todoListRepositoryImpl)
     private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoListRepositoryImpl)
     private val getTodoListUseCase = GetTodoListUseCase(todoListRepositoryImpl)
+
+    private val logoutUseCase = LogoutUseCase(authRepositoryImpl)
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
@@ -68,5 +78,20 @@ class TodoListViewModel(
         }
     }
 
+    fun logout(){
+        viewModelScope.launchWithExceptionHandler {
+            logoutUseCase()
+        }
+    }
+
+    val isAuth: Boolean
+        get() {
+            val tokenPair = sharedPreferencesTokenStorage.getTokenPair()
+            return if (tokenPair == null) {
+                sharedPreferencesRevisionStorage.clear()
+                // Удалить кеш записи в браузере
+                false
+            } else true
+        }
     var isViewFinished = MutableStateFlow(true)
 }

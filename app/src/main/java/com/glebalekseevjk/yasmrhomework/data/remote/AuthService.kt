@@ -7,11 +7,8 @@ import retrofit2.http.*
 
 interface AuthService {
     @GET("auth/token")
-    suspend fun getTokenPair(@Query("code") code: String): Call<AuthResponse>
+    fun getTokenPair(@Query("code") code: String): Call<AuthResponse>
 
     @POST("auth/refresh")
-    suspend fun refreshTokenPair(@Body refreshToken: RefreshToken): Call<AuthResponse>
-
-    @POST("auth/logout")
-    suspend fun logout(@Header("Authorization") accessToken: String): Call<AuthResponse>
+    fun refreshTokenPair(@Body refreshToken: RefreshToken): Call<AuthResponse>
 }

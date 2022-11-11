@@ -23,11 +23,13 @@ class TodoViewModelFactory(
 
 class TodoListViewModelFactory(
     private val application: Application,
+    private val authRepositoryImpl: AuthRepositoryImpl,
     private val todoListRepositoryImpl: TodoListRepositoryImpl,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoListViewModel(
             application,
+            authRepositoryImpl,
             todoListRepositoryImpl
         ) as T
     }
@@ -35,16 +37,12 @@ class TodoListViewModelFactory(
 
 class MainViewModelFactory(
     private val application: Application,
-    private val authRepositoryImpl: AuthRepositoryImpl,
-    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage,
-    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage
+    private val authRepositoryImpl: AuthRepositoryImpl
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return MainViewModel(
             application,
             authRepositoryImpl,
-            sharedPreferencesTokenStorage,
-            sharedPreferencesRevisionStorage
         ) as T
     }
 }

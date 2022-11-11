@@ -8,6 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class LogoutUseCase(
     private val authRepository: AuthRepository,
 ) {
-    operator fun invoke(accessToken: String): Flow<Result<Unit>> =
-        authRepository.logout(accessToken)
+    operator fun invoke(): Flow<Result<Unit>> =
+        authRepository.logout()
 }

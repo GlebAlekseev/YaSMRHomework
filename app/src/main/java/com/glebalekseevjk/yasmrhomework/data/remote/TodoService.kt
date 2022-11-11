@@ -7,23 +7,23 @@ import retrofit2.http.*
 
 interface TodoService {
     @GET("api/list")
-    suspend fun getTodoList(): Call<TodoListResponse>
+    fun getTodoList(): Call<TodoListResponse>
 
     @PATCH("api/list")
-    suspend fun patchTodoList(todoList: List<TodoItem>): Call<TodoListResponse>
+    fun patchTodoList(todoList: List<TodoItem>): Call<TodoListResponse>
 
     @GET("api/list/{id}")
-    suspend fun getTodoItem(@Path("id") todoId: Long): Call<TodoListResponse>
+    fun getTodoItem(@Path("id") todoId: Long): Call<TodoListResponse>
 
     @POST("api/list")
-    suspend fun addTodoItem(@Body todoItem: TodoItem): Call<TodoListResponse>
+    fun addTodoItem(@Body todoItem: TodoItem): Call<TodoListResponse>
 
     @PUT("api/list/{id}")
-    suspend fun putTodoItem(
+    fun putTodoItem(
         @Path("id") todoId: Long,
         @Body todoItem: TodoItem
     ): Call<TodoListResponse>
 
     @DELETE("api/list/{id}")
-    suspend fun deleteTodoItem(@Path("id") todoId: Long): Call<TodoListResponse>
+    fun deleteTodoItem(@Path("id") todoId: Long): Call<TodoListResponse>
 }

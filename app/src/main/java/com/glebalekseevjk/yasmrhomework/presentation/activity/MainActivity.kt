@@ -6,10 +6,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.data.remote.RetrofitClient
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
+import com.glebalekseevjk.yasmrhomework.presentation.fragment.AuthFragment
 import com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoListFragment
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 
 class MainActivity : AppCompatActivity() {
@@ -25,6 +30,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         if (mainViewModel.isAuth) {
             launchFragment(TodoListFragment())
+        }else {
+            launchFragment(AuthFragment())
         }
     }
 
@@ -39,8 +46,10 @@ class MainActivity : AppCompatActivity() {
                             launchFragment(TodoListFragment())
                         }
                     }
-                    ResultStatus.LOADING -> {}
-                    ResultStatus.FAILURE -> {}
+                    ResultStatus.LOADING -> {
+                    }
+                    ResultStatus.FAILURE -> {
+                    }
                     else -> {}
                 }
             }
@@ -50,7 +59,6 @@ class MainActivity : AppCompatActivity() {
     private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .add(R.id.main_fcv, fragment)
-            .addToBackStack(null)
             .commit()
     }
 }

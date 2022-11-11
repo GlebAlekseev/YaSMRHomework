@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".presentation.fragment.AuthFragment"
-    android:name="com.glebalekseevjk.yasmrhomework.presentation.fragment.AuthFragment"
     android:background="@color/back_primary"
     tools:layout="@layout/fragment_auth"
     />

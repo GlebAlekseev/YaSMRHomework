@@ -13,13 +13,10 @@ class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
     }
 
     override fun getTokenPair(): TokenPair? {
-        val access = tokenPref.getString(PREF_KEY_ACCESS_TOKEN, "")
-        val refresh = tokenPref.getString(PREF_KEY_REFRESH_TOKEN, "")
-        val expiresAt = tokenPref.getLong(PREF_KEY_EXPIRES_AT, 0)
-        if (expiresAt != 0L && expiresAt < System.currentTimeMillis()) {
-            return TokenPair(access!!, refresh!!, expiresAt)
+        val expiresAt = getExpiresAt()
+        if (expiresAt != null) {
+            return TokenPair(getAccessToken()!!, getRefreshToken()!!, expiresAt)
         } else {
-            clear()
             return null
         }
     }
@@ -38,6 +35,9 @@ class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
 
     override fun getExpiresAt(): Long? {
         val expiresAt = tokenPref.getLong(PREF_KEY_EXPIRES_AT, 0)
+        if (expiresAt < System.currentTimeMillis()) {
+            clear()
+        }
         return if (expiresAt != 0L) expiresAt else null
     }
 
@@ -56,5 +56,6 @@ class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
         private val PREF_KEY_ACCESS_TOKEN = "access_token"
         private val PREF_KEY_REFRESH_TOKEN = "refresh_token"
         private val PREF_KEY_EXPIRES_AT = "expires_at"
+        const val DAY_MILLIS = 86400000
     }
 }

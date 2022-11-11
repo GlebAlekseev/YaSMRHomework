@@ -14,9 +14,11 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 class MainViewModel(
     application: Application,
     authRepositoryImpl: AuthRepositoryImpl,
-    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage,
-    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage
 ) : BaseViewModel(application) {
+    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage = SharedPreferencesTokenStorage(application)
+    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage = SharedPreferencesRevisionStorage(application)
+
+
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
             val message = ExceptionHandler.parse(exception)

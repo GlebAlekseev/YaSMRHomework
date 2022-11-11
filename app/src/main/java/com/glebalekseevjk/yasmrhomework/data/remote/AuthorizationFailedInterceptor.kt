@@ -118,7 +118,6 @@ class AuthorizationFailedInterceptor(
             // Неверный refresh_token, выйти из аккаунта
             tokenStorage.clear()
             revisionStorage.clear()
-            println("Неверный Refresh")
         }
         getLatch()?.countDown()
         return tokenRefreshed

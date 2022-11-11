@@ -132,6 +132,8 @@ class TodoListFragment : Fragment() {
         }
         headerViewIv.setOnClickListener {
             todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
+            todoListViewModel.logout()
+            checkAuth()
         }
 
     }
@@ -194,7 +196,7 @@ class TodoListFragment : Fragment() {
             )
             taskListAdapter.editClickListener = { id ->
                 val fragment = TodoFragment.newInstanceEditTodo(todoId = id)
-                launchFragment(fragment)
+                launchFragment(fragment, true)
             }
         }
 
@@ -205,10 +207,17 @@ class TodoListFragment : Fragment() {
         TouchEventSettings.minPaddingTop = (15 * dp).toInt()
     }
 
-    private fun launchFragment(fragment: Fragment) {
-        parentFragmentManager.beginTransaction()
-            .add(R.id.main_fcv, fragment)
-            .addToBackStack(null)
-            .commit()
+    private fun launchFragment(fragment: Fragment, isBackStack: Boolean = false) =
+        with(parentFragmentManager.beginTransaction()) {
+            add(R.id.main_fcv, fragment)
+            if (isBackStack) {
+                addToBackStack(null)
+            }
+            commit()
+        }
+    private fun checkAuth(){
+        if (todoListViewModel.isAuth) {
+            launchFragment(AuthFragment())
+        }
     }
 }
