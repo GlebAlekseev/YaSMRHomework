@@ -110,6 +110,7 @@ class TodoListFragment : Fragment() {
             }
             ResultStatus.UNAUTHORIZED -> {
                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+                checkAuth()
             }
         }
     }
@@ -128,14 +129,11 @@ class TodoListFragment : Fragment() {
         addTaskBtn.setOnClickListener {
             // Запустить TodoFragment ADD_EDIT
             val fragment = TodoFragment.newInstanceAddTodo()
-            launchFragment(fragment)
+            launchFragment(fragment, true)
         }
         headerViewIv.setOnClickListener {
             todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
-            todoListViewModel.logout()
-            checkAuth()
         }
-
     }
 
     private fun setupRecyclerView() {
@@ -157,6 +155,7 @@ class TodoListFragment : Fragment() {
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+                                checkAuth()
                             }
                         }
                     }
@@ -176,6 +175,7 @@ class TodoListFragment : Fragment() {
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+                                checkAuth()
                             }
                         }
                     }

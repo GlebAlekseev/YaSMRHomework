@@ -50,7 +50,8 @@ class MainApplication : Application() {
         todoListRepositoryImpl = TodoListRepositoryImpl(
             appDatabase.todoItemDao(),
             todoItemMapperImpl,
-            RetrofitClient.todoApi
+            RetrofitClient.todoApi,
+            sharedPreferencesRevisionStorage
         )
         authRepositoryImpl = AuthRepositoryImpl(RetrofitClient.authApi, sharedPreferencesTokenStorage)
 
