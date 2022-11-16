@@ -1,6 +1,9 @@
 package com.glebalekseevjk.yasmrhomework.presentation.application
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesRevisionStorage
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesTokenStorage
@@ -15,6 +18,9 @@ import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModelFactory
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModelFactory
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModelFactory
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.last
+import kotlinx.coroutines.runBlocking
 
 class MainApplication : Application() {
     private lateinit var appDatabase: AppDatabase
@@ -44,14 +50,16 @@ class MainApplication : Application() {
             sharedPreferencesTokenStorage,
             sharedPreferencesRevisionStorage,
             sharedPreferencesSynchronizedStorage,
-            appDatabase.todoItemDao()
+            appDatabase.todoItemDao(),
+            todoItemMapperImpl
         )
 
         todoListRepositoryImpl = TodoListRepositoryImpl(
             appDatabase.todoItemDao(),
             todoItemMapperImpl,
             RetrofitClient.todoApi,
-            sharedPreferencesRevisionStorage
+            sharedPreferencesRevisionStorage,
+            sharedPreferencesSynchronizedStorage
         )
         authRepositoryImpl = AuthRepositoryImpl(RetrofitClient.authApi, sharedPreferencesTokenStorage)
 
@@ -61,5 +69,18 @@ class MainApplication : Application() {
             this,
             authRepositoryImpl
         )
+
+        //
+
+        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                super.onAvailable(network)
+                // Обнаружен доступ к интернету
+                runBlocking {
+                    todoListRepositoryImpl.getTodoList().first()
+                }
+            }
+        })
     }
 }
