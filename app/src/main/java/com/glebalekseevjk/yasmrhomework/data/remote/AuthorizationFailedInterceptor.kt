@@ -3,11 +3,9 @@ package com.glebalekseevjk.yasmrhomework.data.remote
 import com.glebalekseevjk.yasmrhomework.data.remote.model.RefreshToken
 import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
 import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import retrofit2.awaitResponse
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -19,6 +17,7 @@ class AuthorizationFailedInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequestTimestamp = System.currentTimeMillis()
         val originalResponse = chain.proceed(chain.request())
+
         // все неавторизованные запросы кидать в handleUnauthorizedResponse
         return originalResponse
             .takeIf { it.code != 401 }
@@ -95,23 +94,21 @@ class AuthorizationFailedInterceptor(
     // Атомарное обновление токенов
     private fun refreshToken(): Boolean {
         initLatch()
-
-        val tokenRefreshed = runBlocking {
-            val lastRefreshToken = tokenStorage.getRefreshToken().orEmpty()
-            runCatching {
-                authService.refreshTokenPair(RefreshToken(refreshToken = lastRefreshToken))
-                    .awaitResponse()
-            }.getOrNull()?.let { authResponse ->
-                if (authResponse.code() == 200) {
-                    val tokenPair = authResponse.body()?.data ?: return@let false
-                    tokenStorage.setTokenPair(tokenPair)
-                    true
-                } else {
-                    false
-                }
-            } ?: false
+        val lastRefreshToken = tokenStorage.getRefreshToken().orEmpty()
+        val authResponse = runCatching {
+            authService.refreshTokenPair(RefreshToken(lastRefreshToken)).execute()
+        }.getOrNull()
+        val tokenRefreshed = if (authResponse != null && authResponse.code() == 200) {
+            val tokenPair = authResponse.body()?.data
+            if (tokenPair != null) {
+                tokenStorage.setTokenPair(tokenPair)
+                true
+            }else{
+                false
+            }
+        }else{
+            false
         }
-
         if (tokenRefreshed) {
             tokenUpdateTime = System.currentTimeMillis()
         } else {

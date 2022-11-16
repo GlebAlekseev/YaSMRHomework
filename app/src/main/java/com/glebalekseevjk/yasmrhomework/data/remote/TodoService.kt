@@ -10,7 +10,7 @@ interface TodoService {
     fun getTodoList(): Call<TodoListResponse>
 
     @PATCH("api/list")
-    fun patchTodoList(todoList: List<TodoItem>): Call<TodoListResponse>
+    fun patchTodoList(@Body todoList: List<TodoItem>): Call<TodoListResponse>
 
     @GET("api/list/{id}")
     fun getTodoItem(@Path("id") todoId: Long): Call<TodoListResponse>

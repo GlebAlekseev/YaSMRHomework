@@ -98,7 +98,7 @@ class TodoListFragment : Fragment() {
                 val newTaskList = if (isViewFinished) list.filter { !it.done } else list
                 headerCountTv.text = String.format(
                     resources.getString(R.string.count_done),
-                    list.size - newTaskList.size
+                    newTaskList.size
                 )
                 taskListAdapter.submitList(newTaskList.toList())
             }
@@ -106,7 +106,7 @@ class TodoListFragment : Fragment() {
                 println("LOADING...")
             }
             ResultStatus.FAILURE -> {
-                println("ERROR: ${getString(state.errorMessageResourceId)}.")
+                println("ERROR")
             }
             ResultStatus.UNAUTHORIZED -> {
                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")

@@ -3,7 +3,6 @@ package com.glebalekseevjk.yasmrhomework.data.remote
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
-import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -76,23 +75,21 @@ class RevisionFailedInterceptor(
 
     private fun refreshRevision(): Boolean {
         initLatch()
+        val todoListResponse = runCatching {
+            todoService.getTodoList().execute()
+        }.getOrNull()
 
-        val revisionRefreshed = runBlocking {
-            runCatching {
-                todoService.getTodoList().awaitResponse()
-            }.getOrNull()?.let { todoListResponse ->
-                if (todoListResponse.code() == 200) {
-                    val todoList = todoListResponse.body()?.list ?: return@let false
-                    val revision = todoListResponse.body()?.revision ?: return@let false
-                    revisionStorage.setRevision(Revision(revision))
-                    // set list in db
-                    true
-                } else {
-                    false
-                }
-            } ?: false
+        val revisionRefreshed = if (todoListResponse != null && todoListResponse.code() == 200) {
+            val revision = todoListResponse.body()?.revision
+            if (revision != null) {
+                revisionStorage.setRevision(Revision(revision))
+                true
+            }else{
+                false
+            }
+        }else{
+            false
         }
-
         getLatch()?.countDown()
         return revisionRefreshed
     }

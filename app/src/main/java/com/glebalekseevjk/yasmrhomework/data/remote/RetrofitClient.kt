@@ -2,19 +2,24 @@ package com.glebalekseevjk.yasmrhomework.data.remote
 
 import android.util.Log
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
+import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
 import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
 import com.glebalekseevjk.yasmrhomework.domain.features.synchronize.SynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
     private const val BASE_URL = "https://192.168.0.102/"
     private var retrofit: Retrofit.Builder? = null
     private var basicTodoApiClient: OkHttpClient? = null
     private var advancedTodoApiClient: OkHttpClient? = null
+    private var authApiClient: OkHttpClient? = null
 
     private lateinit var todoApiWithBasicClient: TodoService
 
@@ -25,32 +30,39 @@ object RetrofitClient {
         tokenStorage: TokenStorage,
         revisionStorage: RevisionStorage,
         synchronizedStorage: SynchronizedStorage,
-        todoItemDao: TodoItemDao
+        todoItemDao: TodoItemDao,
+        mapper: Mapper<TodoItem,TodoItemDbModel>
     ) {
         retrofit = Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
+
+        authApiClient = OkHttpClient.Builder()
+            .connectTimeout(200,TimeUnit.MILLISECONDS)
+            .build()
         authApi = retrofit!!
+            .client(authApiClient)
             .build()
             .create(AuthService::class.java)
 
 
         basicTodoApiClient = OkHttpClient.Builder()
+            .connectTimeout(200,TimeUnit.MILLISECONDS)
             .addNetworkInterceptor(
                 HttpLoggingInterceptor {
                     Log.d("Network", it)
                 }
                     .setLevel(HttpLoggingInterceptor.Level.BODY)
             )
-            .addNetworkInterceptor(AuthorizationInterceptor(tokenStorage))
-            .addNetworkInterceptor(RevisionInterceptor(revisionStorage))
-            .addNetworkInterceptor(
+            .addInterceptor(
                 AuthorizationFailedInterceptor(
                     tokenStorage,
                     revisionStorage,
                     authApi
                 )
             )
+            .addNetworkInterceptor(AuthorizationInterceptor(tokenStorage))
+            .addNetworkInterceptor(RevisionInterceptor(revisionStorage))
             .build()
         todoApiWithBasicClient = retrofit!!
             .client(basicTodoApiClient!!)
@@ -58,6 +70,7 @@ object RetrofitClient {
             .create(TodoService::class.java)
 
         advancedTodoApiClient = OkHttpClient.Builder()
+            .connectTimeout(200,TimeUnit.MILLISECONDS)
             .addNetworkInterceptor(
                 HttpLoggingInterceptor {
                     Log.d("Network", it)
@@ -69,19 +82,20 @@ object RetrofitClient {
                     synchronizedStorage,
                     revisionStorage,
                     todoApiWithBasicClient,
-                    todoItemDao
+                    todoItemDao,
+                    mapper
                 )
             )
-            .addNetworkInterceptor(AuthorizationInterceptor(tokenStorage))
-            .addNetworkInterceptor(RevisionInterceptor(revisionStorage))
-            .addNetworkInterceptor(RevisionFailedInterceptor(revisionStorage, todoApiWithBasicClient, todoItemDao))
-            .addNetworkInterceptor(
+            .addInterceptor(RevisionFailedInterceptor(revisionStorage, todoApiWithBasicClient, todoItemDao))
+            .addInterceptor(
                 AuthorizationFailedInterceptor(
                     tokenStorage,
                     revisionStorage,
                     authApi
                 )
             )
+            .addNetworkInterceptor(AuthorizationInterceptor(tokenStorage))
+            .addNetworkInterceptor(RevisionInterceptor(revisionStorage))
             .build()
 
         todoApi = retrofit!!
