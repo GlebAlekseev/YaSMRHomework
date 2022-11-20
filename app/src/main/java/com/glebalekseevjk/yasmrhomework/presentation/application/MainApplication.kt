@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import androidx.work.*
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesRevisionStorage
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesTokenStorage
@@ -18,15 +19,18 @@ import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModelFactory
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModelFactory
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModelFactory
+import com.glebalekseevjk.yasmrhomework.presentation.worker.CheckSynchronizedWorker
+import com.glebalekseevjk.yasmrhomework.presentation.worker.RefreshTodoWorker
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.TimeUnit
 
 class MainApplication : Application() {
     private lateinit var appDatabase: AppDatabase
     private lateinit var todoItemMapperImpl: Mapper<TodoItem,TodoItemDbModel>
 
-    private lateinit var todoListRepositoryImpl: TodoListRepositoryImpl
+    lateinit var todoListRepositoryImpl: TodoListRepositoryImpl
     private lateinit var authRepositoryImpl: AuthRepositoryImpl
 
     lateinit var todoViewModelFactory: TodoViewModelFactory
@@ -35,7 +39,11 @@ class MainApplication : Application() {
 
     private lateinit var sharedPreferencesTokenStorage: SharedPreferencesTokenStorage
     private lateinit var sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage
-    private lateinit var sharedPreferencesSynchronizedStorage: SharedPreferencesSynchronizedStorage
+    lateinit var sharedPreferencesSynchronizedStorage: SharedPreferencesSynchronizedStorage
+
+    private val workManager: WorkManager by lazy {
+        WorkManager.getInstance(applicationContext)
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -70,17 +78,38 @@ class MainApplication : Application() {
             authRepositoryImpl
         )
 
-        //
+        setupWorkers()
+    }
 
-        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager.registerDefaultNetworkCallback(object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                // Обнаружен доступ к интернету
-                runBlocking {
-                    todoListRepositoryImpl.getTodoList().first()
-                }
-            }
-        })
+    private fun setupWorkers(){
+        setupRefreshTodoWorker()
+    }
+
+    private fun setupRefreshTodoWorker(){
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .build()
+        val repeatingRequest = PeriodicWorkRequestBuilder<RefreshTodoWorker>(8, TimeUnit.HOURS)
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueueUniquePeriodicWork(
+            RefreshTodoWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.KEEP,
+            repeatingRequest
+        )
+    }
+
+    fun setupCheckSynchronizedWorker(){
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.UNMETERED)
+            .build()
+        val oneTimeRequest = OneTimeWorkRequestBuilder<CheckSynchronizedWorker>()
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueueUniqueWork(
+            CheckSynchronizedWorker.WORK_NAME,
+            ExistingWorkPolicy.KEEP,
+            oneTimeRequest
+        )
     }
 }

@@ -24,6 +24,9 @@ import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModel
 import kotlinx.coroutines.launch
 
 class TodoFragment : Fragment() {
+    private val mainApplication: MainApplication by lazy {
+        requireContext().applicationContext as MainApplication
+    }
     private val todoViewModel by lazy {
         ViewModelProvider(
             this,
@@ -156,6 +159,7 @@ class TodoFragment : Fragment() {
                         }
                         ResultStatus.FAILURE -> {
                             println("Ошибка редактирования элемента id: ${it.data.id}")
+                            mainApplication.setupCheckSynchronizedWorker()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
@@ -173,6 +177,7 @@ class TodoFragment : Fragment() {
                         }
                         ResultStatus.FAILURE -> {
                             println("Ошибка добавления элемента id: ${it.data.id}")
+                            mainApplication.setupCheckSynchronizedWorker()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
@@ -194,6 +199,7 @@ class TodoFragment : Fragment() {
                         }
                         ResultStatus.FAILURE -> {
                             println("Ошибка удаления элемента id: ${it.data.id}")
+                            mainApplication.setupCheckSynchronizedWorker()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")

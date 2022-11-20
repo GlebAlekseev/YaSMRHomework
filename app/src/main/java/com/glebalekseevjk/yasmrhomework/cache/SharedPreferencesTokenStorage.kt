@@ -14,8 +14,10 @@ class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
 
     override fun getTokenPair(): TokenPair? {
         val expiresAt = getExpiresAt()
-        if (expiresAt != null) {
-            return TokenPair(getAccessToken()!!, getRefreshToken()!!, expiresAt)
+        val accessToken = getAccessToken()
+        val refreshToken = getRefreshToken()
+        if (expiresAt != null && accessToken != null && refreshToken != null) {
+            return TokenPair(accessToken, refreshToken, expiresAt)
         } else {
             return null
         }

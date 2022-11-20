@@ -30,6 +30,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class TodoListFragment : Fragment() {
+    private val mainApplication: MainApplication by lazy {
+        requireContext().applicationContext as MainApplication
+    }
     private val todoListViewModel by lazy {
         ViewModelProvider(
             this,
@@ -44,6 +47,7 @@ class TodoListFragment : Fragment() {
 
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -107,6 +111,7 @@ class TodoListFragment : Fragment() {
             }
             ResultStatus.FAILURE -> {
                 println("ERROR")
+                mainApplication.setupCheckSynchronizedWorker()
             }
             ResultStatus.UNAUTHORIZED -> {
                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
@@ -152,6 +157,7 @@ class TodoListFragment : Fragment() {
                             }
                             ResultStatus.FAILURE -> {
                                 println("Ошибка завершения элемента id: ${it.data.id}")
+                                mainApplication.setupCheckSynchronizedWorker()
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
@@ -172,6 +178,7 @@ class TodoListFragment : Fragment() {
                             }
                             ResultStatus.FAILURE -> {
                                 println("Ошибка удаления элемента id: ${it.data.id}")
+                                mainApplication.setupCheckSynchronizedWorker()
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
