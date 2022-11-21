@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
@@ -44,6 +45,7 @@ class TodoListFragment : Fragment() {
     private lateinit var taskListRv: RecyclerView
     private lateinit var addTaskBtn: FloatingActionButton
     private lateinit var headerViewIv: ImageView
+    private lateinit var taskListSrl: SwipeRefreshLayout
 
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
@@ -65,6 +67,7 @@ class TodoListFragment : Fragment() {
         initDispatchTouchEventSettings()
         setupRecyclerView()
         observeViewModel()
+        synchronizeTodoList()
     }
 
     private fun initErrorHandler() {
@@ -79,6 +82,20 @@ class TodoListFragment : Fragment() {
 
     private fun observeViewModel() {
         observeSubmitListAdapter()
+    }
+
+    private fun synchronizeTodoList() {
+        todoListViewModel.synchronizeTodoList {
+            when (it.status) {
+                ResultStatus.FAILURE -> {
+                    mainApplication.setupCheckSynchronizedWorker()
+                }
+                ResultStatus.UNAUTHORIZED -> {
+                    checkAuth()
+                }
+                else ->{}
+            }
+        }
     }
 
     private fun observeSubmitListAdapter() {
@@ -127,6 +144,7 @@ class TodoListFragment : Fragment() {
             taskListRv = findViewById(R.id.task_list_rv)
             addTaskBtn = findViewById(R.id.add_task_btn)
             headerViewIv = findViewById(R.id.header_view_iv)
+            taskListSrl = findViewById(R.id.task_list_srl)
         }
     }
 
@@ -138,6 +156,29 @@ class TodoListFragment : Fragment() {
         }
         headerViewIv.setOnClickListener {
             todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
+        }
+        taskListSrl.setOnRefreshListener {
+            todoListViewModel.synchronizeTodoList {
+                when (it.status) {
+                    ResultStatus.SUCCESS -> {
+                        taskListSrl.isRefreshing = false
+                        Toast.makeText(context, "Успех", Toast.LENGTH_SHORT).show()
+                    }
+                    ResultStatus.LOADING -> {
+                        Toast.makeText(context, "Загрузка", Toast.LENGTH_SHORT).show()
+                    }
+                    ResultStatus.FAILURE -> {
+                        mainApplication.setupCheckSynchronizedWorker()
+                        taskListSrl.isRefreshing = false
+                        Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
+                    }
+                    ResultStatus.UNAUTHORIZED -> {
+                        checkAuth()
+                        taskListSrl.isRefreshing = false
+                        Toast.makeText(context, "Не авторизован", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
         }
     }
 
@@ -206,7 +247,6 @@ class TodoListFragment : Fragment() {
                 launchFragment(fragment, true)
             }
         }
-
     }
 
     private fun initDispatchTouchEventSettings() {
@@ -222,7 +262,8 @@ class TodoListFragment : Fragment() {
             }
             commit()
         }
-    private fun checkAuth(){
+
+    private fun checkAuth() {
         if (todoListViewModel.isAuth) {
             launchFragment(AuthFragment())
         }

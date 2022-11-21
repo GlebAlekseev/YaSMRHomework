@@ -32,6 +32,14 @@ class TodoListRepositoryImpl(
 ) : TodoListRepository {
     override fun getTodoList(): Flow<Result<List<TodoItem>>> = flow {
         emit(Result(ResultStatus.LOADING, emptyList()))
+        todoItemDao.getAll().asFlow().collect {
+            val list = it.map { mapper.mapDbModelToItem(it) }
+            emit(Result(ResultStatus.SUCCESS, list))
+        }
+    }.flowOn(Dispatchers.IO)
+
+    override fun synchronizeTodoList(): Flow<Result<List<TodoItem>>> = flow{
+        emit(Result(ResultStatus.LOADING, emptyList()))
         val todoListResponse = runCatching {
             todoService.getTodoList().execute()
         }.getOrNull()
@@ -39,14 +47,14 @@ class TodoListRepositoryImpl(
         when (todoListResponse?.code()) {
             200 -> {
                 val body = todoListResponse.body()
+                todoItemDao.deleteAll()
                 (body?.list ?: emptyList()).forEach {
                     todoItemDao.insert(mapper.mapItemToDbModel(it))
                 }
                 body?.let {
                     revisionStorage.setRevision(Revision(body.revision))
                 }
-                emit(Result(ResultStatus.SUCCESS, body!!.list))
-
+                emit(Result(ResultStatus.SUCCESS, body?.list ?: emptyList()))
             }
             401 -> {
                 emit(Result(ResultStatus.UNAUTHORIZED, emptyList()))
@@ -54,10 +62,6 @@ class TodoListRepositoryImpl(
             else -> {
                 emit(Result(ResultStatus.FAILURE, emptyList()))
             }
-        }
-        todoItemDao.getAll().asFlow().collect {
-            val list = it.map { mapper.mapDbModelToItem(it) }
-            emit(Result(ResultStatus.SUCCESS, list))
         }
     }.flowOn(Dispatchers.IO)
 

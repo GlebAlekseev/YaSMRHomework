@@ -9,10 +9,7 @@ import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
-import com.glebalekseevjk.yasmrhomework.domain.interactor.DeleteTodoItemUseCase
-import com.glebalekseevjk.yasmrhomework.domain.interactor.EditTodoItemUseCase
-import com.glebalekseevjk.yasmrhomework.domain.interactor.GetTodoListUseCase
-import com.glebalekseevjk.yasmrhomework.domain.interactor.LogoutUseCase
+import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
@@ -30,8 +27,9 @@ class TodoListViewModel(
     private val editTodoItemUseCase = EditTodoItemUseCase(todoListRepositoryImpl)
     private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoListRepositoryImpl)
     private val getTodoListUseCase = GetTodoListUseCase(todoListRepositoryImpl)
-
     private val logoutUseCase = LogoutUseCase(authRepositoryImpl)
+    private val synchronizeTodoListUseCase = SynchronizeTodoListUseCase(todoListRepositoryImpl)
+
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
@@ -47,17 +45,24 @@ class TodoListViewModel(
     private var getTodoListJob: Job? = null
 
     private var _todoListViewState = MutableStateFlow(TodoListViewState.PLUG)
-    val todoListViewState: StateFlow<TodoListViewState>
-        get() {
-            getTodoListJob = viewModelScope.launchWithExceptionHandler {
-                loadTodoList()
-            }
-            return _todoListViewState
-        }
+    val todoListViewState: StateFlow<TodoListViewState> by lazy {
+        observeTodoList()
+        _todoListViewState
+    }
 
-    private suspend fun loadTodoList() {
-        getTodoListUseCase().collect {
-            _todoListViewState.value = _todoListViewState.value.copy(result = it)
+    private fun observeTodoList(){
+        getTodoListJob = viewModelScope.launchWithExceptionHandler {
+            getTodoListUseCase().collect {
+                _todoListViewState.value = _todoListViewState.value.copy(result = it)
+            }
+        }
+    }
+
+    fun synchronizeTodoList(block: (Result<List<TodoItem>>) -> Unit){
+        viewModelScope.launchWithExceptionHandler {
+            synchronizeTodoListUseCase().collect {
+                block(it)
+            }
         }
     }
 
