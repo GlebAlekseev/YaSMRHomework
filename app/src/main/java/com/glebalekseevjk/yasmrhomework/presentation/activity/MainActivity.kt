@@ -2,16 +2,25 @@ package com.glebalekseevjk.yasmrhomework.presentation.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.NavigationUI
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.data.remote.RetrofitClient
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.presentation.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.presentation.fragment.AuthFragment
 import com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoListFragment
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModel
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -24,15 +33,61 @@ class MainActivity : AppCompatActivity() {
             (this.application as MainApplication).mainViewModelFactory
         )[MainViewModel::class.java]
     }
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var mainNv:NavigationView
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        if (mainViewModel.isAuth) {
-            launchFragment(TodoListFragment())
-        }else {
-            launchFragment(AuthFragment())
+        initViews()
+        initNavigationUI()
+        initListeners()
+    }
+
+    private fun initViews(){
+        drawerLayout = findViewById(R.id.drawer_layout)
+        mainNv = findViewById(R.id.main_nv)
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.main_nhf) as NavHostFragment
+        navController = navHostFragment.navController
+    }
+    private fun initNavigationUI(){
+        NavigationUI.setupWithNavController(mainNv, navController)
+    }
+    private fun initListeners(){
+        navController.addOnDestinationChangedListener{_, destination, _ ->
+            when(destination.id){
+                R.id.authFragment -> {
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                }
+                R.id.todoFragment->{
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                }
+                else->{
+                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                }
+            }
         }
+        mainNv.setNavigationItemSelectedListener {
+            onDrawerItemSelected(it)
+        }
+    }
+
+    private fun onDrawerItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.exit_menu_item -> {
+                val mainApplication = (applicationContext as MainApplication)
+                mainApplication.sharedPreferencesRevisionStorage.clear()
+                mainApplication.sharedPreferencesTokenStorage.clear()
+                mainApplication.sharedPreferencesSynchronizedStorage.setSynchronizedStatus(SharedPreferencesSynchronizedStorage.SYNCHRONIZED)
+                if (navController.currentDestination?.id == R.id.todoListFragment){
+                    navController.navigate(R.id.action_todoListFragment_to_authFragment)
+                }
+                return true
+            }
+            else->{}
+        }
+        return false
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -43,7 +98,8 @@ class MainActivity : AppCompatActivity() {
                 when (it.status) {
                     ResultStatus.SUCCESS -> {
                         if (mainViewModel.isAuth) {
-                            launchFragment(TodoListFragment())
+                            navController.navigate(R.id.action_authFragment_to_todoListFragment)
+//                            launchFragment(TodoListFragment())
                         }
                     }
                     ResultStatus.LOADING -> {
@@ -54,11 +110,5 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun launchFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction()
-            .add(R.id.main_fcv, fragment)
-            .commit()
     }
 }

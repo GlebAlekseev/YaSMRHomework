@@ -11,6 +11,8 @@ import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
@@ -48,6 +50,7 @@ class TodoFragment : Fragment() {
     private lateinit var messageEt: TextView
     private lateinit var importantStateTv: TextView
 
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,13 +142,15 @@ class TodoFragment : Fragment() {
             deadlineDataTv = findViewById(R.id.deadline_date_tv)
             messageEt = findViewById(R.id.message_et)
             importantStateTv = findViewById(R.id.important_state_tv)
+            navController = findNavController()
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initListeners() {
         exitIv.setOnClickListener {
-            requireActivity().onBackPressed()
+            navController.navigate(R.id.action_todoFragment_to_todoListFragment)
+//            requireActivity().onBackPressed()
         }
         saveBtn.setOnClickListener {
             if (screenMode == MODE_EDIT) {
@@ -185,7 +190,7 @@ class TodoFragment : Fragment() {
                     }
                 }
             }
-            requireActivity().onBackPressed()
+            navController.navigate(R.id.action_todoFragment_to_todoListFragment)
         }
         removeLl.setOnClickListener {
             if (screenMode == MODE_EDIT) {
@@ -207,7 +212,7 @@ class TodoFragment : Fragment() {
                     }
                 }
             }
-            requireActivity().onBackPressed()
+            navController.navigate(R.id.action_todoFragment_to_todoListFragment)
         }
         messageEt.addTextChangedListener {
             todoViewModel.currentTodoItem =
@@ -274,10 +279,10 @@ class TodoFragment : Fragment() {
     }
 
     companion object {
-        private const val TODO_ID = "todo_id"
-        private const val SCREEN_MODE = "screen_mode"
-        private const val MODE_ADD = "mode_add"
-        private const val MODE_EDIT = "mode_edit"
+        const val TODO_ID = "todo_id"
+        const val SCREEN_MODE = "screen_mode"
+        const val MODE_ADD = "mode_add"
+        const val MODE_EDIT = "mode_edit"
 
         fun newInstanceAddTodo(): TodoFragment {
             return TodoFragment().apply {
@@ -296,5 +301,4 @@ class TodoFragment : Fragment() {
             }
         }
     }
-
 }

@@ -9,9 +9,12 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -46,6 +49,7 @@ class TodoListFragment : Fragment() {
     private lateinit var addTaskBtn: FloatingActionButton
     private lateinit var headerViewIv: ImageView
     private lateinit var taskListSrl: SwipeRefreshLayout
+    private lateinit var navController: NavController
 
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
@@ -145,14 +149,14 @@ class TodoListFragment : Fragment() {
             addTaskBtn = findViewById(R.id.add_task_btn)
             headerViewIv = findViewById(R.id.header_view_iv)
             taskListSrl = findViewById(R.id.task_list_srl)
+            navController = findNavController()
         }
     }
 
     private fun initListeners() {
         addTaskBtn.setOnClickListener {
-            // Запустить TodoFragment ADD_EDIT
-            val fragment = TodoFragment.newInstanceAddTodo()
-            launchFragment(fragment, true)
+            val bundle = bundleOf(TodoFragment.SCREEN_MODE to TodoFragment.MODE_ADD)
+            navController.navigate(R.id.action_todoListFragment_to_todoFragment,bundle)
         }
         headerViewIv.setOnClickListener {
             todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
@@ -243,8 +247,8 @@ class TodoListFragment : Fragment() {
                 )
             )
             taskListAdapter.editClickListener = { id ->
-                val fragment = TodoFragment.newInstanceEditTodo(todoId = id)
-                launchFragment(fragment, true)
+                val bundle = bundleOf(TodoFragment.SCREEN_MODE to TodoFragment.MODE_EDIT,TodoFragment.TODO_ID to id)
+                navController.navigate(R.id.action_todoListFragment_to_todoFragment,bundle)
             }
         }
     }
@@ -254,18 +258,9 @@ class TodoListFragment : Fragment() {
         TouchEventSettings.minPaddingTop = (15 * dp).toInt()
     }
 
-    private fun launchFragment(fragment: Fragment, isBackStack: Boolean = false) =
-        with(parentFragmentManager.beginTransaction()) {
-            add(R.id.main_fcv, fragment)
-            if (isBackStack) {
-                addToBackStack(null)
-            }
-            commit()
-        }
-
     private fun checkAuth() {
-        if (todoListViewModel.isAuth) {
-            launchFragment(AuthFragment())
+        if (!todoListViewModel.isAuth) {
+            navController.navigate(R.id.action_todoListFragment_to_authFragment)
         }
     }
 }

@@ -37,8 +37,8 @@ class MainApplication : Application() {
     lateinit var todoListViewModelFactory: TodoListViewModelFactory
     lateinit var mainViewModelFactory: MainViewModelFactory
 
-    private lateinit var sharedPreferencesTokenStorage: SharedPreferencesTokenStorage
-    private lateinit var sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage
+    lateinit var sharedPreferencesTokenStorage: SharedPreferencesTokenStorage
+    lateinit var sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage
     lateinit var sharedPreferencesSynchronizedStorage: SharedPreferencesSynchronizedStorage
 
     private val workManager: WorkManager by lazy {
