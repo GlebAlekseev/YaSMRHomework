@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">Мои дела</string>
     <string name="count_done">Выполнено — %d</string>
-    <string name="error_runtime_exception">Ошибка выполнения</string>
-    <string name="error_oops">Неизвестная ошибка</string>
+
+    <string name="unknown_exception">Неизвестная ошибка</string>
+    <string name="delete_todo_list_exception">БД не может удалить все записи</string>
+    <string name="delete_todo_item_exception">БД не может удалить запись</string>
+    <string name="add_todo_item_exception">БД не может добавить запись</string>
+    <string name="edit_todo_item_exception">БД не может отредактировать запись</string>
+    <string name="get_todo_item_exception">БД не может получить запись</string>
+
 
     <string name="authorize_url">https://192.168.0.102:443/auth/authorize</string>
 </resources>

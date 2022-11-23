@@ -32,7 +32,16 @@ class TodoListRemoteRepositoryImpl(
         }.getOrNull()
         val result = getResultFromTodoListResponse(todoListResponse)
         emit(result)
-    }
+    }.flowOn(Dispatchers.IO)
+
+    override fun replaceTodoList(todoList: List<TodoItem>): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
+        emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
+        val todoListResponse = runCatching {
+            todoService.patchTodoList(todoList).execute()
+        }.getOrNull()
+        val result = getResultFromTodoListResponse(todoListResponse)
+        emit(result)
+    }.flowOn(Dispatchers.IO)
 
     override fun getTodoItem(todoId: Long): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
         emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
@@ -76,9 +85,6 @@ class TodoListRemoteRepositoryImpl(
         var message = ""
         var status = ResultStatus.SUCCESS
         var data = Pair(emptyList<TodoItem>(), Revision())
-        todoListResponse?.body()?.list ?: run {
-            message = "Ошибка парсинга ответа"
-        }
         todoListResponse?.body()?.revision ?: run {
             message = "Ошибка парсинга ответа"
         }
@@ -88,7 +94,7 @@ class TodoListRemoteRepositoryImpl(
                 200 -> {
                     if (message == "") {
                         data = Pair(
-                            todoListResponse!!.body()!!.list,
+                            todoListResponse!!.body()?.list ?: emptyList(),
                             Revision(todoListResponse.body()!!.revision)
                         )
                     }

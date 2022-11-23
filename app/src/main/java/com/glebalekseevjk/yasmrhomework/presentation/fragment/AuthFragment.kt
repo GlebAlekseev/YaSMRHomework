@@ -1,9 +1,11 @@
 package com.glebalekseevjk.yasmrhomework.presentation.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.CookieManager
 import android.widget.ImageButton
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
@@ -37,7 +39,14 @@ class AuthFragment : Fragment() {
         yandexAuthIBtn.setOnClickListener {
             val uri = getString(R.string.authorize_url).toUri()
             val customTabsIntent = CustomTabsIntent.Builder().build()
+
             customTabsIntent.intent.setPackage("com.android.chrome")
+            customTabsIntent.intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.NO_TITLE);
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+            customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+
+
             customTabsIntent.launchUrl(requireContext(), uri)
         }
     }

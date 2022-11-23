@@ -8,7 +8,6 @@ import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.interactor.GetTokenPairUseCase
 import com.glebalekseevjk.yasmrhomework.domain.interactor.LogoutUseCase
-import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 
 
@@ -16,13 +15,15 @@ class MainViewModel(
     application: Application,
     authRepositoryImpl: AuthRepositoryImpl,
 ) : BaseViewModel(application) {
-    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage = SharedPreferencesTokenStorage(application)
-    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage = SharedPreferencesRevisionStorage(application)
+    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage =
+        SharedPreferencesTokenStorage(application)
+    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage =
+        SharedPreferencesRevisionStorage(application)
 
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
-            val message = ExceptionHandler.parse(exception)
+            val message = exception.message ?: "Неизвестная ошибка"
             _errorHandler.value = message
         }
     private val getTokenPairUseCase = GetTokenPairUseCase(authRepositoryImpl)
@@ -46,7 +47,7 @@ class MainViewModel(
         }
     }
 
-    fun logout(block: (Result<Unit>) -> Unit){
+    fun logout(block: (Result<Unit>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
             logoutUseCase().collect {
                 block(it)

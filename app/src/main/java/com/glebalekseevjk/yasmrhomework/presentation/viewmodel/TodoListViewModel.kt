@@ -12,7 +12,6 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
-import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,6 +34,7 @@ class TodoListViewModel(
     private val getTodoListLocalUseCase = GetTodoListUseCase(todoListLocalRepositoryImpl)
     private val deleteTodoListLocalUseCase = DeleteTodoListUseCase(todoListLocalRepositoryImpl)
     private val addTodoItemLocalUseCase = AddTodoItemUseCase(todoListLocalRepositoryImpl)
+    private val replaceTodoListLocalUseCase = ReplaceTodoListUseCase(todoListLocalRepositoryImpl)
 
     private val editTodoItemRemoteUseCase = EditTodoItemUseCase(todoListRemoteRepositoryImpl)
     private val deleteTodoItemRemoteUseCase = DeleteTodoItemUseCase(todoListRemoteRepositoryImpl)
@@ -44,7 +44,7 @@ class TodoListViewModel(
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
-            val message = ExceptionHandler.parse(exception)
+            val message = exception.message ?: "Неизвестная ошибка"
             _errorHandler.value = message
             when (coroutineContext) {
                 getTodoListJob -> {
@@ -62,8 +62,10 @@ class TodoListViewModel(
     }
 
     private fun observeTodoList() {
+        println("^^^^ observeTodoList")
         getTodoListJob = viewModelScope.launchWithExceptionHandler {
             getTodoListLocalUseCase().collect {
+                println("^^^^ observeTodoList getTodoListLocalUseCase it=${it}")
                 _todoListViewState.value = _todoListViewState.value.copy(
                     result = Result(
                         it.status,
@@ -76,21 +78,18 @@ class TodoListViewModel(
     }
 
     fun synchronizeTodoList(block: (Result<List<TodoItem>>) -> Unit) {
+        println("^^^^ synchronizeTodoList")
         viewModelScope.launchWithExceptionHandler {
             getTodoListRemoteUseCase().collect {
+                println("^^^^ getTodoListRemoteUseCase it=${it}")
                 if (it.status == ResultStatus.SUCCESS) {
                     val response = it.data
-                    val deleteResult =
-                        deleteTodoListLocalUseCase().first { it.status != ResultStatus.LOADING }
-                    if (deleteResult.status == ResultStatus.SUCCESS) {
-                        response.first.forEach {
-                            if (addTodoItemLocalUseCase(it).first { it.status != ResultStatus.LOADING }.status != ResultStatus.SUCCESS) {
-                                throw RuntimeException("БД не может добавить запись")
-                            }
-                        }
+                    val replaceResult =
+                        replaceTodoListLocalUseCase(response.first).first { it.status != ResultStatus.LOADING }
+                    if (replaceResult.status == ResultStatus.SUCCESS) {
                         sharedPreferencesRevisionStorage.setRevision(response.second)
                     } else {
-                        throw RuntimeException("БД не может удалить все записи")
+                        throw RuntimeException("БД не может заменить все записи")
                     }
                 }
                 block(Result(it.status, it.data.first, it.message))
@@ -103,6 +102,7 @@ class TodoListViewModel(
         snackBarBlock: (todoItem: TodoItem) -> Boolean,
         block: (Result<TodoItem>) -> Unit
     ) {
+        println("^^^^ deleteTodo")
         viewModelScope.launchWithExceptionHandler {
             val deleteResult =
                 deleteTodoItemLocalUseCase(todoItem.id).first { it.status != ResultStatus.LOADING }
@@ -117,28 +117,37 @@ class TodoListViewModel(
                 if (addResult.status != ResultStatus.SUCCESS) throw RuntimeException("БД не может добавить todoItem: $deletedItem")
             } else {
                 deleteTodoItemRemoteUseCase(deletedItem.id).collect {
+                    println("^^^^ deleteTodoItemRemoteUseCase it=${it}")
+
                     if (it.status == ResultStatus.SUCCESS) {
                         val response = it.data
                         sharedPreferencesRevisionStorage.setRevision(response.second)
+                        block(Result(it.status, it.data.first[0], it.message))
+                    } else {
+                        block(Result(it.status, TodoItem.PLUG, it.message))
                     }
-                    block(Result(it.status, it.data.first[0], it.message))
                 }
             }
         }
     }
 
     fun finishTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
+        println("^^^^ finishTodo")
         val newTodoItem = todoItem.copy(done = true)
         viewModelScope.launchWithExceptionHandler {
             val editResult =
                 editTodoItemLocalUseCase(newTodoItem).first { it.status != ResultStatus.LOADING }
             if (editResult.status == ResultStatus.SUCCESS) {
                 editTodoItemRemoteUseCase(newTodoItem).collect {
+                    println("^^^^ editTodoItemRemoteUseCase it=${it}")
+
                     if (it.status == ResultStatus.SUCCESS) {
                         val response = it.data
                         sharedPreferencesRevisionStorage.setRevision(response.second)
+                        block(Result(it.status, it.data.first[0], it.message))
+                    } else {
+                        block(Result(it.status, TodoItem.PLUG, it.message))
                     }
-                    block(Result(it.status, it.data.first[0], it.message))
                 }
             } else {
                 throw RuntimeException("БД не может отредактировать todoItem: $newTodoItem")

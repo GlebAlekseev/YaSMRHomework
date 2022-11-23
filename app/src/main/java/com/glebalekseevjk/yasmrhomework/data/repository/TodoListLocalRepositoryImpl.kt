@@ -33,16 +33,42 @@ class TodoListLocalRepositoryImpl(
         }
     }.flowOn(Dispatchers.IO)
 
-    override fun deleteTodoList(): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
-        emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
-        try {
-            val revision = revisionStorage.getRevision() ?: Revision()
-            todoItemDao.deleteAll()
-            emit(Result(ResultStatus.SUCCESS, Pair(emptyList(), revision)))
-        } catch (err: Exception) {
-            emit(Result(ResultStatus.FAILURE, Pair(emptyList(), Revision()), "Неизвестная ошибка"))
-        }
-    }
+    override fun deleteTodoList(): Flow<Result<Pair<List<TodoItem>, Revision>>> =
+        flow<Result<Pair<List<TodoItem>, Revision>>> {
+            emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
+            try {
+                val revision = revisionStorage.getRevision() ?: Revision()
+                todoItemDao.deleteAll()
+                emit(Result(ResultStatus.SUCCESS, Pair(emptyList(), revision)))
+            } catch (err: Exception) {
+                emit(
+                    Result(
+                        ResultStatus.FAILURE,
+                        Pair(emptyList(), Revision()),
+                        "Неизвестная ошибка"
+                    )
+                )
+            }
+        }.flowOn(Dispatchers.IO)
+
+    override fun replaceTodoList(todoList: List<TodoItem>): Flow<Result<Pair<List<TodoItem>, Revision>>> =
+        flow {
+            emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
+            try {
+                val revision = revisionStorage.getRevision() ?: Revision()
+                val todoListDb = todoList.map { mapper.mapItemToDbModel(it) }
+                todoItemDao.replaceAll(todoListDb)
+                emit(Result(ResultStatus.SUCCESS, Pair(todoList, revision)))
+            } catch (err: Exception) {
+                emit(
+                    Result(
+                        ResultStatus.FAILURE,
+                        Pair(emptyList(), Revision()),
+                        "Неизвестная ошибка"
+                    )
+                )
+            }
+        }.flowOn(Dispatchers.IO)
 
     override fun getTodoItem(todoId: Long): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
         emit(Result(ResultStatus.LOADING, Pair(listOf(TodoItem.PLUG), Revision())))

@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 abstract class BaseViewModel(application: Application) : AndroidViewModel(application) {
     protected val _errorHandler = MutableStateFlow(OK)
-    val errorHandler: StateFlow<Int>
+    val errorHandler: StateFlow<String>
         get() = _errorHandler
     abstract val coroutineExceptionHandler: CoroutineExceptionHandler
     protected fun CoroutineScope.launchWithExceptionHandler(block: suspend CoroutineScope.() -> Unit): Job {

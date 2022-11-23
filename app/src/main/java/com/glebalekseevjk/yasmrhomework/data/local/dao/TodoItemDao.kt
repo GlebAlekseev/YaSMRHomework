@@ -5,6 +5,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
 
 @Dao
@@ -23,4 +24,13 @@ interface TodoItemDao {
 
     @Query("DELETE FROM TodoItemDbModel")
     fun deleteAll()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun addAll(vararg todoList: TodoItemDbModel)
+
+    @Transaction
+    fun replaceAll(todoList: List<TodoItemDbModel>){
+        deleteAll()
+        addAll(*todoList.toTypedArray())
+    }
 }

@@ -12,7 +12,11 @@ class TodoItemMapperImpl : Mapper<TodoItem, TodoItemDbModel> {
                 userId,
                 id,
                 text,
-                TodoItemDbModel.Companion.Importance.LOW,
+                when (importance) {
+                    TodoItem.Companion.Importance.LOW -> TodoItemDbModel.Companion.Importance.LOW
+                    TodoItem.Companion.Importance.BASIC -> TodoItemDbModel.Companion.Importance.BASIC
+                    TodoItem.Companion.Importance.IMPORTANT -> TodoItemDbModel.Companion.Importance.IMPORTANT
+                },
                 deadline,
                 done,
                 color,
@@ -20,22 +24,6 @@ class TodoItemMapperImpl : Mapper<TodoItem, TodoItemDbModel> {
                 changedAt,
                 lastUpdatedBy
             )
-//            return TodoItemDbModel(
-//                userId,
-//                id,
-//                text,
-//                when (importance) {
-//                    TodoItem.Companion.Importance.LOW -> TodoItemDbModel.Companion.Importance.LOW
-//                    TodoItem.Companion.Importance.BASIC -> TodoItemDbModel.Companion.Importance.BASIC
-//                    TodoItem.Companion.Importance.IMPORTANT -> TodoItemDbModel.Companion.Importance.IMPORTANT
-//                },
-//                deadline,
-//                done,
-//                color,
-//                createdAt,
-//                changedAt,
-//                lastUpdatedBy
-//            )
         }
     }
 

@@ -31,8 +31,7 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/todoListFragment" />
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
         <action
             android:id="@+id/action_todoListFragment_to_authFragment"
             app:destination="@id/authFragment"
@@ -48,15 +47,6 @@
         android:id="@+id/todoFragment"
         android:name="com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoFragment"
         android:label="TodoFragment" >
-        <action
-            android:id="@+id/action_todoFragment_to_todoListFragment"
-            app:destination="@id/todoListFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
-            app:popExitAnim="@anim/nav_default_pop_exit_anim"
-            app:popUpTo="@id/todoListFragment" />
         <action
             android:id="@+id/action_todoFragment_to_authFragment"
             app:destination="@id/authFragment"

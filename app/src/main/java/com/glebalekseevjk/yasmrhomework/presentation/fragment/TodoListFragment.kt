@@ -54,6 +54,10 @@ class TodoListFragment : Fragment() {
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        synchronizeTodoList()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,14 +75,13 @@ class TodoListFragment : Fragment() {
         initDispatchTouchEventSettings()
         setupRecyclerView()
         observeViewModel()
-        synchronizeTodoList()
     }
 
     private fun initErrorHandler() {
         lifecycleScope.launch {
             todoListViewModel.errorHandler.collect {
                 if (it != OK) {
-                    Toast.makeText(context, resources.getString(it), Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -93,8 +96,10 @@ class TodoListFragment : Fragment() {
             when (it.status) {
                 ResultStatus.FAILURE -> {
                     mainApplication.setupCheckSynchronizedWorker()
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
                 ResultStatus.UNAUTHORIZED -> {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                     checkAuth()
                 }
                 else ->{}
@@ -133,10 +138,12 @@ class TodoListFragment : Fragment() {
             ResultStatus.FAILURE -> {
                 println("ERROR")
                 mainApplication.setupCheckSynchronizedWorker()
+                Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
             }
             ResultStatus.UNAUTHORIZED -> {
                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                 checkAuth()
+                Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -173,12 +180,12 @@ class TodoListFragment : Fragment() {
                     ResultStatus.FAILURE -> {
                         mainApplication.setupCheckSynchronizedWorker()
                         taskListSrl.isRefreshing = false
-                        Toast.makeText(context, "Ошибка", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                     }
                     ResultStatus.UNAUTHORIZED -> {
                         checkAuth()
                         taskListSrl.isRefreshing = false
-                        Toast.makeText(context, "Не авторизован", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -202,10 +209,12 @@ class TodoListFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка завершения элемента id: ${it.data.id}")
                                 mainApplication.setupCheckSynchronizedWorker()
+                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                                 checkAuth()
+                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -225,10 +234,12 @@ class TodoListFragment : Fragment() {
                             ResultStatus.FAILURE -> {
                                 println("Ошибка удаления элемента id: ${it.data.id}")
                                 mainApplication.setupCheckSynchronizedWorker()
+                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                                 checkAuth()
+                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }

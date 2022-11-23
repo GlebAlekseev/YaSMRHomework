@@ -79,7 +79,7 @@ class TodoFragment : Fragment() {
         lifecycleScope.launch {
             todoViewModel.errorHandler.collect {
                 if (it != OK) {
-                    Toast.makeText(context, resources.getString(it), Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -149,7 +149,7 @@ class TodoFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     private fun initListeners() {
         exitIv.setOnClickListener {
-            navController.navigate(R.id.action_todoFragment_to_todoListFragment)
+            activity?.onBackPressed()
         }
         saveBtn.setOnClickListener {
             if (screenMode == MODE_EDIT) {
@@ -164,10 +164,12 @@ class TodoFragment : Fragment() {
                         ResultStatus.FAILURE -> {
                             println("Ошибка редактирования элемента id: ${it.data.id}")
                             mainApplication.setupCheckSynchronizedWorker()
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             checkAuth()
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -183,19 +185,21 @@ class TodoFragment : Fragment() {
                         ResultStatus.FAILURE -> {
                             println("Ошибка добавления элемента id: ${it.data.id}")
                             mainApplication.setupCheckSynchronizedWorker()
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             checkAuth()
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
-            navController.navigate(R.id.action_todoFragment_to_todoListFragment)
+            activity?.onBackPressed()
         }
         removeLl.setOnClickListener {
             if (screenMode == MODE_EDIT) {
-                todoViewModel.deleteTodo(todoViewModel.currentTodoItem,{
+                todoViewModel.deleteTodo(todoViewModel.currentTodoItem, {
                     false
                 }) {
                     when (it.status) {
@@ -208,15 +212,17 @@ class TodoFragment : Fragment() {
                         ResultStatus.FAILURE -> {
                             println("Ошибка удаления элемента id: ${it.data.id}")
                             mainApplication.setupCheckSynchronizedWorker()
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             checkAuth()
+                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             }
-            navController.navigate(R.id.action_todoFragment_to_todoListFragment)
+            activity?.onBackPressed()
         }
         messageEt.addTextChangedListener {
             todoViewModel.currentTodoItem =
