@@ -1,6 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.domain.interactor
 
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
+import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListRepository
 import kotlinx.coroutines.flow.Flow
@@ -8,6 +9,6 @@ import kotlinx.coroutines.flow.Flow
 class EditTodoItemUseCase(
     private val todoListRepository: TodoListRepository,
 ) {
-    operator fun invoke(todoItem: TodoItem): Flow<Result<TodoItem>> =
+    operator fun invoke(todoItem: TodoItem): Flow<Result<Pair<List<TodoItem>, Revision>>> =
         todoListRepository.editTodoItem(todoItem)
 }

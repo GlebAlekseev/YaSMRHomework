@@ -1,8 +1,11 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
+import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesSynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.data.remote.model.RefreshToken
-import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
-import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.SynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.TokenStorage
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -12,7 +15,9 @@ import java.util.concurrent.TimeUnit
 class AuthorizationFailedInterceptor(
     private val tokenStorage: TokenStorage,
     private val revisionStorage: RevisionStorage,
-    private val authService: AuthService
+    private val synchronizedStorage: SynchronizedStorage,
+    private val authService: AuthService,
+    private val todoItemDao: TodoItemDao
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequestTimestamp = System.currentTimeMillis()
@@ -103,10 +108,10 @@ class AuthorizationFailedInterceptor(
             if (tokenPair != null) {
                 tokenStorage.setTokenPair(tokenPair)
                 true
-            }else{
+            } else {
                 false
             }
-        }else{
+        } else {
             false
         }
         if (tokenRefreshed) {
@@ -115,6 +120,8 @@ class AuthorizationFailedInterceptor(
             // Неверный refresh_token, выйти из аккаунта
             tokenStorage.clear()
             revisionStorage.clear()
+            synchronizedStorage.setSynchronizedStatus(SharedPreferencesSynchronizedStorage.SYNCHRONIZED)
+            todoItemDao.deleteAll()
         }
         getLatch()?.countDown()
         return tokenRefreshed

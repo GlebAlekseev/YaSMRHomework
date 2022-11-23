@@ -1,7 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.domain.entity
 
 enum class ResultStatus {
-    SUCCESS,        // Успекх
+    SUCCESS,        // Успех
     LOADING,        // Загрузка
     FAILURE,        // Ошибка
     UNAUTHORIZED    // Выбросить в окно авторизации
@@ -9,5 +9,6 @@ enum class ResultStatus {
 
 data class Result<T>(
     val status: ResultStatus,
-    val data: T
+    val data: T,
+    val message: String = "",
 )

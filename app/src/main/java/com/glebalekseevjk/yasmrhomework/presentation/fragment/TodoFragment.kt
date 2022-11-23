@@ -150,7 +150,6 @@ class TodoFragment : Fragment() {
     private fun initListeners() {
         exitIv.setOnClickListener {
             navController.navigate(R.id.action_todoFragment_to_todoListFragment)
-//            requireActivity().onBackPressed()
         }
         saveBtn.setOnClickListener {
             if (screenMode == MODE_EDIT) {
@@ -168,6 +167,7 @@ class TodoFragment : Fragment() {
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+                            checkAuth()
                         }
                     }
                 }
@@ -186,6 +186,7 @@ class TodoFragment : Fragment() {
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+                            checkAuth()
                         }
                     }
                 }
@@ -194,7 +195,9 @@ class TodoFragment : Fragment() {
         }
         removeLl.setOnClickListener {
             if (screenMode == MODE_EDIT) {
-                todoViewModel.deleteTodo(todoViewModel.currentTodoItem.id) {
+                todoViewModel.deleteTodo(todoViewModel.currentTodoItem,{
+                    false
+                }) {
                     when (it.status) {
                         ResultStatus.SUCCESS -> {
                             println("Удален элемент с id: ${it.data.id}")
@@ -208,6 +211,7 @@ class TodoFragment : Fragment() {
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
+                            checkAuth()
                         }
                     }
                 }
@@ -278,27 +282,16 @@ class TodoFragment : Fragment() {
         }
     }
 
+    private fun checkAuth() {
+        if (!todoViewModel.isAuth) {
+            navController.navigate(R.id.action_todoListFragment_to_authFragment)
+        }
+    }
+
     companion object {
         const val TODO_ID = "todo_id"
         const val SCREEN_MODE = "screen_mode"
         const val MODE_ADD = "mode_add"
         const val MODE_EDIT = "mode_edit"
-
-        fun newInstanceAddTodo(): TodoFragment {
-            return TodoFragment().apply {
-                arguments = Bundle().apply {
-                    putString(SCREEN_MODE, MODE_ADD)
-                }
-            }
-        }
-
-        fun newInstanceEditTodo(todoId: Long): TodoFragment {
-            return TodoFragment().apply {
-                arguments = Bundle().apply {
-                    putString(SCREEN_MODE, MODE_EDIT)
-                    putLong(TODO_ID, todoId)
-                }
-            }
-        }
     }
 }

@@ -7,6 +7,7 @@ import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesTokenStorage
 import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.interactor.GetTokenPairUseCase
+import com.glebalekseevjk.yasmrhomework.domain.interactor.LogoutUseCase
 import com.glebalekseevjk.yasmrhomework.utils.ExceptionHandler
 import kotlinx.coroutines.CoroutineExceptionHandler
 
@@ -25,6 +26,7 @@ class MainViewModel(
             _errorHandler.value = message
         }
     private val getTokenPairUseCase = GetTokenPairUseCase(authRepositoryImpl)
+    private val logoutUseCase = LogoutUseCase(authRepositoryImpl)
 
     val isAuth: Boolean
         get() {
@@ -39,6 +41,14 @@ class MainViewModel(
     fun updateTokenPair(code: String, block: (Result<Unit>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
             getTokenPairUseCase(code).collect {
+                block(it)
+            }
+        }
+    }
+
+    fun logout(block: (Result<Unit>) -> Unit){
+        viewModelScope.launchWithExceptionHandler {
+            logoutUseCase().collect {
                 block(it)
             }
         }

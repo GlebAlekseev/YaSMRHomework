@@ -1,9 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.presentation.application
 
 import android.app.Application
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
 import androidx.work.*
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesRevisionStorage
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesSynchronizedStorage
@@ -13,7 +10,8 @@ import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
 import com.glebalekseevjk.yasmrhomework.data.mapper.TodoItemMapperImpl
 import com.glebalekseevjk.yasmrhomework.data.remote.RetrofitClient
 import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListLocalRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRemoteRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.MainViewModelFactory
@@ -21,8 +19,6 @@ import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModel
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoViewModelFactory
 import com.glebalekseevjk.yasmrhomework.presentation.worker.CheckSynchronizedWorker
 import com.glebalekseevjk.yasmrhomework.presentation.worker.RefreshTodoWorker
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 
@@ -30,7 +26,8 @@ class MainApplication : Application() {
     private lateinit var appDatabase: AppDatabase
     private lateinit var todoItemMapperImpl: Mapper<TodoItem,TodoItemDbModel>
 
-    lateinit var todoListRepositoryImpl: TodoListRepositoryImpl
+    lateinit var todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl
+    lateinit var todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl
     private lateinit var authRepositoryImpl: AuthRepositoryImpl
 
     lateinit var todoViewModelFactory: TodoViewModelFactory
@@ -61,18 +58,24 @@ class MainApplication : Application() {
             appDatabase.todoItemDao(),
             todoItemMapperImpl
         )
-
-        todoListRepositoryImpl = TodoListRepositoryImpl(
+        todoListLocalRepositoryImpl = TodoListLocalRepositoryImpl(
             appDatabase.todoItemDao(),
             todoItemMapperImpl,
-            RetrofitClient.todoApi,
+            sharedPreferencesRevisionStorage
+        )
+        todoListRemoteRepositoryImpl = TodoListRemoteRepositoryImpl(
+            RetrofitClient.todoApi
+        )
+        authRepositoryImpl = AuthRepositoryImpl(
+            appDatabase.todoItemDao(),
+            RetrofitClient.authApi,
+            sharedPreferencesTokenStorage,
             sharedPreferencesRevisionStorage,
             sharedPreferencesSynchronizedStorage
         )
-        authRepositoryImpl = AuthRepositoryImpl(RetrofitClient.authApi, sharedPreferencesTokenStorage)
 
-        todoViewModelFactory = TodoViewModelFactory(this, todoListRepositoryImpl)
-        todoListViewModelFactory = TodoListViewModelFactory(this, authRepositoryImpl, todoListRepositoryImpl)
+        todoViewModelFactory = TodoViewModelFactory(this, authRepositoryImpl, todoListLocalRepositoryImpl,todoListRemoteRepositoryImpl)
+        todoListViewModelFactory = TodoListViewModelFactory(this, authRepositoryImpl, todoListLocalRepositoryImpl,todoListRemoteRepositoryImpl)
         mainViewModelFactory = MainViewModelFactory(
             this,
             authRepositoryImpl

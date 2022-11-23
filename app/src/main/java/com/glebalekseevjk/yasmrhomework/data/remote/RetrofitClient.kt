@@ -4,9 +4,9 @@ import android.util.Log
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
-import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
-import com.glebalekseevjk.yasmrhomework.domain.features.synchronize.SynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.TokenStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.SynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -45,7 +45,6 @@ object RetrofitClient {
             .build()
             .create(AuthService::class.java)
 
-
         basicTodoApiClient = OkHttpClient.Builder()
             .connectTimeout(200,TimeUnit.MILLISECONDS)
             .addNetworkInterceptor(
@@ -58,7 +57,9 @@ object RetrofitClient {
                 AuthorizationFailedInterceptor(
                     tokenStorage,
                     revisionStorage,
-                    authApi
+                    synchronizedStorage,
+                    authApi,
+                    todoItemDao
                 )
             )
             .addNetworkInterceptor(AuthorizationInterceptor(tokenStorage))
@@ -91,7 +92,9 @@ object RetrofitClient {
                 AuthorizationFailedInterceptor(
                     tokenStorage,
                     revisionStorage,
-                    authApi
+                    synchronizedStorage,
+                    authApi,
+                    todoItemDao
                 )
             )
             .addNetworkInterceptor(AuthorizationInterceptor(tokenStorage))

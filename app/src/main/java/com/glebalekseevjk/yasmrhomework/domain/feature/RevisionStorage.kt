@@ -1,4 +1,4 @@
-package com.glebalekseevjk.yasmrhomework.domain.features.revision
+package com.glebalekseevjk.yasmrhomework.domain.feature
 
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 

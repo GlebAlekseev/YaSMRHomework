@@ -2,15 +2,12 @@ package com.glebalekseevjk.yasmrhomework.data.remote
 
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
-import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import retrofit2.awaitResponse
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-
-// Запросить новые данные со свежей ревизией, если не совпадает.
 
 class RevisionFailedInterceptor(
     private val revisionStorage: RevisionStorage,

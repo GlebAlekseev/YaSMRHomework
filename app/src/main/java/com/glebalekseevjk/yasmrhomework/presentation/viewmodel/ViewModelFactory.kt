@@ -3,20 +3,23 @@ package com.glebalekseevjk.yasmrhomework.presentation.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesRevisionStorage
-import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesTokenStorage
 import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListLocalRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRemoteRepositoryImpl
 
 
 class TodoViewModelFactory(
     private val application: Application,
-    private val todoListRepositoryImpl: TodoListRepositoryImpl,
+    private val authRepositoryImpl: AuthRepositoryImpl,
+    private val todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
+    private val todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoViewModel(
             application,
-            todoListRepositoryImpl
+            authRepositoryImpl,
+            todoListLocalRepositoryImpl,
+            todoListRemoteRepositoryImpl
         ) as T
     }
 }
@@ -24,13 +27,15 @@ class TodoViewModelFactory(
 class TodoListViewModelFactory(
     private val application: Application,
     private val authRepositoryImpl: AuthRepositoryImpl,
-    private val todoListRepositoryImpl: TodoListRepositoryImpl,
+    private val todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
+    private val todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoListViewModel(
             application,
             authRepositoryImpl,
-            todoListRepositoryImpl
+            todoListLocalRepositoryImpl,
+            todoListRemoteRepositoryImpl
         ) as T
     }
 }

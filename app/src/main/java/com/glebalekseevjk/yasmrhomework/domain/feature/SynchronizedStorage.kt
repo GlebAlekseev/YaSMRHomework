@@ -1,4 +1,4 @@
-package com.glebalekseevjk.yasmrhomework.domain.features.synchronize
+package com.glebalekseevjk.yasmrhomework.domain.feature
 
 interface SynchronizedStorage {
     fun getSynchronizedStatus(): Boolean

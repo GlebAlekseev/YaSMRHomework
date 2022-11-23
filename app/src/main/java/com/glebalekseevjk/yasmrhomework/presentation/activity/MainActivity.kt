@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -76,12 +77,10 @@ class MainActivity : AppCompatActivity() {
     private fun onDrawerItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.exit_menu_item -> {
-                val mainApplication = (applicationContext as MainApplication)
-                mainApplication.sharedPreferencesRevisionStorage.clear()
-                mainApplication.sharedPreferencesTokenStorage.clear()
-                mainApplication.sharedPreferencesSynchronizedStorage.setSynchronizedStatus(SharedPreferencesSynchronizedStorage.SYNCHRONIZED)
-                if (navController.currentDestination?.id == R.id.todoListFragment){
-                    navController.navigate(R.id.action_todoListFragment_to_authFragment)
+                mainViewModel.logout {
+                    if (navController.currentDestination?.id == R.id.todoListFragment){
+                        navController.navigate(R.id.action_todoListFragment_to_authFragment)
+                    }
                 }
                 return true
             }
@@ -99,12 +98,12 @@ class MainActivity : AppCompatActivity() {
                     ResultStatus.SUCCESS -> {
                         if (mainViewModel.isAuth) {
                             navController.navigate(R.id.action_authFragment_to_todoListFragment)
-//                            launchFragment(TodoListFragment())
                         }
                     }
                     ResultStatus.LOADING -> {
                     }
                     ResultStatus.FAILURE -> {
+                        Toast.makeText(this, it.message,Toast.LENGTH_SHORT).show()
                     }
                     else -> {}
                 }

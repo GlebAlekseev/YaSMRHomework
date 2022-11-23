@@ -3,7 +3,7 @@ package com.glebalekseevjk.yasmrhomework.cache
 import android.content.Context
 import android.content.SharedPreferences
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
-import com.glebalekseevjk.yasmrhomework.domain.features.revision.RevisionStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
 
 class SharedPreferencesRevisionStorage(context: Context) : RevisionStorage {
     private val revisionPref: SharedPreferences

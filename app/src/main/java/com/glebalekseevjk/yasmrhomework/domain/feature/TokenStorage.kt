@@ -1,4 +1,4 @@
-package com.glebalekseevjk.yasmrhomework.domain.features.oauth
+package com.glebalekseevjk.yasmrhomework.domain.feature
 
 import com.glebalekseevjk.yasmrhomework.domain.entity.TokenPair
 

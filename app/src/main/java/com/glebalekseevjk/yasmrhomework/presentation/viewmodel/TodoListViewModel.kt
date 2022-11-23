@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesRevisionStorage
 import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesTokenStorage
 import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListLocalRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRemoteRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
+import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
@@ -15,21 +17,30 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 
 class TodoListViewModel(
     application: Application,
     authRepositoryImpl: AuthRepositoryImpl,
-    todoListRepositoryImpl: TodoListRepositoryImpl,
+    todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl,
+    todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl
 ) : BaseViewModel(application) {
-    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage = SharedPreferencesTokenStorage(application)
-    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage = SharedPreferencesRevisionStorage(application)
+    private val sharedPreferencesTokenStorage: SharedPreferencesTokenStorage =
+        SharedPreferencesTokenStorage(application)
+    private val sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage =
+        SharedPreferencesRevisionStorage(application)
 
-    private val editTodoItemUseCase = EditTodoItemUseCase(todoListRepositoryImpl)
-    private val deleteTodoItemUseCase = DeleteTodoItemUseCase(todoListRepositoryImpl)
-    private val getTodoListUseCase = GetTodoListUseCase(todoListRepositoryImpl)
+    private val editTodoItemLocalUseCase = EditTodoItemUseCase(todoListLocalRepositoryImpl)
+    private val deleteTodoItemLocalUseCase = DeleteTodoItemUseCase(todoListLocalRepositoryImpl)
+    private val getTodoListLocalUseCase = GetTodoListUseCase(todoListLocalRepositoryImpl)
+    private val deleteTodoListLocalUseCase = DeleteTodoListUseCase(todoListLocalRepositoryImpl)
+    private val addTodoItemLocalUseCase = AddTodoItemUseCase(todoListLocalRepositoryImpl)
+
+    private val editTodoItemRemoteUseCase = EditTodoItemUseCase(todoListRemoteRepositoryImpl)
+    private val deleteTodoItemRemoteUseCase = DeleteTodoItemUseCase(todoListRemoteRepositoryImpl)
+    private val getTodoListRemoteUseCase = GetTodoListUseCase(todoListRemoteRepositoryImpl)
+
     private val logoutUseCase = LogoutUseCase(authRepositoryImpl)
-    private val synchronizeTodoListUseCase = SynchronizeTodoListUseCase(todoListRepositoryImpl)
-
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
@@ -50,26 +61,68 @@ class TodoListViewModel(
         _todoListViewState
     }
 
-    private fun observeTodoList(){
+    private fun observeTodoList() {
         getTodoListJob = viewModelScope.launchWithExceptionHandler {
-            getTodoListUseCase().collect {
-                _todoListViewState.value = _todoListViewState.value.copy(result = it)
+            getTodoListLocalUseCase().collect {
+                _todoListViewState.value = _todoListViewState.value.copy(
+                    result = Result(
+                        it.status,
+                        it.data.first,
+                        it.message
+                    )
+                )
             }
         }
     }
 
-    fun synchronizeTodoList(block: (Result<List<TodoItem>>) -> Unit){
+    fun synchronizeTodoList(block: (Result<List<TodoItem>>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
-            synchronizeTodoListUseCase().collect {
-                block(it)
+            getTodoListRemoteUseCase().collect {
+                if (it.status == ResultStatus.SUCCESS) {
+                    val response = it.data
+                    val deleteResult =
+                        deleteTodoListLocalUseCase().first { it.status != ResultStatus.LOADING }
+                    if (deleteResult.status == ResultStatus.SUCCESS) {
+                        response.first.forEach {
+                            if (addTodoItemLocalUseCase(it).first { it.status != ResultStatus.LOADING }.status != ResultStatus.SUCCESS) {
+                                throw RuntimeException("БД не может добавить запись")
+                            }
+                        }
+                        sharedPreferencesRevisionStorage.setRevision(response.second)
+                    } else {
+                        throw RuntimeException("БД не может удалить все записи")
+                    }
+                }
+                block(Result(it.status, it.data.first, it.message))
             }
         }
     }
 
-    fun deleteTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
+    fun deleteTodo(
+        todoItem: TodoItem,
+        snackBarBlock: (todoItem: TodoItem) -> Boolean,
+        block: (Result<TodoItem>) -> Unit
+    ) {
         viewModelScope.launchWithExceptionHandler {
-            deleteTodoItemUseCase(todoItem.id).collect {
-                block(it)
+            val deleteResult =
+                deleteTodoItemLocalUseCase(todoItem.id).first { it.status != ResultStatus.LOADING }
+            val deletedItem = if (deleteResult.status == ResultStatus.SUCCESS) {
+                deleteResult.data.first[0]
+            } else {
+                throw RuntimeException("БД не может удалить запись todoItem: $todoItem")
+            }
+            if (snackBarBlock(deletedItem)) {
+                val addResult =
+                    addTodoItemLocalUseCase(deletedItem).first { it.status != ResultStatus.LOADING }
+                if (addResult.status != ResultStatus.SUCCESS) throw RuntimeException("БД не может добавить todoItem: $deletedItem")
+            } else {
+                deleteTodoItemRemoteUseCase(deletedItem.id).collect {
+                    if (it.status == ResultStatus.SUCCESS) {
+                        val response = it.data
+                        sharedPreferencesRevisionStorage.setRevision(response.second)
+                    }
+                    block(Result(it.status, it.data.first[0], it.message))
+                }
             }
         }
     }
@@ -77,15 +130,19 @@ class TodoListViewModel(
     fun finishTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
         val newTodoItem = todoItem.copy(done = true)
         viewModelScope.launchWithExceptionHandler {
-            editTodoItemUseCase(newTodoItem).collect {
-                block(it)
+            val editResult =
+                editTodoItemLocalUseCase(newTodoItem).first { it.status != ResultStatus.LOADING }
+            if (editResult.status == ResultStatus.SUCCESS) {
+                editTodoItemRemoteUseCase(newTodoItem).collect {
+                    if (it.status == ResultStatus.SUCCESS) {
+                        val response = it.data
+                        sharedPreferencesRevisionStorage.setRevision(response.second)
+                    }
+                    block(Result(it.status, it.data.first[0], it.message))
+                }
+            } else {
+                throw RuntimeException("БД не может отредактировать todoItem: $newTodoItem")
             }
-        }
-    }
-
-    fun logout(){
-        viewModelScope.launchWithExceptionHandler {
-            logoutUseCase()
         }
     }
 
@@ -93,10 +150,16 @@ class TodoListViewModel(
         get() {
             val tokenPair = sharedPreferencesTokenStorage.getTokenPair()
             return if (tokenPair == null) {
-                sharedPreferencesRevisionStorage.clear()
-                // Удалить кеш записи в браузере
+                logout()
                 false
             } else true
         }
+
+    private fun logout() {
+        viewModelScope.launchWithExceptionHandler {
+            logoutUseCase()
+        }
+    }
+
     var isViewFinished = MutableStateFlow(true)
 }

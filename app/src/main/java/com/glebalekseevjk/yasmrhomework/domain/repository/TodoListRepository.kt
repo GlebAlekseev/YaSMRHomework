@@ -1,14 +1,15 @@
 package com.glebalekseevjk.yasmrhomework.domain.repository
 
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
+import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import kotlinx.coroutines.flow.Flow
 
 interface TodoListRepository {
-    fun getTodoList(): Flow<Result<List<TodoItem>>>
-    fun synchronizeTodoList(): Flow<Result<List<TodoItem>>>
-    fun getTodoItem(todoId: Long): Flow<Result<TodoItem>>
-    fun addTodoItem(todoItem: TodoItem): Flow<Result<TodoItem>>
-    fun deleteTodoItem(todoId: Long): Flow<Result<TodoItem>>
-    fun editTodoItem(todoItem: TodoItem): Flow<Result<TodoItem>>
+    fun getTodoList(): Flow<Result<Pair<List<TodoItem>, Revision>>>
+    fun deleteTodoList(): Flow<Result<Pair<List<TodoItem>, Revision>>>
+    fun getTodoItem(todoId: Long): Flow<Result<Pair<List<TodoItem>, Revision>>>
+    fun addTodoItem(todoItem: TodoItem): Flow<Result<Pair<List<TodoItem>, Revision>>>
+    fun deleteTodoItem(todoId: Long): Flow<Result<Pair<List<TodoItem>, Revision>>>
+    fun editTodoItem(todoItem: TodoItem): Flow<Result<Pair<List<TodoItem>, Revision>>>
 }

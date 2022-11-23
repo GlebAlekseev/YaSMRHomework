@@ -169,7 +169,6 @@ class TodoListFragment : Fragment() {
                         Toast.makeText(context, "Успех", Toast.LENGTH_SHORT).show()
                     }
                     ResultStatus.LOADING -> {
-                        Toast.makeText(context, "Загрузка", Toast.LENGTH_SHORT).show()
                     }
                     ResultStatus.FAILURE -> {
                         mainApplication.setupCheckSynchronizedWorker()
@@ -213,7 +212,9 @@ class TodoListFragment : Fragment() {
                 }
 
                 override fun onRightClicked(position: Int) {
-                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position]) {
+                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position],{
+                        false
+                    }) {
                         when (it.status) {
                             ResultStatus.SUCCESS -> {
                                 println("Удален элемент с id: ${it.data.id}")

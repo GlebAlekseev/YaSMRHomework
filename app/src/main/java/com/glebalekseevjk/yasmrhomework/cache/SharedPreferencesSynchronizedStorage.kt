@@ -2,7 +2,7 @@ package com.glebalekseevjk.yasmrhomework.cache
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.glebalekseevjk.yasmrhomework.domain.features.synchronize.SynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.SynchronizedStorage
 
 class SharedPreferencesSynchronizedStorage(context: Context) : SynchronizedStorage {
     private val syncPref: SharedPreferences

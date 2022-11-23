@@ -3,7 +3,7 @@ package com.glebalekseevjk.yasmrhomework.cache
 import android.content.Context
 import android.content.SharedPreferences
 import com.glebalekseevjk.yasmrhomework.domain.entity.TokenPair
-import com.glebalekseevjk.yasmrhomework.domain.features.oauth.TokenStorage
+import com.glebalekseevjk.yasmrhomework.domain.feature.TokenStorage
 
 class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
     private val tokenPref: SharedPreferences
@@ -39,8 +39,9 @@ class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
         val expiresAt = tokenPref.getLong(PREF_KEY_EXPIRES_AT, 0)
         if (expiresAt < System.currentTimeMillis()) {
             clear()
+            return null
         }
-        return if (expiresAt != 0L) expiresAt else null
+        return expiresAt
     }
 
     override fun getRefreshToken(): String? {
@@ -58,6 +59,5 @@ class SharedPreferencesTokenStorage(context: Context) : TokenStorage {
         private val PREF_KEY_ACCESS_TOKEN = "access_token"
         private val PREF_KEY_REFRESH_TOKEN = "refresh_token"
         private val PREF_KEY_EXPIRES_AT = "expires_at"
-        const val DAY_MILLIS = 86400000
     }
 }
