@@ -9,4 +9,6 @@ interface TokenStorage {
     fun getExpiresAt(): Long?
     fun getRefreshToken(): String?
     fun getAccessToken(): String?
+    fun getLogin(): String?
+    fun getDisplayName(): String?
 }

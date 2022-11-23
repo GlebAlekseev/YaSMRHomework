@@ -56,14 +56,11 @@ class TodoViewModel(
     }
 
     fun addTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
-        println("^^^^0 addTodo")
-
         viewModelScope.launchWithExceptionHandler {
             val addResult =
                 addTodoItemLocalUseCase(todoItem).first { it.status != ResultStatus.LOADING }
             if (addResult.status == ResultStatus.SUCCESS) {
                 addTodoItemRemoteUseCase(todoItem).collect {
-                    println("^^^^0 addTodoItemRemoteUseCase it = ${it}")
                     if (it.status == ResultStatus.SUCCESS) {
                         val response = it.data
                         sharedPreferencesRevisionStorage.setRevision(response.second)
@@ -79,14 +76,11 @@ class TodoViewModel(
     }
 
     fun editTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
-        println("^^^^0 editTodo")
-
         viewModelScope.launchWithExceptionHandler {
             val editResult =
                 editTodoItemLocalUseCase(todoItem).first { it.status != ResultStatus.LOADING }
             if (editResult.status == ResultStatus.SUCCESS) {
                 editTodoItemRemoteUseCase(todoItem).collect {
-                    println("^^^^0 editTodoItemRemoteUseCase it = ${it}")
                     if (it.status == ResultStatus.SUCCESS) {
                         val response = it.data
                         sharedPreferencesRevisionStorage.setRevision(response.second)
@@ -107,8 +101,6 @@ class TodoViewModel(
         snackBarBlock: (todoItem: TodoItem) -> Boolean,
         block: (Result<TodoItem>) -> Unit
     ) {
-        println("^^^^0 deleteTodo")
-
         viewModelScope.launchWithExceptionHandler {
             val deleteResult =
                 deleteTodoItemLocalUseCase(todoItem.id).first { it.status != ResultStatus.LOADING }
@@ -123,7 +115,6 @@ class TodoViewModel(
                 if (addResult.status != ResultStatus.SUCCESS) throw RuntimeException("БД не может добавить todoItem: $deletedItem")
             } else {
                 deleteTodoItemRemoteUseCase(deletedItem.id).collect {
-                    println("^^^^0 deleteTodoItemRemoteUseCase it = ${it}")
                     if (it.status == ResultStatus.SUCCESS) {
                         val response = it.data
                         sharedPreferencesRevisionStorage.setRevision(response.second)

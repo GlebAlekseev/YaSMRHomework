@@ -21,7 +21,7 @@ class AuthRepositoryImpl(
     private val authService: AuthService,
     private val tokenStorage: TokenStorage,
     private val revisionStorage: RevisionStorage,
-    private val synchronizedStorage: SynchronizedStorage
+    private val synchronizedStorage: SynchronizedStorage,
 ) : AuthRepository {
     override fun getTokenPair(code: String): Flow<Result<Unit>> = flow {
         emit(Result(ResultStatus.LOADING, Unit))
@@ -29,7 +29,9 @@ class AuthRepositoryImpl(
             authService.getTokenPair(code).execute()
         }.getOrNull()
         val result = getResultFromAuthResponse(authResponse)
-        if (result.status == ResultStatus.SUCCESS) tokenStorage.setTokenPair(authResponse!!.body()!!.data!!)
+        if (result.status == ResultStatus.SUCCESS){
+            tokenStorage.setTokenPair(authResponse!!.body()!!.data!!)
+        }
         emit(result)
     }.flowOn(Dispatchers.IO)
 

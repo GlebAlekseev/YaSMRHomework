@@ -137,15 +137,12 @@ class TodoListFragment : Fragment() {
                 taskListAdapter.submitList(newTaskList.toList())
             }
             ResultStatus.LOADING -> {
-                println("LOADING...")
             }
             ResultStatus.FAILURE -> {
-                println("ERROR")
                 mainApplication.setupCheckSynchronizedWorker()
                 Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
             }
             ResultStatus.UNAUTHORIZED -> {
-                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                 checkAuth()
                 Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
             }
@@ -205,18 +202,14 @@ class TodoListFragment : Fragment() {
                     todoListViewModel.finishTodo(taskListAdapter.currentList[position]) {
                         when (it.status) {
                             ResultStatus.SUCCESS -> {
-                                println("Завершен элемент с id: ${it.data.id}")
                             }
                             ResultStatus.LOADING -> {
-                                println("Завершение...")
                             }
                             ResultStatus.FAILURE -> {
-                                println("Ошибка завершения элемента id: ${it.data.id}")
                                 mainApplication.setupCheckSynchronizedWorker()
                                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {
-                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                                 checkAuth()
                                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
@@ -231,11 +224,17 @@ class TodoListFragment : Fragment() {
                         val mutex = Mutex(locked = true)
                         snackBar.setAction("Отменить"){
                             status = true
-                            mutex.unlock()
+                            if (mutex.isLocked){
+                                mutex.unlock()
+                            }
                         }
                         snackBar.show()
                         lifecycleScope.launch {
-                            delay(3000)
+                            delay(1000)
+                            snackBar.setText("Удаление через 2..")
+                            delay(1000)
+                            snackBar.setText("Удаление через 1..")
+                            delay(1000)
                             if (mutex.isLocked){
                                 mutex.unlock()
                             }
@@ -246,18 +245,14 @@ class TodoListFragment : Fragment() {
                     }) {
                         when (it.status) {
                             ResultStatus.SUCCESS -> {
-                                println("Удален элемент с id: ${it.data.id}")
                             }
                             ResultStatus.LOADING -> {
-                                println("Удаление...")
                             }
                             ResultStatus.FAILURE -> {
-                                println("Ошибка удаления элемента id: ${it.data.id}")
                                 mainApplication.setupCheckSynchronizedWorker()
                                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {
-                                println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                                 checkAuth()
                                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }

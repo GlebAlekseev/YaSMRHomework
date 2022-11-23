@@ -156,18 +156,14 @@ class TodoFragment : Fragment() {
                 todoViewModel.editTodo(todoViewModel.currentTodoItem) {
                     when (it.status) {
                         ResultStatus.SUCCESS -> {
-                            println("Отредактирован элемент с id: ${it.data.id}")
                         }
                         ResultStatus.LOADING -> {
-                            println("Редактирование...")
                         }
                         ResultStatus.FAILURE -> {
-                            println("Ошибка редактирования элемента id: ${it.data.id}")
                             mainApplication.setupCheckSynchronizedWorker()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
-                            println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             checkAuth()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
@@ -177,18 +173,14 @@ class TodoFragment : Fragment() {
                 todoViewModel.addTodo(todoViewModel.currentTodoItem) {
                     when (it.status) {
                         ResultStatus.SUCCESS -> {
-                            println("Добавлен элемент с id: ${it.data.id}")
                         }
                         ResultStatus.LOADING -> {
-                            println("Добавление...")
                         }
                         ResultStatus.FAILURE -> {
-                            println("Ошибка добавления элемента id: ${it.data.id}")
                             mainApplication.setupCheckSynchronizedWorker()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
-                            println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             checkAuth()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
@@ -204,18 +196,14 @@ class TodoFragment : Fragment() {
                 }) {
                     when (it.status) {
                         ResultStatus.SUCCESS -> {
-                            println("Удален элемент с id: ${it.data.id}")
                         }
                         ResultStatus.LOADING -> {
-                            println("Удаление...")
                         }
                         ResultStatus.FAILURE -> {
-                            println("Ошибка удаления элемента id: ${it.data.id}")
                             mainApplication.setupCheckSynchronizedWorker()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
-                            println("ТРЕБУЕТСЯ АВТОРИЗАЦИЯ")
                             checkAuth()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
