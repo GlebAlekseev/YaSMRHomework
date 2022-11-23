@@ -99,7 +99,7 @@ class TodoListViewModel(
 
     fun deleteTodo(
         todoItem: TodoItem,
-        snackBarBlock: (todoItem: TodoItem) -> Boolean,
+        snackBarBlock: suspend (todoItem: TodoItem) -> Boolean,
         block: (Result<TodoItem>) -> Unit
     ) {
         println("^^^^ deleteTodo")

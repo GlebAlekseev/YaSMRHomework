@@ -39,14 +39,11 @@ class AuthFragment : Fragment() {
         yandexAuthIBtn.setOnClickListener {
             val uri = getString(R.string.authorize_url).toUri()
             val customTabsIntent = CustomTabsIntent.Builder().build()
-
             customTabsIntent.intent.setPackage("com.android.chrome")
             customTabsIntent.intent.putExtra(CustomTabsIntent.EXTRA_TITLE_VISIBILITY_STATE, CustomTabsIntent.NO_TITLE);
             customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
             customTabsIntent.intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-
-
+            // todo: delete cookie
             customTabsIntent.launchUrl(requireContext(), uri)
         }
     }

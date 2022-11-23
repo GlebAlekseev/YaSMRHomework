@@ -30,8 +30,12 @@ import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.presentation.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.presentation.viewmodel.TodoListViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 class TodoListFragment : Fragment() {
     private val mainApplication: MainApplication by lazy {
@@ -222,7 +226,23 @@ class TodoListFragment : Fragment() {
 
                 override fun onRightClicked(position: Int) {
                     todoListViewModel.deleteTodo(taskListAdapter.currentList[position],{
-                        false
+                        val snackBar: Snackbar = Snackbar.make(taskListRv,"Удаление через 3..",3000)
+                        var status = false
+                        val mutex = Mutex(locked = true)
+                        snackBar.setAction("Отменить"){
+                            status = true
+                            mutex.unlock()
+                        }
+                        snackBar.show()
+                        lifecycleScope.launch {
+                            delay(3000)
+                            if (mutex.isLocked){
+                                mutex.unlock()
+                            }
+                        }
+                        mutex.withLock {
+                            status
+                        }
                     }) {
                         when (it.status) {
                             ResultStatus.SUCCESS -> {
