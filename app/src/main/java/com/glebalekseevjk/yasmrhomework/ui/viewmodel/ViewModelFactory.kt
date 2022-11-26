@@ -14,7 +14,8 @@ class TodoViewModelFactory(
     private val revisionRepository: RevisionRepository,
     private val tokenRepository: TokenRepository,
     private val todoListLocalRepository: TodoListLocalRepository,
-    private val todoListRemoteRepository: TodoListRemoteRepository
+    private val todoListRemoteRepository: TodoListRemoteRepository,
+    private val schedulerRepository: SchedulerRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoViewModel(
@@ -22,7 +23,8 @@ class TodoViewModelFactory(
             tokenRepository,
             revisionRepository,
             todoListLocalRepository,
-            todoListRemoteRepository
+            todoListRemoteRepository,
+            schedulerRepository
         ) as T
     }
 }
@@ -32,7 +34,8 @@ class TodoListViewModelFactory(
     private val revisionRepository: RevisionRepository,
     private val tokenRepository: TokenRepository,
     private val todoListLocalRepository: TodoListLocalRepository,
-    private val todoListRemoteRepository: TodoListRemoteRepository
+    private val todoListRemoteRepository: TodoListRemoteRepository,
+    private val schedulerRepository: SchedulerRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return TodoListViewModel(
@@ -40,7 +43,8 @@ class TodoListViewModelFactory(
             tokenRepository,
             revisionRepository,
             todoListLocalRepository,
-            todoListRemoteRepository
+            todoListRemoteRepository,
+            schedulerRepository
         ) as T
     }
 }

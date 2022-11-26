@@ -1,12 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.ui.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.viewModelScope
-import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
-import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
-import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.repository.TodoListLocalRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRemoteRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
@@ -22,13 +16,13 @@ class TodoViewModel(
     revisionRepository: RevisionRepository,
     todoListLocalRepository: TodoListLocalRepository,
     todoListRemoteRepository: TodoListRemoteRepository,
-    workManagerRepository: WorkManagerRepository
+    schedulerRepository: SchedulerRepository
 ) : BaseViewModel() {
     private val authUseCase = AuthUseCase(authRepository)
     private val revisionUseCase = RevisionUseCase(revisionRepository)
     private val tokenUseCase = TokenUseCase(tokenRepository)
     private val todoItemUseCase = TodoItemUseCase(todoListLocalRepository, todoListRemoteRepository)
-    private val workManagerUseCase = WorkManagerUseCase(workManagerRepository)
+    private val schedulerUseCase = SchedulerUseCase(schedulerRepository)
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
@@ -53,13 +47,13 @@ class TodoViewModel(
             val addResult =
                 todoItemUseCase.addTodoItemLocal(todoItem).first { it.status != ResultStatus.LOADING }
             if (addResult.status == ResultStatus.SUCCESS) {
-                todoItemUseCase.addTodoItemRemote(todoItem).collect {
-                    if (it.status == ResultStatus.SUCCESS) {
-                        val response = it.data
+                todoItemUseCase.addTodoItemRemote(todoItem).collect { result ->
+                    if (result.status == ResultStatus.SUCCESS) {
+                        val response = result.data
                         revisionUseCase.setRevision(response.second)
-                        block(Result(it.status, it.data.first[0], it.message))
+                        block.invoke(Result(result.status, result.data.first[0], result.message))
                     }else{
-                        block(Result(it.status, TodoItem.PLUG, it.message))
+                        block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
             } else {
@@ -73,13 +67,13 @@ class TodoViewModel(
             val editResult =
                 todoItemUseCase.editTodoItemLocal(todoItem).first { it.status != ResultStatus.LOADING }
             if (editResult.status == ResultStatus.SUCCESS) {
-                todoItemUseCase.editTodoItemRemote(todoItem).collect {
-                    if (it.status == ResultStatus.SUCCESS) {
-                        val response = it.data
+                todoItemUseCase.editTodoItemRemote(todoItem).collect { result ->
+                    if (result.status == ResultStatus.SUCCESS) {
+                        val response = result.data
                         revisionUseCase.setRevision(response.second)
-                        block(Result(it.status, it.data.first[0], it.message))
+                        block.invoke(Result(result.status, result.data.first[0], result.message))
                     }else{
-                        block(Result(it.status, TodoItem.PLUG, it.message))
+                        block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
             } else {
@@ -102,26 +96,26 @@ class TodoViewModel(
             } else {
                 throw RuntimeException("БД не может удалить запись todoItem: $todoItem")
             }
-            if (snackBarBlock(deletedItem)) {
+            if (snackBarBlock.invoke(deletedItem)) {
                 val addResult =
                     todoItemUseCase.addTodoItemLocal(deletedItem).first { it.status != ResultStatus.LOADING }
                 if (addResult.status != ResultStatus.SUCCESS) throw RuntimeException("БД не может добавить todoItem: $deletedItem")
             } else {
-                todoItemUseCase.deleteTodoItemRemote(deletedItem.id).collect {
-                    if (it.status == ResultStatus.SUCCESS) {
-                        val response = it.data
+                todoItemUseCase.deleteTodoItemRemote(deletedItem.id).collect { result ->
+                    if (result.status == ResultStatus.SUCCESS) {
+                        val response = result.data
                         revisionUseCase.setRevision(response.second)
-                        block(Result(it.status, it.data.first[0], it.message))
+                        block.invoke(Result(result.status, result.data.first[0], result.message))
                     }else{
-                        block(Result(it.status, TodoItem.PLUG, it.message))
+                        block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
             }
         }
     }
 
-    fun setupCheckSynchronizedWorker(){
-        workManagerUseCase.setupCheckSynchronizedWorker()
+    fun setupOneTimeCheckSynchronize(){
+        schedulerUseCase.setupOneTimeCheckSynchronize()
     }
 
     val isAuth: Boolean

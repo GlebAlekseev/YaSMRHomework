@@ -26,5 +26,6 @@ class TokenUseCase(
     fun getTokenPair(): TokenPair? =
         tokenRepository.getTokenPair()
 
-    fun setTokenPair(tokenPair: TokenPair) = tokenRepository.setTokenPair(tokenPair)
+    fun setTokenPair(tokenPair: TokenPair) =
+        tokenRepository.setTokenPair(tokenPair)
 }

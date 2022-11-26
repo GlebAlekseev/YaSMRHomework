@@ -2,16 +2,17 @@ package com.glebalekseevjk.yasmrhomework.data.repository
 
 import android.content.Context
 import androidx.work.*
-import com.glebalekseevjk.yasmrhomework.data.worker.CheckSynchronizedWorker
+import com.glebalekseevjk.yasmrhomework.data.worker.CheckSynchronizeWorker
 import com.glebalekseevjk.yasmrhomework.data.worker.RefreshTodoWorker
+import com.glebalekseevjk.yasmrhomework.domain.repository.SchedulerRepository
 import java.util.concurrent.TimeUnit
 
-class WorkManagerRepositoryImpl(context: Context) {
+class SchedulerRepositoryImpl(context: Context): SchedulerRepository {
     private val workManager: WorkManager by lazy {
         WorkManager.getInstance(context)
     }
 
-    fun setupRefreshTodoWorker(){
+    override fun setupPeriodicTimeRefreshTodo(){
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()
@@ -25,15 +26,15 @@ class WorkManagerRepositoryImpl(context: Context) {
         )
     }
 
-    fun setupCheckSynchronizedWorker(){
+    override fun setupOneTimeCheckSynchronize(){
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()
-        val oneTimeRequest = OneTimeWorkRequestBuilder<CheckSynchronizedWorker>()
+        val oneTimeRequest = OneTimeWorkRequestBuilder<CheckSynchronizeWorker>()
             .setConstraints(constraints)
             .build()
         workManager.enqueueUniqueWork(
-            CheckSynchronizedWorker.WORK_NAME,
+            CheckSynchronizeWorker.WORK_NAME,
             ExistingWorkPolicy.KEEP,
             oneTimeRequest
         )

@@ -24,8 +24,8 @@ class TodoListLocalRepositoryImpl(
         emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
         try {
             val revision = revisionStorage.getRevision() ?: Revision()
-            todoItemDao.getAll().asFlow().collect {
-                val list = it.map { mapper.mapDbModelToItem(it) }
+            todoItemDao.getAll().asFlow().collect { list ->
+                val list = list.map { mapper.mapDbModelToItem(it) }
                 emit(Result(ResultStatus.SUCCESS, Pair(list, revision)))
             }
         } catch (err: Exception) {

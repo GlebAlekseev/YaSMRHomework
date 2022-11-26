@@ -17,7 +17,8 @@ open class SharedPreferencesTokenStorage(context: Context) {
         val refreshToken = getRefreshToken()
         val login = getLogin()
         val displayName = getDisplayName()
-        if (expiresAt != null && accessToken != null && refreshToken != null && login != null && displayName != null) {
+        if (expiresAt != null && accessToken != null && refreshToken != null
+            && login != null && displayName != null) {
             return TokenPair(accessToken, refreshToken, expiresAt,login,displayName)
         } else {
             return null

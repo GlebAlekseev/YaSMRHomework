@@ -62,7 +62,6 @@ class SwipeController constructor(val swipeControllerActions: SwipeControllerAct
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-
         with(viewHolder.itemView) {
             buttonWH = bottom - top
             btnIconSize = (28 * resources.displayMetrics.density).toInt()

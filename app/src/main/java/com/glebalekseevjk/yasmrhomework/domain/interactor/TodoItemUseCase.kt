@@ -32,7 +32,6 @@ class TodoItemUseCase (
     fun deleteTodoListLocal(): Flow<Result<Pair<List<TodoItem>, Revision>>> =
         todoListLocalRepository.deleteTodoList()
 
-
     fun getTodoItemRemote(todoId: Long): Flow<Result<Pair<List<TodoItem>, Revision>>> =
         todoListRemoteRepository.getTodoItem(todoId)
 

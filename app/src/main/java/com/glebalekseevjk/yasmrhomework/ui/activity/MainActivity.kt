@@ -100,8 +100,8 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         val code = intent?.data?.getQueryParameter("code")
         code?.let {
-            mainViewModel.updateTokenPair(code) { it ->
-                when (it.status) {
+            mainViewModel.updateTokenPair(code) { result ->
+                when (result.status) {
                     ResultStatus.SUCCESS -> {
                         if (mainViewModel.isAuth) {
                             navController.navigate(R.id.action_authFragment_to_todoListFragment)
@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity() {
                     ResultStatus.LOADING -> {
                     }
                     ResultStatus.FAILURE -> {
-                        Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, result.message, Toast.LENGTH_SHORT).show()
                     }
                     else -> {}
                 }

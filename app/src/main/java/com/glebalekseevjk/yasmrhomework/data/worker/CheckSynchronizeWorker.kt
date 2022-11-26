@@ -8,24 +8,28 @@ import com.glebalekseevjk.yasmrhomework.domain.interactor.TodoItemUseCase
 import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import kotlinx.coroutines.flow.first
 
-class CheckSynchronizedWorker(private val appContext: Context, params: WorkerParameters) :
+class CheckSynchronizeWorker(private val appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
 
     override suspend fun doWork(): Result {
         return try {
             val mainApplication = appContext as MainApplication
-            val todoItemUseCase = TodoItemUseCase(mainApplication.todoListLocalRepositoryImpl, mainApplication.todoListRemoteRepositoryImpl)
+            val todoItemUseCase = TodoItemUseCase(
+                mainApplication.todoListLocalRepositoryImpl,
+                mainApplication.todoListRemoteRepositoryImpl
+            )
 
             if (mainApplication.sharedPreferencesSynchronizedStorage.getSynchronizedStatus()) return Result.success()
             var status = Result.success()
-            todoItemUseCase.getTodoListRemote().collect {
-                if (it.status == ResultStatus.SUCCESS) {
-                    val response = it.data
+            todoItemUseCase.getTodoListRemote().collect { result ->
+                if (result.status == ResultStatus.SUCCESS) {
+                    val response = result.data
                     val deleteResult =
                         todoItemUseCase.deleteTodoListLocal().first { it.status != ResultStatus.LOADING }
                     if (deleteResult.status == ResultStatus.SUCCESS) {
-                        response.first.forEach {
-                            if (todoItemUseCase.addTodoItemLocal(it).first { it.status != ResultStatus.LOADING }.status != ResultStatus.SUCCESS) {
+                        response.first.forEach { data ->
+                            if (todoItemUseCase.addTodoItemLocal(data)
+                                    .first { it.status != ResultStatus.LOADING }.status != ResultStatus.SUCCESS) {
                                 throw RuntimeException("БД не может добавить запись")
                             }
                         }
@@ -34,10 +38,10 @@ class CheckSynchronizedWorker(private val appContext: Context, params: WorkerPar
                         throw RuntimeException("БД не может удалить все записи")
                     }
                 }
-                if (it.status != ResultStatus.SUCCESS && it.status != ResultStatus.LOADING) {
+                if (result.status != ResultStatus.SUCCESS && result.status != ResultStatus.LOADING) {
                     status = Result.failure()
                 }
-                if (it.status != ResultStatus.LOADING) return@collect
+                if (result.status != ResultStatus.LOADING) return@collect
             }
             return status
         } catch (err: Exception) {

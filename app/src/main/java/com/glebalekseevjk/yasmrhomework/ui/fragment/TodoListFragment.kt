@@ -83,9 +83,9 @@ class TodoListFragment : Fragment() {
 
     private fun initErrorHandler() {
         lifecycleScope.launch {
-            todoListViewModel.errorHandler.collect {
-                if (it != OK) {
-                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            todoListViewModel.errorHandler.collect { errorMessage ->
+                if (errorMessage != OK) {
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -96,14 +96,14 @@ class TodoListFragment : Fragment() {
     }
 
     private fun synchronizeTodoList() {
-        todoListViewModel.synchronizeTodoList {
-            when (it.status) {
+        todoListViewModel.synchronizeTodoList { result ->
+            when (result.status) {
                 ResultStatus.FAILURE -> {
-                    todoListViewModel      .setupCheckSynchronizedWorker()
-                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                    todoListViewModel.setupOneTimeCheckSynchronize()
+                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                 }
                 ResultStatus.UNAUTHORIZED -> {
-                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                     checkAuth()
                 }
                 else ->{}
@@ -139,7 +139,7 @@ class TodoListFragment : Fragment() {
             ResultStatus.LOADING -> {
             }
             ResultStatus.FAILURE -> {
-                todoListViewModel.setupCheckSynchronizedWorker()
+                todoListViewModel.setupOneTimeCheckSynchronize()
                 Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
             }
             ResultStatus.UNAUTHORIZED -> {
@@ -170,8 +170,8 @@ class TodoListFragment : Fragment() {
             todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
         }
         taskListSrl.setOnRefreshListener {
-            todoListViewModel.synchronizeTodoList {
-                when (it.status) {
+            todoListViewModel.synchronizeTodoList { result ->
+                when (result.status) {
                     ResultStatus.SUCCESS -> {
                         taskListSrl.isRefreshing = false
                         Toast.makeText(context, "Успех", Toast.LENGTH_SHORT).show()
@@ -179,14 +179,14 @@ class TodoListFragment : Fragment() {
                     ResultStatus.LOADING -> {
                     }
                     ResultStatus.FAILURE -> {
-                        todoListViewModel.setupCheckSynchronizedWorker()
+                        todoListViewModel.setupOneTimeCheckSynchronize()
                         taskListSrl.isRefreshing = false
-                        Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                     }
                     ResultStatus.UNAUTHORIZED -> {
                         checkAuth()
                         taskListSrl.isRefreshing = false
-                        Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -199,19 +199,19 @@ class TodoListFragment : Fragment() {
             adapter = taskListAdapter
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
-                    todoListViewModel.finishTodo(taskListAdapter.currentList[position]) {
-                        when (it.status) {
+                    todoListViewModel.finishTodo(taskListAdapter.currentList[position]) { result ->
+                        when (result.status) {
                             ResultStatus.SUCCESS -> {
                             }
                             ResultStatus.LOADING -> {
                             }
                             ResultStatus.FAILURE -> {
-                                todoListViewModel.setupCheckSynchronizedWorker()
-                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                                todoListViewModel.setupOneTimeCheckSynchronize()
+                                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 checkAuth()
-                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -242,19 +242,19 @@ class TodoListFragment : Fragment() {
                         mutex.withLock {
                             status
                         }
-                    }) {
-                        when (it.status) {
+                    }) { result ->
+                        when (result.status) {
                             ResultStatus.SUCCESS -> {
                             }
                             ResultStatus.LOADING -> {
                             }
                             ResultStatus.FAILURE -> {
-                                todoListViewModel.setupCheckSynchronizedWorker()
-                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                                todoListViewModel.setupOneTimeCheckSynchronize()
+                                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {
                                 checkAuth()
-                                Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
@@ -274,7 +274,10 @@ class TodoListFragment : Fragment() {
                 )
             )
             taskListAdapter.editClickListener = { id ->
-                val bundle = bundleOf(TodoFragment.SCREEN_MODE to TodoFragment.MODE_EDIT,TodoFragment.TODO_ID to id)
+                val bundle = bundleOf(
+                    TodoFragment.SCREEN_MODE to TodoFragment.MODE_EDIT,
+                    TodoFragment.TODO_ID to id
+                )
                 navController.navigate(R.id.action_todoListFragment_to_todoFragment,bundle)
             }
         }

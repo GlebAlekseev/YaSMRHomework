@@ -38,7 +38,7 @@ class MainViewModel(
     fun updateTokenPair(code: String, block: (Result<Unit>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
             authUseCase.getTokenPair(code).collect {
-                block(it)
+                block.invoke(it)
             }
         }
     }
@@ -46,7 +46,7 @@ class MainViewModel(
     fun logout(block: (Result<Unit>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
             authUseCase.logout().collect {
-                block(it)
+                block.invoke(it)
             }
         }
     }

@@ -1,12 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.ui.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.viewModelScope
-import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
-import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
-import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.repository.TodoListLocalRepositoryImpl
-import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRemoteRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
@@ -25,13 +19,13 @@ class TodoListViewModel(
     revisionRepository: RevisionRepository,
     todoListLocalRepository: TodoListLocalRepository,
     todoListRemoteRepository: TodoListRemoteRepository,
-    workManagerRepository: WorkManagerRepository
+    schedulerRepository: SchedulerRepository
 ) : BaseViewModel() {
     private val authUseCase = AuthUseCase(authRepository)
     private val tokenUseCase = TokenUseCase(tokenRepository)
     private val revisionUseCase = RevisionUseCase(revisionRepository)
     private val todoItemUseCase = TodoItemUseCase(todoListLocalRepository, todoListRemoteRepository)
-    private val workManagerUseCase = WorkManagerUseCase(workManagerRepository)
+    private val schedulerUseCase = SchedulerUseCase(schedulerRepository)
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
@@ -54,12 +48,12 @@ class TodoListViewModel(
 
     private fun observeTodoList() {
         getTodoListJob = viewModelScope.launchWithExceptionHandler {
-            todoItemUseCase.getTodoListLocal().collect {
+            todoItemUseCase.getTodoListLocal().collect { result ->
                 _todoListViewState.value = _todoListViewState.value.copy(
                     result = Result(
-                        it.status,
-                        it.data.first,
-                        it.message
+                        result.status,
+                        result.data.first,
+                        result.message
                     )
                 )
             }
@@ -68,9 +62,9 @@ class TodoListViewModel(
 
     fun synchronizeTodoList(block: (Result<List<TodoItem>>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
-            todoItemUseCase.getTodoListRemote().collect {
-                if (it.status == ResultStatus.SUCCESS) {
-                    val response = it.data
+            todoItemUseCase.getTodoListRemote().collect { result ->
+                if (result.status == ResultStatus.SUCCESS) {
+                    val response = result.data
                     val replaceResult =
                         todoItemUseCase.replaceTodoListLocal(response.first).first { it.status != ResultStatus.LOADING }
                     if (replaceResult.status == ResultStatus.SUCCESS) {
@@ -79,7 +73,7 @@ class TodoListViewModel(
                         throw RuntimeException("БД не может заменить все записи")
                     }
                 }
-                block(Result(it.status, it.data.first, it.message))
+                block.invoke(Result(result.status, result.data.first, result.message))
             }
         }
     }
@@ -100,15 +94,16 @@ class TodoListViewModel(
             if (snackBarBlock(deletedItem)) {
                 val addResult =
                     todoItemUseCase.addTodoItemLocal(deletedItem).first { it.status != ResultStatus.LOADING }
-                if (addResult.status != ResultStatus.SUCCESS) throw RuntimeException("БД не может добавить todoItem: $deletedItem")
+                if (addResult.status != ResultStatus.SUCCESS)
+                    throw RuntimeException("БД не может добавить todoItem: $deletedItem")
             } else {
-                todoItemUseCase.deleteTodoItemRemote(deletedItem.id).collect {
-                    if (it.status == ResultStatus.SUCCESS) {
-                        val response = it.data
+                todoItemUseCase.deleteTodoItemRemote(deletedItem.id).collect { result ->
+                    if (result.status == ResultStatus.SUCCESS) {
+                        val response = result.data
                         revisionUseCase.setRevision(response.second)
-                        block(Result(it.status, it.data.first[0], it.message))
+                        block.invoke(Result(result.status, result.data.first[0], result.message))
                     } else {
-                        block(Result(it.status, TodoItem.PLUG, it.message))
+                        block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
             }
@@ -121,13 +116,13 @@ class TodoListViewModel(
             val editResult =
                 todoItemUseCase.editTodoItemLocal(newTodoItem).first { it.status != ResultStatus.LOADING }
             if (editResult.status == ResultStatus.SUCCESS) {
-                todoItemUseCase.editTodoItemRemote(newTodoItem).collect {
-                    if (it.status == ResultStatus.SUCCESS) {
-                        val response = it.data
+                todoItemUseCase.editTodoItemRemote(newTodoItem).collect { result ->
+                    if (result.status == ResultStatus.SUCCESS) {
+                        val response = result.data
                         revisionUseCase.setRevision(response.second)
-                        block(Result(it.status, it.data.first[0], it.message))
+                        block.invoke(Result(result.status, result.data.first[0], result.message))
                     } else {
-                        block(Result(it.status, TodoItem.PLUG, it.message))
+                        block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
             } else {
@@ -136,8 +131,8 @@ class TodoListViewModel(
         }
     }
 
-    fun setupCheckSynchronizedWorker(){
-        workManagerUseCase.setupCheckSynchronizedWorker()
+    fun setupOneTimeCheckSynchronize(){
+        schedulerUseCase.setupOneTimeCheckSynchronize()
     }
 
     val isAuth: Boolean

@@ -106,7 +106,7 @@ class TodoFragment : Fragment() {
     private fun setDeadlineView() {
         if (todoViewModel.currentTodoItem.deadline != null) {
             deadlineSw.isChecked = true
-            deadlineDataTv.text = todoViewModel.currentTodoItem.deadline.toString()
+            deadlineDataTv.text = todoViewModel.currentTodoItem.deadline?.toString().orEmpty()
             deadlineDataTv.visibility = View.VISIBLE
         } else {
             deadlineSw.isChecked = false
@@ -153,36 +153,36 @@ class TodoFragment : Fragment() {
         }
         saveBtn.setOnClickListener {
             if (screenMode == MODE_EDIT) {
-                todoViewModel.editTodo(todoViewModel.currentTodoItem) {
-                    when (it.status) {
+                todoViewModel.editTodo(todoViewModel.currentTodoItem) { result ->
+                    when (result.status) {
                         ResultStatus.SUCCESS -> {
                         }
                         ResultStatus.LOADING -> {
                         }
                         ResultStatus.FAILURE -> {
-                            todoViewModel.setupCheckSynchronizedWorker()
-                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            todoViewModel.setupOneTimeCheckSynchronize()
+                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             checkAuth()
-                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
             } else if (screenMode == MODE_ADD) {
-                todoViewModel.addTodo(todoViewModel.currentTodoItem) {
-                    when (it.status) {
+                todoViewModel.addTodo(todoViewModel.currentTodoItem) { result ->
+                    when (result.status) {
                         ResultStatus.SUCCESS -> {
                         }
                         ResultStatus.LOADING -> {
                         }
                         ResultStatus.FAILURE -> {
-                            todoViewModel.setupCheckSynchronizedWorker()
-                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            todoViewModel.setupOneTimeCheckSynchronize()
+                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             checkAuth()
-                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -193,19 +193,19 @@ class TodoFragment : Fragment() {
             if (screenMode == MODE_EDIT) {
                 todoViewModel.deleteTodo(todoViewModel.currentTodoItem, {
                     false
-                }) {
-                    when (it.status) {
+                }) { result ->
+                    when (result.status) {
                         ResultStatus.SUCCESS -> {
                         }
                         ResultStatus.LOADING -> {
                         }
                         ResultStatus.FAILURE -> {
-                            todoViewModel.setupCheckSynchronizedWorker()
-                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            todoViewModel.setupOneTimeCheckSynchronize()
+                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
                             checkAuth()
-                            Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -214,7 +214,7 @@ class TodoFragment : Fragment() {
         }
         messageEt.addTextChangedListener {
             todoViewModel.currentTodoItem =
-                todoViewModel.currentTodoItem.copy(text = it.toString())
+                todoViewModel.currentTodoItem.copy(text = it?.toString().orEmpty())
         }
         contentSv.setOnScrollChangeListener(
             TodoOnScrollChangeListener(
@@ -268,7 +268,8 @@ class TodoFragment : Fragment() {
         val args = requireArguments()
         if (!args.containsKey(SCREEN_MODE)) throw RuntimeException("Param screen mode is absent")
         screenMode = args.getString(SCREEN_MODE).toString()
-        if (screenMode != MODE_EDIT && screenMode != MODE_ADD) throw RuntimeException("Unknown screen mode $screenMode")
+        if (screenMode != MODE_EDIT && screenMode != MODE_ADD)
+            throw RuntimeException("Unknown screen mode $screenMode")
         if (screenMode == MODE_EDIT) {
             if (!args.containsKey(TODO_ID)) throw RuntimeException("Param todo id is absent")
             todoId = args.getLong(TODO_ID)

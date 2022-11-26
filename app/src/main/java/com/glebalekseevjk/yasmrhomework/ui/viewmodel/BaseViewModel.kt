@@ -15,13 +15,13 @@ abstract class BaseViewModel : ViewModel() {
     abstract val coroutineExceptionHandler: CoroutineExceptionHandler
     protected fun CoroutineScope.launchWithExceptionHandler(block: suspend CoroutineScope.() -> Unit): Job {
         return this.launch(coroutineExceptionHandler) {
-            block()
+            block.invoke(this)
         }
     }
 
     protected fun <T> runBlockingWithExceptionHandler(block: suspend CoroutineScope.() -> T): T {
         return runBlocking(coroutineExceptionHandler) {
-            block()
+            block.invoke(this)
         }
     }
 }

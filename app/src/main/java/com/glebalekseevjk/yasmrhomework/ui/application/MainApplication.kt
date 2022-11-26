@@ -1,7 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.ui.application
 
 import android.app.Application
-import androidx.work.*
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
@@ -15,10 +14,6 @@ import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModelFactory
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModelFactory
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModelFactory
-import com.glebalekseevjk.yasmrhomework.data.worker.CheckSynchronizedWorker
-import com.glebalekseevjk.yasmrhomework.data.worker.RefreshTodoWorker
-import com.glebalekseevjk.yasmrhomework.domain.interactor.WorkManagerUseCase
-import java.util.concurrent.TimeUnit
 
 class MainApplication : Application() {
     private lateinit var appDatabase: AppDatabase
@@ -30,7 +25,7 @@ class MainApplication : Application() {
     lateinit var revisionRepositoryImpl: RevisionRepositoryImpl
     lateinit var synchronizedRepositoryImpl: SynchronizedRepositoryImpl
     lateinit var tokenRepositoryImpl: TokenRepositoryImpl
-    lateinit var workManagerRepositoryImpl: WorkManagerRepositoryImpl
+    lateinit var schedulerRepositoryImpl: SchedulerRepositoryImpl
 
     lateinit var todoViewModelFactory: TodoViewModelFactory
     lateinit var todoListViewModelFactory: TodoListViewModelFactory
@@ -74,17 +69,33 @@ class MainApplication : Application() {
         revisionRepositoryImpl = RevisionRepositoryImpl(this)
         synchronizedRepositoryImpl = SynchronizedRepositoryImpl(this)
         tokenRepositoryImpl = TokenRepositoryImpl(this)
-        workManagerRepositoryImpl = WorkManagerRepositoryImpl(this)
+        schedulerRepositoryImpl = SchedulerRepositoryImpl(this)
 
-        todoViewModelFactory = TodoViewModelFactory(authRepositoryImpl, revisionRepositoryImpl, tokenRepositoryImpl, todoListLocalRepositoryImpl, todoListRemoteRepositoryImpl)
-        todoListViewModelFactory = TodoListViewModelFactory(authRepositoryImpl, revisionRepositoryImpl, tokenRepositoryImpl, todoListLocalRepositoryImpl, todoListRemoteRepositoryImpl)
-        mainViewModelFactory = MainViewModelFactory(authRepositoryImpl, revisionRepositoryImpl, tokenRepositoryImpl)
+        todoViewModelFactory = TodoViewModelFactory(
+            authRepositoryImpl,
+            revisionRepositoryImpl,
+            tokenRepositoryImpl,
+            todoListLocalRepositoryImpl,
+            todoListRemoteRepositoryImpl,
+            schedulerRepositoryImpl
+        )
+        todoListViewModelFactory = TodoListViewModelFactory(
+            authRepositoryImpl,
+            revisionRepositoryImpl,
+            tokenRepositoryImpl,
+            todoListLocalRepositoryImpl,
+            todoListRemoteRepositoryImpl,
+            schedulerRepositoryImpl
+        )
+        mainViewModelFactory = MainViewModelFactory(
+            authRepositoryImpl,
+            revisionRepositoryImpl,
+            tokenRepositoryImpl
+        )
         setupWorkers()
     }
 
     private fun setupWorkers(){
-        workManagerRepositoryImpl.setupRefreshTodoWorker()
+        schedulerRepositoryImpl.setupPeriodicTimeRefreshTodo()
     }
-
-
 }
