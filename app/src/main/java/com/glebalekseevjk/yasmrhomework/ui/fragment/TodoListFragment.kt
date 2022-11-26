@@ -99,7 +99,7 @@ class TodoListFragment : Fragment() {
         todoListViewModel.synchronizeTodoList {
             when (it.status) {
                 ResultStatus.FAILURE -> {
-                    mainApplication.setupCheckSynchronizedWorker()
+                    todoListViewModel      .setupCheckSynchronizedWorker()
                     Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
                 ResultStatus.UNAUTHORIZED -> {
@@ -139,7 +139,7 @@ class TodoListFragment : Fragment() {
             ResultStatus.LOADING -> {
             }
             ResultStatus.FAILURE -> {
-                mainApplication.setupCheckSynchronizedWorker()
+                todoListViewModel.setupCheckSynchronizedWorker()
                 Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
             }
             ResultStatus.UNAUTHORIZED -> {
@@ -179,7 +179,7 @@ class TodoListFragment : Fragment() {
                     ResultStatus.LOADING -> {
                     }
                     ResultStatus.FAILURE -> {
-                        mainApplication.setupCheckSynchronizedWorker()
+                        todoListViewModel.setupCheckSynchronizedWorker()
                         taskListSrl.isRefreshing = false
                         Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                     }
@@ -206,7 +206,7 @@ class TodoListFragment : Fragment() {
                             ResultStatus.LOADING -> {
                             }
                             ResultStatus.FAILURE -> {
-                                mainApplication.setupCheckSynchronizedWorker()
+                                todoListViewModel.setupCheckSynchronizedWorker()
                                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {
@@ -249,7 +249,7 @@ class TodoListFragment : Fragment() {
                             ResultStatus.LOADING -> {
                             }
                             ResultStatus.FAILURE -> {
-                                mainApplication.setupCheckSynchronizedWorker()
+                                todoListViewModel.setupCheckSynchronizedWorker()
                                 Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                             }
                             ResultStatus.UNAUTHORIZED -> {

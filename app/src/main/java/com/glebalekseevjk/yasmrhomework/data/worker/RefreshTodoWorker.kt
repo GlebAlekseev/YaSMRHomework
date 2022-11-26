@@ -1,4 +1,4 @@
-package com.glebalekseevjk.yasmrhomework.ui.worker
+package com.glebalekseevjk.yasmrhomework.data.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -7,7 +7,6 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.interactor.TodoItemUseCase
 import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import kotlinx.coroutines.flow.first
-
 
 class RefreshTodoWorker(private val appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {

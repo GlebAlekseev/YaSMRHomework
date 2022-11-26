@@ -21,12 +21,14 @@ class TodoViewModel(
     tokenRepository: TokenRepository,
     revisionRepository: RevisionRepository,
     todoListLocalRepository: TodoListLocalRepository,
-    todoListRemoteRepository: TodoListRemoteRepository
+    todoListRemoteRepository: TodoListRemoteRepository,
+    workManagerRepository: WorkManagerRepository
 ) : BaseViewModel() {
     private val authUseCase = AuthUseCase(authRepository)
     private val revisionUseCase = RevisionUseCase(revisionRepository)
     private val tokenUseCase = TokenUseCase(tokenRepository)
     private val todoItemUseCase = TodoItemUseCase(todoListLocalRepository, todoListRemoteRepository)
+    private val workManagerUseCase = WorkManagerUseCase(workManagerRepository)
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
@@ -116,6 +118,10 @@ class TodoViewModel(
                 }
             }
         }
+    }
+
+    fun setupCheckSynchronizedWorker(){
+        workManagerUseCase.setupCheckSynchronizedWorker()
     }
 
     val isAuth: Boolean

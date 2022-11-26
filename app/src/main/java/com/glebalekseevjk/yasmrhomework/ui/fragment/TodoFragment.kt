@@ -160,7 +160,7 @@ class TodoFragment : Fragment() {
                         ResultStatus.LOADING -> {
                         }
                         ResultStatus.FAILURE -> {
-                            mainApplication.setupCheckSynchronizedWorker()
+                            todoViewModel.setupCheckSynchronizedWorker()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
@@ -177,7 +177,7 @@ class TodoFragment : Fragment() {
                         ResultStatus.LOADING -> {
                         }
                         ResultStatus.FAILURE -> {
-                            mainApplication.setupCheckSynchronizedWorker()
+                            todoViewModel.setupCheckSynchronizedWorker()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {
@@ -200,7 +200,7 @@ class TodoFragment : Fragment() {
                         ResultStatus.LOADING -> {
                         }
                         ResultStatus.FAILURE -> {
-                            mainApplication.setupCheckSynchronizedWorker()
+                            todoViewModel.setupCheckSynchronizedWorker()
                             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                         }
                         ResultStatus.UNAUTHORIZED -> {

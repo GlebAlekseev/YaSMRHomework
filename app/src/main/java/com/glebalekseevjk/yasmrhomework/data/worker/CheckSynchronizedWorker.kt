@@ -1,4 +1,4 @@
-package com.glebalekseevjk.yasmrhomework.ui.worker
+package com.glebalekseevjk.yasmrhomework.data.worker
 
 import android.content.Context
 import androidx.work.CoroutineWorker

@@ -24,12 +24,14 @@ class TodoListViewModel(
     tokenRepository: TokenRepository,
     revisionRepository: RevisionRepository,
     todoListLocalRepository: TodoListLocalRepository,
-    todoListRemoteRepository: TodoListRemoteRepository
+    todoListRemoteRepository: TodoListRemoteRepository,
+    workManagerRepository: WorkManagerRepository
 ) : BaseViewModel() {
     private val authUseCase = AuthUseCase(authRepository)
     private val tokenUseCase = TokenUseCase(tokenRepository)
     private val revisionUseCase = RevisionUseCase(revisionRepository)
     private val todoItemUseCase = TodoItemUseCase(todoListLocalRepository, todoListRemoteRepository)
+    private val workManagerUseCase = WorkManagerUseCase(workManagerRepository)
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
@@ -132,6 +134,10 @@ class TodoListViewModel(
                 throw RuntimeException("БД не может отредактировать todoItem: $newTodoItem")
             }
         }
+    }
+
+    fun setupCheckSynchronizedWorker(){
+        workManagerUseCase.setupCheckSynchronizedWorker()
     }
 
     val isAuth: Boolean

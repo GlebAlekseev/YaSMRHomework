@@ -15,8 +15,9 @@ import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModelFactory
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModelFactory
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModelFactory
-import com.glebalekseevjk.yasmrhomework.ui.worker.CheckSynchronizedWorker
-import com.glebalekseevjk.yasmrhomework.ui.worker.RefreshTodoWorker
+import com.glebalekseevjk.yasmrhomework.data.worker.CheckSynchronizedWorker
+import com.glebalekseevjk.yasmrhomework.data.worker.RefreshTodoWorker
+import com.glebalekseevjk.yasmrhomework.domain.interactor.WorkManagerUseCase
 import java.util.concurrent.TimeUnit
 
 class MainApplication : Application() {
@@ -29,6 +30,7 @@ class MainApplication : Application() {
     lateinit var revisionRepositoryImpl: RevisionRepositoryImpl
     lateinit var synchronizedRepositoryImpl: SynchronizedRepositoryImpl
     lateinit var tokenRepositoryImpl: TokenRepositoryImpl
+    lateinit var workManagerRepositoryImpl: WorkManagerRepositoryImpl
 
     lateinit var todoViewModelFactory: TodoViewModelFactory
     lateinit var todoListViewModelFactory: TodoListViewModelFactory
@@ -37,10 +39,6 @@ class MainApplication : Application() {
     lateinit var sharedPreferencesTokenStorage: SharedPreferencesTokenStorage
     lateinit var sharedPreferencesRevisionStorage: SharedPreferencesRevisionStorage
     lateinit var sharedPreferencesSynchronizedStorage: SharedPreferencesSynchronizedStorage
-
-    private val workManager: WorkManager by lazy {
-        WorkManager.getInstance(applicationContext)
-    }
 
     override fun onCreate() {
         super.onCreate()
@@ -76,6 +74,7 @@ class MainApplication : Application() {
         revisionRepositoryImpl = RevisionRepositoryImpl(this)
         synchronizedRepositoryImpl = SynchronizedRepositoryImpl(this)
         tokenRepositoryImpl = TokenRepositoryImpl(this)
+        workManagerRepositoryImpl = WorkManagerRepositoryImpl(this)
 
         todoViewModelFactory = TodoViewModelFactory(authRepositoryImpl, revisionRepositoryImpl, tokenRepositoryImpl, todoListLocalRepositoryImpl, todoListRemoteRepositoryImpl)
         todoListViewModelFactory = TodoListViewModelFactory(authRepositoryImpl, revisionRepositoryImpl, tokenRepositoryImpl, todoListLocalRepositoryImpl, todoListRemoteRepositoryImpl)
@@ -84,34 +83,8 @@ class MainApplication : Application() {
     }
 
     private fun setupWorkers(){
-        setupRefreshTodoWorker()
+        workManagerRepositoryImpl.setupRefreshTodoWorker()
     }
 
-    private fun setupRefreshTodoWorker(){
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .build()
-        val repeatingRequest = PeriodicWorkRequestBuilder<RefreshTodoWorker>(8, TimeUnit.HOURS)
-            .setConstraints(constraints)
-            .build()
-        workManager.enqueueUniquePeriodicWork(
-            RefreshTodoWorker.WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            repeatingRequest
-        )
-    }
 
-    fun setupCheckSynchronizedWorker(){
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .build()
-        val oneTimeRequest = OneTimeWorkRequestBuilder<CheckSynchronizedWorker>()
-            .setConstraints(constraints)
-            .build()
-        workManager.enqueueUniqueWork(
-            CheckSynchronizedWorker.WORK_NAME,
-            ExistingWorkPolicy.KEEP,
-            oneTimeRequest
-        )
-    }
 }
