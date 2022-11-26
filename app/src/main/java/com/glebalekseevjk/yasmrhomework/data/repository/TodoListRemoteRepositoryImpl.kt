@@ -6,7 +6,7 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListRepository
+import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListRemoteRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -15,7 +15,7 @@ import retrofit2.Response
 
 class TodoListRemoteRepositoryImpl(
     private val todoService: TodoService
-) : TodoListRepository {
+) : TodoListRemoteRepository {
     override fun getTodoList(): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
         emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
         val todoListResponse = runCatching {

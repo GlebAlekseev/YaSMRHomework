@@ -1,11 +1,11 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
-import com.glebalekseevjk.yasmrhomework.domain.feature.TokenStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 
-class AuthorizationInterceptor(private val tokenStorage: TokenStorage) : Interceptor {
+class AuthorizationInterceptor(private val tokenStorage: SharedPreferencesTokenStorage) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         return chain.request()
             .addTokenHeader()

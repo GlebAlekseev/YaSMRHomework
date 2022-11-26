@@ -1,8 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
-import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
-import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -10,9 +9,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 class RevisionFailedInterceptor(
-    private val revisionStorage: RevisionStorage,
-    private val todoService: TodoService,
-    private val todoItemDao: TodoItemDao
+    private val revisionStorage: SharedPreferencesRevisionStorage,
+    private val todoService: TodoService
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalResponse = chain.proceed(chain.request())

@@ -1,14 +1,13 @@
 package com.glebalekseevjk.yasmrhomework.data.repository
 
-import com.glebalekseevjk.yasmrhomework.cache.SharedPreferencesSynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
 import com.glebalekseevjk.yasmrhomework.data.remote.AuthService
 import com.glebalekseevjk.yasmrhomework.data.remote.model.AuthResponse
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
-import com.glebalekseevjk.yasmrhomework.domain.feature.SynchronizedStorage
-import com.glebalekseevjk.yasmrhomework.domain.feature.TokenStorage
 import com.glebalekseevjk.yasmrhomework.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -19,9 +18,9 @@ import retrofit2.Response
 class AuthRepositoryImpl(
     private val todoItemDao: TodoItemDao,
     private val authService: AuthService,
-    private val tokenStorage: TokenStorage,
-    private val revisionStorage: RevisionStorage,
-    private val synchronizedStorage: SynchronizedStorage,
+    private val tokenStorage: SharedPreferencesTokenStorage,
+    private val revisionStorage: SharedPreferencesRevisionStorage,
+    private val synchronizedStorage: SharedPreferencesSynchronizedStorage,
 ) : AuthRepository {
     override fun getTokenPair(code: String): Flow<Result<Unit>> = flow {
         emit(Result(ResultStatus.LOADING, Unit))

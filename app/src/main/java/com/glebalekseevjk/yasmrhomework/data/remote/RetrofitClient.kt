@@ -3,10 +3,10 @@ package com.glebalekseevjk.yasmrhomework.data.remote
 import android.util.Log
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.feature.TokenStorage
-import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
-import com.glebalekseevjk.yasmrhomework.domain.feature.SynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -27,9 +27,9 @@ object RetrofitClient {
     lateinit var authApi: AuthService
 
     fun init(
-        tokenStorage: TokenStorage,
-        revisionStorage: RevisionStorage,
-        synchronizedStorage: SynchronizedStorage,
+        tokenStorage: SharedPreferencesTokenStorage,
+        revisionStorage: SharedPreferencesRevisionStorage,
+        synchronizedStorage: SharedPreferencesSynchronizedStorage,
         todoItemDao: TodoItemDao,
         mapper: Mapper<TodoItem,TodoItemDbModel>
     ) {
@@ -87,7 +87,7 @@ object RetrofitClient {
                     mapper
                 )
             )
-            .addInterceptor(RevisionFailedInterceptor(revisionStorage, todoApiWithBasicClient, todoItemDao))
+            .addInterceptor(RevisionFailedInterceptor(revisionStorage, todoApiWithBasicClient))
             .addInterceptor(
                 AuthorizationFailedInterceptor(
                     tokenStorage,

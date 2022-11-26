@@ -3,13 +3,13 @@ package com.glebalekseevjk.yasmrhomework.data.repository
 import androidx.lifecycle.asFlow
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
 import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
-import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListRepository
+import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListLocalRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.flowOn
 class TodoListLocalRepositoryImpl(
     private val todoItemDao: TodoItemDao,
     private val mapper: Mapper<TodoItem, TodoItemDbModel>,
-    private val revisionStorage: RevisionStorage,
-) : TodoListRepository {
+    private val revisionStorage: SharedPreferencesRevisionStorage,
+) : TodoListLocalRepository {
     override fun getTodoList(): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
         emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
         try {

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/authFragment"
-        android:name="com.glebalekseevjk.yasmrhomework.presentation.fragment.AuthFragment"
+        android:name="com.glebalekseevjk.yasmrhomework.ui.fragment.AuthFragment"
         android:label="AuthFragment" >
         <action
             android:id="@+id/action_authFragment_to_todoListFragment"
@@ -22,7 +22,7 @@
     </fragment>
     <fragment
         android:id="@+id/todoListFragment"
-        android:name="com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoListFragment"
+        android:name="com.glebalekseevjk.yasmrhomework.ui.fragment.TodoListFragment"
         android:label="fragment_todo_list"
         tools:layout="@layout/fragment_todo_list" >
         <action
@@ -45,7 +45,7 @@
     </fragment>
     <fragment
         android:id="@+id/todoFragment"
-        android:name="com.glebalekseevjk.yasmrhomework.presentation.fragment.TodoFragment"
+        android:name="com.glebalekseevjk.yasmrhomework.ui.fragment.TodoFragment"
         android:label="TodoFragment" >
         <action
             android:id="@+id/action_todoFragment_to_authFragment"

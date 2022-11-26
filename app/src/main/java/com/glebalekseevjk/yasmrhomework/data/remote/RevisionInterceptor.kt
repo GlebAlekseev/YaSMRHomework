@@ -1,11 +1,11 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
-import com.glebalekseevjk.yasmrhomework.domain.feature.RevisionStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 
-class RevisionInterceptor(private val revisionStorage: RevisionStorage) : Interceptor {
+class RevisionInterceptor(private val revisionStorage: SharedPreferencesRevisionStorage) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         return chain.request()
             .addRevisionHeader()

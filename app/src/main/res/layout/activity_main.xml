@@ -14,7 +14,7 @@
         android:background="@color/back_primary"
         app:defaultNavHost="true"
         app:navGraph="@navigation/app_navigation"
-        tools:context=".presentation.fragment.AuthFragment"
+        tools:context=".ui.fragment.AuthFragment"
         tools:layout="@layout/fragment_auth" />
 
     <com.google.android.material.navigation.NavigationView
