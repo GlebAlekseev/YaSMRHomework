@@ -6,8 +6,9 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListLocalRepository
 import com.glebalekseevjk.yasmrhomework.domain.repository.TodoListRemoteRepository
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class TodoItemUseCase (
+class TodoItemUseCase @Inject constructor(
     private val todoListLocalRepository: TodoListLocalRepository,
     private val todoListRemoteRepository: TodoListRemoteRepository
 ) {

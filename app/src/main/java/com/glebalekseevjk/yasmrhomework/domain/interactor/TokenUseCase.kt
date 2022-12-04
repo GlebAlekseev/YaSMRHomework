@@ -2,8 +2,9 @@ package com.glebalekseevjk.yasmrhomework.domain.interactor
 
 import com.glebalekseevjk.yasmrhomework.domain.entity.TokenPair
 import com.glebalekseevjk.yasmrhomework.domain.repository.TokenRepository
+import javax.inject.Inject
 
-class TokenUseCase(
+class TokenUseCase @Inject constructor(
     private val tokenRepository: TokenRepository
 ) {
     fun getAccessToken(): String? =
