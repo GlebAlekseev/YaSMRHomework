@@ -14,8 +14,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import javax.inject.Inject
 
-class TodoListLocalRepositoryImpl(
+class TodoListLocalRepositoryImpl @Inject constructor(
     private val todoItemDao: TodoItemDao,
     private val mapper: Mapper<TodoItem, TodoItemDbModel>,
     private val revisionStorage: SharedPreferencesRevisionStorage,
