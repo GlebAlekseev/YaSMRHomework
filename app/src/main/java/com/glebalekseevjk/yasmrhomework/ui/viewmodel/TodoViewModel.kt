@@ -8,21 +8,16 @@ import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import com.glebalekseevjk.yasmrhomework.domain.repository.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
 
-class TodoViewModel(
-    authRepository: AuthRepository,
-    tokenRepository: TokenRepository,
-    revisionRepository: RevisionRepository,
-    todoListLocalRepository: TodoListLocalRepository,
-    todoListRemoteRepository: TodoListRemoteRepository,
-    schedulerRepository: SchedulerRepository
+class TodoViewModel @Inject constructor(
+    private val authUseCase: AuthUseCase,
+    private val tokenUseCase: TokenUseCase,
+    private val revisionUseCase: RevisionUseCase,
+    private val todoItemUseCase: TodoItemUseCase,
+    private val schedulerUseCase: SchedulerUseCase
 ) : BaseViewModel() {
-    private val authUseCase = AuthUseCase(authRepository)
-    private val revisionUseCase = RevisionUseCase(revisionRepository)
-    private val tokenUseCase = TokenUseCase(tokenRepository)
-    private val todoItemUseCase = TodoItemUseCase(todoListLocalRepository, todoListRemoteRepository)
-    private val schedulerUseCase = SchedulerUseCase(schedulerRepository)
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, exception ->

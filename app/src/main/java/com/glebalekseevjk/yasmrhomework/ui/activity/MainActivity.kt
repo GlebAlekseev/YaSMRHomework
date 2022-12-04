@@ -6,31 +6,34 @@ import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.trusted.TokenStore
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.ViewModelFactory
+import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.google.android.material.navigation.NavigationView
+import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
-    private val mainViewModel by lazy {
-        ViewModelProvider(
-            this,
-            (this.application as MainApplication).mainViewModelFactory
-        )[MainViewModel::class.java]
-    }
+    @FromViewModelFactory
+    @Inject
+    lateinit var mainViewModel: MainViewModel
+
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var mainNv: NavigationView
     private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        appComponent.createMainActivitySubcomponent().inject(this)
         setContentView(R.layout.activity_main)
         initViews()
         initNavigationUI()
@@ -71,11 +74,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
         val headerView = mainNv.getHeaderView(0)
-        val tokenStorage = (this.application as MainApplication).sharedPreferencesTokenStorage
+
         val loginTv: TextView = headerView.findViewById(R.id.login_tv)
-        loginTv.text = "@${tokenStorage.getLogin()}"
+        loginTv.text = "@${mainViewModel.getLogin()}"
         val nameTv: TextView = headerView.findViewById(R.id.name_tv)
-        nameTv.text = tokenStorage.getDisplayName()
+        nameTv.text = mainViewModel.getDisplayName()
         mainNv.setNavigationItemSelectedListener {
             onDrawerItemSelected(it)
         }

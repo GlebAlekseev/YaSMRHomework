@@ -4,8 +4,10 @@ import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisi
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
+import javax.inject.Inject
 
-class RevisionInterceptor(private val revisionStorage: SharedPreferencesRevisionStorage) : Interceptor {
+class RevisionInterceptor @Inject constructor(private val revisionStorage: SharedPreferencesRevisionStorage) :
+    Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         return chain.request()
             .addRevisionHeader()

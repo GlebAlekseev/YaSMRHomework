@@ -3,8 +3,9 @@ package com.glebalekseevjk.yasmrhomework.data.preferences
 import android.content.Context
 import android.content.SharedPreferences
 import com.glebalekseevjk.yasmrhomework.domain.entity.TokenPair
+import javax.inject.Inject
 
-open class SharedPreferencesTokenStorage(context: Context) {
+open class SharedPreferencesTokenStorage @Inject constructor(context: Context) {
     private val tokenPref: SharedPreferences
 
     init {
@@ -18,8 +19,9 @@ open class SharedPreferencesTokenStorage(context: Context) {
         val login = getLogin()
         val displayName = getDisplayName()
         if (expiresAt != null && accessToken != null && refreshToken != null
-            && login != null && displayName != null) {
-            return TokenPair(accessToken, refreshToken, expiresAt,login,displayName)
+            && login != null && displayName != null
+        ) {
+            return TokenPair(accessToken, refreshToken, expiresAt, login, displayName)
         } else {
             return null
         }

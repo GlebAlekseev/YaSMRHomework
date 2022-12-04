@@ -3,9 +3,10 @@ package com.glebalekseevjk.yasmrhomework.data.mapper
 import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
+import javax.inject.Inject
 
 
-class TodoItemMapperImpl : Mapper<TodoItem, TodoItemDbModel> {
+class TodoItemMapperImpl @Inject constructor() : Mapper<TodoItem, TodoItemDbModel> {
     override fun mapItemToDbModel(item: TodoItem): TodoItemDbModel {
         with(item) {
             return TodoItemDbModel(

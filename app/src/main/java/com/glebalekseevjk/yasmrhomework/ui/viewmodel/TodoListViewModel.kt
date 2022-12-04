@@ -12,20 +12,15 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class TodoListViewModel(
-    authRepository: AuthRepository,
-    tokenRepository: TokenRepository,
-    revisionRepository: RevisionRepository,
-    todoListLocalRepository: TodoListLocalRepository,
-    todoListRemoteRepository: TodoListRemoteRepository,
-    schedulerRepository: SchedulerRepository
+class TodoListViewModel @Inject constructor(
+    private val authUseCase: AuthUseCase,
+    private val tokenUseCase: TokenUseCase,
+    private val revisionUseCase: RevisionUseCase,
+    private val todoItemUseCase: TodoItemUseCase,
+    private val schedulerUseCase: SchedulerUseCase
 ) : BaseViewModel() {
-    private val authUseCase = AuthUseCase(authRepository)
-    private val tokenUseCase = TokenUseCase(tokenRepository)
-    private val revisionUseCase = RevisionUseCase(revisionRepository)
-    private val todoItemUseCase = TodoItemUseCase(todoListLocalRepository, todoListRemoteRepository)
-    private val schedulerUseCase = SchedulerUseCase(schedulerRepository)
 
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->

@@ -3,23 +3,36 @@ package com.glebalekseevjk.yasmrhomework.data.worker
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListLocalRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRemoteRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.interactor.TodoItemUseCase
 import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
+import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
 class CheckSynchronizeWorker(private val appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
+    @Inject
+    lateinit var synchronizedStorage: SharedPreferencesSynchronizedStorage
+    @Inject
+    lateinit var revisionStorage: SharedPreferencesRevisionStorage
+    @Inject
+    lateinit var todoListLocalRepositoryImpl: TodoListLocalRepositoryImpl
+    @Inject
+    lateinit var todoListRemoteRepositoryImpl: TodoListRemoteRepositoryImpl
 
     override suspend fun doWork(): Result {
         return try {
-            val mainApplication = appContext as MainApplication
+            appContext.appComponent.injectCheckSynchronizeWorker(this)
             val todoItemUseCase = TodoItemUseCase(
-                mainApplication.todoListLocalRepositoryImpl,
-                mainApplication.todoListRemoteRepositoryImpl
+                todoListLocalRepositoryImpl,
+                todoListRemoteRepositoryImpl
             )
-
-            if (mainApplication.sharedPreferencesSynchronizedStorage.getSynchronizedStatus()) return Result.success()
+            if (synchronizedStorage.getSynchronizedStatus()) return Result.success()
             var status = Result.success()
             todoItemUseCase.getTodoListRemote().collect { result ->
                 if (result.status == ResultStatus.SUCCESS) {
@@ -33,7 +46,7 @@ class CheckSynchronizeWorker(private val appContext: Context, params: WorkerPara
                                 throw RuntimeException("БД не может добавить запись")
                             }
                         }
-                        mainApplication.sharedPreferencesRevisionStorage.setRevision(response.second)
+                        revisionStorage.setRevision(response.second)
                     } else {
                         throw RuntimeException("БД не может удалить все записи")
                     }

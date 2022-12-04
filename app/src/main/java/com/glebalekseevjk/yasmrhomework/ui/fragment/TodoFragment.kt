@@ -2,6 +2,7 @@ package com.glebalekseevjk.yasmrhomework.ui.fragment
 
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DAY_MILLIS
@@ -23,18 +25,15 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companio
 import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
+import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 class TodoFragment : Fragment() {
-    private val mainApplication: MainApplication by lazy {
-        requireContext().applicationContext as MainApplication
-    }
-    private val todoViewModel by lazy {
-        ViewModelProvider(
-            this,
-            (context?.applicationContext as MainApplication).todoViewModelFactory
-        )[TodoViewModel::class.java]
-    }
+    @FromViewModelFactory
+    @Inject
+    lateinit var todoViewModel: TodoViewModel
+
     private var screenMode: String = MODE_ADD
     private var todoId: Long = TodoItem.UNDEFINED
 
@@ -51,6 +50,11 @@ class TodoFragment : Fragment() {
     private lateinit var importantStateTv: TextView
 
     private lateinit var navController: NavController
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        context.appComponent.createTodoFragmentSubComponent().inject(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -3,8 +3,9 @@ package com.glebalekseevjk.yasmrhomework.data.preferences
 import android.content.Context
 import android.content.SharedPreferences
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
+import javax.inject.Inject
 
-open class SharedPreferencesRevisionStorage(context: Context) {
+open class SharedPreferencesRevisionStorage @Inject constructor(context: Context) {
     private val revisionPref: SharedPreferences
 
     init {

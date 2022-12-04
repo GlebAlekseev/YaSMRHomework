@@ -5,25 +5,20 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.interactor.AuthUseCase
 import com.glebalekseevjk.yasmrhomework.domain.interactor.RevisionUseCase
 import com.glebalekseevjk.yasmrhomework.domain.interactor.TokenUseCase
-import com.glebalekseevjk.yasmrhomework.domain.repository.AuthRepository
-import com.glebalekseevjk.yasmrhomework.domain.repository.RevisionRepository
-import com.glebalekseevjk.yasmrhomework.domain.repository.TokenRepository
 import kotlinx.coroutines.CoroutineExceptionHandler
+import javax.inject.Inject
 
 
-class MainViewModel(
-    authRepository: AuthRepository,
-    tokenRepository: TokenRepository,
-    revisionRepository: RevisionRepository
-    ) : BaseViewModel() {
+class MainViewModel @Inject constructor(
+    private val authUseCase: AuthUseCase,
+    private val tokenUseCase: TokenUseCase,
+    private val revisionUseCase: RevisionUseCase
+) : BaseViewModel() {
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
             val message = exception.message ?: "Неизвестная ошибка"
             _errorHandler.value = message
         }
-    private val authUseCase = AuthUseCase(authRepository)
-    private val tokenUseCase = TokenUseCase(tokenRepository)
-    private val revisionUseCase = RevisionUseCase(revisionRepository)
 
     val isAuth: Boolean
         get() {
@@ -49,5 +44,13 @@ class MainViewModel(
                 block.invoke(it)
             }
         }
+    }
+
+    fun getLogin(): String {
+        return tokenUseCase.getLogin() ?: "Unknown"
+    }
+
+    fun getDisplayName(): String {
+        return tokenUseCase.getDisplayName() ?: "Unknown"
     }
 }

@@ -1,5 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.ui.fragment
 
+import android.content.Context
 import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
@@ -29,6 +31,7 @@ import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel
+import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
@@ -36,17 +39,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import javax.inject.Inject
 
 class TodoListFragment : Fragment() {
-    private val mainApplication: MainApplication by lazy {
-        requireContext().applicationContext as MainApplication
-    }
-    private val todoListViewModel by lazy {
-        ViewModelProvider(
-            this,
-            (context?.applicationContext as MainApplication).todoListViewModelFactory
-        )[TodoListViewModel::class.java]
-    }
+    @FromViewModelFactory
+    @Inject
+    lateinit var todoListViewModel: TodoListViewModel
+
     private lateinit var headerLl: LinearLayout
     private lateinit var headerCountTv: TextView
     private lateinit var taskListRv: RecyclerView
@@ -57,6 +56,11 @@ class TodoListFragment : Fragment() {
 
     private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        context.appComponent.createTodoListFragmentSubComponent().inject(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -6,59 +6,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.glebalekseevjk.yasmrhomework.data.repository.AuthRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.data.repository.TodoListLocalRepositoryImpl
 import com.glebalekseevjk.yasmrhomework.data.repository.TodoListRemoteRepositoryImpl
+import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import com.glebalekseevjk.yasmrhomework.domain.repository.*
+import javax.inject.Inject
+import javax.inject.Provider
 
 
-class TodoViewModelFactory(
-    private val authRepository: AuthRepository,
-    private val revisionRepository: RevisionRepository,
-    private val tokenRepository: TokenRepository,
-    private val todoListLocalRepository: TodoListLocalRepository,
-    private val todoListRemoteRepository: TodoListRemoteRepository,
-    private val schedulerRepository: SchedulerRepository
+class ViewModelFactory @Inject constructor(
+    private val viewModelFactories: Map<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return TodoViewModel(
-            authRepository,
-            tokenRepository,
-            revisionRepository,
-            todoListLocalRepository,
-            todoListRemoteRepository,
-            schedulerRepository
-        ) as T
-    }
-}
-
-class TodoListViewModelFactory(
-    private val authRepository: AuthRepository,
-    private val revisionRepository: RevisionRepository,
-    private val tokenRepository: TokenRepository,
-    private val todoListLocalRepository: TodoListLocalRepository,
-    private val todoListRemoteRepository: TodoListRemoteRepository,
-    private val schedulerRepository: SchedulerRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return TodoListViewModel(
-            authRepository,
-            tokenRepository,
-            revisionRepository,
-            todoListLocalRepository,
-            todoListRemoteRepository,
-            schedulerRepository
-        ) as T
-    }
-}
-
-class MainViewModelFactory(
-    private val authRepository: AuthRepository,
-    private val revisionRepository: RevisionRepository,
-    private val tokenRepository: TokenRepository,
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return MainViewModel(
-            authRepository,
-            tokenRepository,
-            revisionRepository
-        ) as T
+        return viewModelFactories.getValue(modelClass as Class<ViewModel>).get() as T
     }
 }

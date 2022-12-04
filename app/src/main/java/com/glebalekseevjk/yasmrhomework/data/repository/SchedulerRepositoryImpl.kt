@@ -6,13 +6,14 @@ import com.glebalekseevjk.yasmrhomework.data.worker.CheckSynchronizeWorker
 import com.glebalekseevjk.yasmrhomework.data.worker.RefreshTodoWorker
 import com.glebalekseevjk.yasmrhomework.domain.repository.SchedulerRepository
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class SchedulerRepositoryImpl(context: Context): SchedulerRepository {
+class SchedulerRepositoryImpl @Inject constructor(context: Context) : SchedulerRepository {
     private val workManager: WorkManager by lazy {
         WorkManager.getInstance(context)
     }
 
-    override fun setupPeriodicTimeRefreshTodo(){
+    override fun setupPeriodicTimeRefreshTodo() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()
@@ -26,7 +27,7 @@ class SchedulerRepositoryImpl(context: Context): SchedulerRepository {
         )
     }
 
-    override fun setupOneTimeCheckSynchronize(){
+    override fun setupOneTimeCheckSynchronize() {
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()

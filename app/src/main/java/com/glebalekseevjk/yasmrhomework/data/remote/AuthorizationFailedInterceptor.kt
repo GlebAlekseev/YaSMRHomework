@@ -1,8 +1,8 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
-import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
 import com.glebalekseevjk.yasmrhomework.data.remote.model.RefreshToken
 import okhttp3.Interceptor
@@ -10,8 +10,9 @@ import okhttp3.Request
 import okhttp3.Response
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class AuthorizationFailedInterceptor(
+class AuthorizationFailedInterceptor @Inject constructor(
     private val tokenStorage: SharedPreferencesTokenStorage,
     private val revisionStorage: SharedPreferencesRevisionStorage,
     private val synchronizedStorage: SharedPreferencesSynchronizedStorage,

@@ -14,8 +14,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-object RetrofitClient {
-    private const val BASE_URL = "https://192.168.0.102/"
+class RetrofitClient {
+    companion object{
+        const val BASE_URL = "https://192.168.0.102/"
+    }
     private var retrofit: Retrofit.Builder? = null
     private var basicTodoApiClient: OkHttpClient? = null
     private var advancedTodoApiClient: OkHttpClient? = null
