@@ -2,8 +2,9 @@ package com.glebalekseevjk.yasmrhomework.data.preferences
 
 import android.content.Context
 import android.content.SharedPreferences
+import javax.inject.Inject
 
-open class SharedPreferencesSynchronizedStorage(context: Context) {
+open class SharedPreferencesSynchronizedStorage @Inject constructor(context: Context) {
     private val syncPref: SharedPreferences
 
     init {
