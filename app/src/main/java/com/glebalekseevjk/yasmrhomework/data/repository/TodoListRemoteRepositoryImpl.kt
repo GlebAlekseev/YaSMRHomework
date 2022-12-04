@@ -12,8 +12,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import retrofit2.Response
+import javax.inject.Inject
 
-class TodoListRemoteRepositoryImpl(
+class TodoListRemoteRepositoryImpl @Inject constructor(
     private val todoService: TodoService
 ) : TodoListRemoteRepository {
     override fun getTodoList(): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
@@ -34,14 +35,15 @@ class TodoListRemoteRepositoryImpl(
         emit(result)
     }.flowOn(Dispatchers.IO)
 
-    override fun replaceTodoList(todoList: List<TodoItem>): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
-        emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
-        val todoListResponse = runCatching {
-            todoService.patchTodoList(todoList).execute()
-        }.getOrNull()
-        val result = getResultFromTodoListResponse(todoListResponse)
-        emit(result)
-    }.flowOn(Dispatchers.IO)
+    override fun replaceTodoList(todoList: List<TodoItem>): Flow<Result<Pair<List<TodoItem>, Revision>>> =
+        flow {
+            emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))
+            val todoListResponse = runCatching {
+                todoService.patchTodoList(todoList).execute()
+            }.getOrNull()
+            val result = getResultFromTodoListResponse(todoListResponse)
+            emit(result)
+        }.flowOn(Dispatchers.IO)
 
     override fun getTodoItem(todoId: Long): Flow<Result<Pair<List<TodoItem>, Revision>>> = flow {
         emit(Result(ResultStatus.LOADING, Pair(emptyList(), Revision())))

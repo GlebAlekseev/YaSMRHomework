@@ -4,8 +4,10 @@ import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenS
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
+import javax.inject.Inject
 
-class AuthorizationInterceptor(private val tokenStorage: SharedPreferencesTokenStorage) : Interceptor {
+class AuthorizationInterceptor @Inject constructor(private val tokenStorage: SharedPreferencesTokenStorage) :
+    Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         return chain.request()
             .addTokenHeader()

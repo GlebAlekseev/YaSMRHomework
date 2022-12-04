@@ -1,8 +1,8 @@
 package com.glebalekseevjk.yasmrhomework.data.repository
 
-import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.data.local.dao.TodoItemDao
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
+import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesSynchronizedStorage
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesTokenStorage
 import com.glebalekseevjk.yasmrhomework.data.remote.AuthService
 import com.glebalekseevjk.yasmrhomework.data.remote.model.AuthResponse
@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import retrofit2.Response
+import javax.inject.Inject
 
-class AuthRepositoryImpl(
+class AuthRepositoryImpl @Inject constructor(
     private val todoItemDao: TodoItemDao,
     private val authService: AuthService,
     private val tokenStorage: SharedPreferencesTokenStorage,
@@ -28,7 +29,7 @@ class AuthRepositoryImpl(
             authService.getTokenPair(code).execute()
         }.getOrNull()
         val result = getResultFromAuthResponse(authResponse)
-        if (result.status == ResultStatus.SUCCESS){
+        if (result.status == ResultStatus.SUCCESS) {
             tokenStorage.setTokenPair(authResponse!!.body()!!.data!!)
         }
         emit(result)

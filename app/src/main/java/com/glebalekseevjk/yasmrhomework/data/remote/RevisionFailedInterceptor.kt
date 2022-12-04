@@ -1,16 +1,18 @@
 package com.glebalekseevjk.yasmrhomework.data.remote
 
 import com.glebalekseevjk.yasmrhomework.data.preferences.SharedPreferencesRevisionStorage
+import com.glebalekseevjk.yasmrhomework.di.module.RemoteStorageModule.Companion.Short
 import com.glebalekseevjk.yasmrhomework.domain.entity.Revision
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class RevisionFailedInterceptor(
+class RevisionFailedInterceptor @Inject constructor(
     private val revisionStorage: SharedPreferencesRevisionStorage,
-    private val todoService: TodoService
+    @Short private val todoService: TodoService
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalResponse = chain.proceed(chain.request())
@@ -79,10 +81,10 @@ class RevisionFailedInterceptor(
             if (revision != null) {
                 revisionStorage.setRevision(Revision(revision))
                 true
-            }else{
+            } else {
                 false
             }
-        }else{
+        } else {
             false
         }
         getLatch()?.countDown()
