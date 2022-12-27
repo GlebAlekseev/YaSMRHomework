@@ -1,6 +1,8 @@
 package com.glebalekseevjk.yasmrhomework.di.module
 
+import android.content.Context
 import android.util.Log
+import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.data.remote.*
 import dagger.Module
 import dagger.Provides
@@ -25,9 +27,9 @@ interface RemoteStorageModule {
         }
 
         @Provides
-        fun provideRetrofitBuilder(): Retrofit.Builder {
+        fun provideRetrofitBuilder(context: Context): Retrofit.Builder {
             return Retrofit.Builder()
-                .baseUrl(RetrofitClient.BASE_URL)
+                .baseUrl(context.resources.getString(R.string.base_url))
                 .addConverterFactory(GsonConverterFactory.create())
         }
 

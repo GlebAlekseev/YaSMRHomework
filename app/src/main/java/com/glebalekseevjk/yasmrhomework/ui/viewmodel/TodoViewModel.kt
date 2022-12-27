@@ -6,7 +6,11 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
 import com.glebalekseevjk.yasmrhomework.domain.repository.*
+import com.glebalekseevjk.yasmrhomework.ui.fragment.TodoFragment
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -30,7 +34,7 @@ class TodoViewModel @Inject constructor(
             val getResult =
                 todoItemUseCase.getTodoItemLocal(todoId).first { it.status != ResultStatus.LOADING }
             if (getResult.status == ResultStatus.SUCCESS) {
-                currentTodoItem = getResult.data.first[0]
+                currentTodoItem.value = getResult.data.first[0]
             } else {
                 throw RuntimeException("БД не может получить элемент с id: $todoId")
             }
@@ -128,5 +132,23 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    var currentTodoItem: TodoItem = TodoItem.PLUG
+    fun onMessageChanged(text: CharSequence){
+        currentTodoItem.value =
+            currentTodoItem.value.copy(text = text.toString())
+    }
+
+    var currentTodoItem: MutableStateFlow<TodoItem> =  MutableStateFlow(TodoItem.PLUG)
+
+    private var _currentScreenMode: MutableStateFlow<String> =  MutableStateFlow(MODE_ADD)
+    var currentScreenMode: StateFlow<String> =  _currentScreenMode
+    fun setCurrentScreenMode(screenMode: String){
+        if (screenMode != MODE_EDIT && screenMode != MODE_ADD)
+            throw RuntimeException("Unknown screen mode $screenMode")
+        _currentScreenMode.tryEmit(screenMode)
+    }
+
+    companion object {
+        const val MODE_ADD = "mode_add"
+        const val MODE_EDIT = "mode_edit"
+    }
 }

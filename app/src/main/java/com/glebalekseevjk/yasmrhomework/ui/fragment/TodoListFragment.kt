@@ -31,6 +31,7 @@ import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -167,7 +168,7 @@ class TodoListFragment : Fragment() {
 
     private fun initListeners() {
         addTaskBtn.setOnClickListener {
-            val bundle = bundleOf(TodoFragment.SCREEN_MODE to TodoFragment.MODE_ADD)
+            val bundle = bundleOf(TodoFragment.SCREEN_MODE to TodoViewModel.MODE_ADD)
             navController.navigate(R.id.action_todoListFragment_to_todoFragment,bundle)
         }
         headerViewIv.setOnClickListener {
@@ -279,7 +280,7 @@ class TodoListFragment : Fragment() {
             )
             taskListAdapter.editClickListener = { id ->
                 val bundle = bundleOf(
-                    TodoFragment.SCREEN_MODE to TodoFragment.MODE_EDIT,
+                    TodoFragment.SCREEN_MODE to TodoViewModel.MODE_EDIT,
                     TodoFragment.TODO_ID to id
                 )
                 navController.navigate(R.id.action_todoListFragment_to_todoFragment,bundle)

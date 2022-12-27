@@ -7,11 +7,14 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.trusted.TokenStore
+import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.databinding.ActivityMainBinding
+import com.glebalekseevjk.yasmrhomework.databinding.NavDrawerHeaderBinding
 import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
@@ -26,77 +29,17 @@ class MainActivity : AppCompatActivity() {
     @FromViewModelFactory
     @Inject
     lateinit var mainViewModel: MainViewModel
-
-    private lateinit var drawerLayout: DrawerLayout
-    private lateinit var mainNv: NavigationView
     private lateinit var navController: NavController
+    private lateinit var binding: ActivityMainBinding;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appComponent.createMainActivitySubcomponent().inject(this)
-        setContentView(R.layout.activity_main)
-        initViews()
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        setContentView(binding.root)
         initNavigationUI()
         initListeners()
         checkAuth()
-    }
-
-    private fun checkAuth() {
-        if (mainViewModel.isAuth) {
-            navController.navigate(R.id.action_authFragment_to_todoListFragment)
-        }
-    }
-
-    private fun initViews() {
-        drawerLayout = findViewById(R.id.drawer_layout)
-        mainNv = findViewById(R.id.main_nv)
-        val navHostFragment =
-            supportFragmentManager.findFragmentById(R.id.main_nhf) as NavHostFragment
-        navController = navHostFragment.navController
-    }
-
-    private fun initNavigationUI() {
-        NavigationUI.setupWithNavController(mainNv, navController)
-    }
-
-    private fun initListeners() {
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.authFragment -> {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                }
-                R.id.todoFragment -> {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-                }
-                else -> {
-                    drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                }
-            }
-        }
-        val headerView = mainNv.getHeaderView(0)
-
-        val loginTv: TextView = headerView.findViewById(R.id.login_tv)
-        loginTv.text = "@${mainViewModel.getLogin()}"
-        val nameTv: TextView = headerView.findViewById(R.id.name_tv)
-        nameTv.text = mainViewModel.getDisplayName()
-        mainNv.setNavigationItemSelectedListener {
-            onDrawerItemSelected(it)
-        }
-    }
-
-    private fun onDrawerItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.exit_menu_item -> {
-                mainViewModel.logout {
-                    if (navController.currentDestination?.id == R.id.todoListFragment) {
-                        navController.navigate(R.id.action_todoListFragment_to_authFragment)
-                    }
-                }
-                return true
-            }
-            else -> {}
-        }
-        return false
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -118,6 +61,57 @@ class MainActivity : AppCompatActivity() {
                     else -> {}
                 }
             }
+        }
+    }
+
+    private fun initNavigationUI() {
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.main_nhf) as NavHostFragment
+        navController = navHostFragment.navController
+        NavigationUI.setupWithNavController(binding.mainNv, navController)
+    }
+
+    private fun initListeners() {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.authFragment -> {
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                }
+                R.id.todoFragment -> {
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                }
+                else -> {
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                }
+            }
+        }
+
+        val navDrawerHeaderBinding = DataBindingUtil.inflate<NavDrawerHeaderBinding>(layoutInflater,R.layout.nav_drawer_header, binding.mainNv,false)
+        navDrawerHeaderBinding.mainViewModel = mainViewModel
+        binding.mainNv.addHeaderView(navDrawerHeaderBinding.root)
+        binding.navigationItemSelectedListener = NavigationView.OnNavigationItemSelectedListener {
+            onDrawerItemSelected(it)
+        }
+    }
+
+    private fun onDrawerItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.exit_menu_item -> {
+                mainViewModel.logout {
+                    if (navController.currentDestination?.id == R.id.todoListFragment) {
+                        navController.navigate(R.id.action_todoListFragment_to_authFragment)
+                    }
+                }
+                return true
+            }
+            else -> {}
+        }
+        return false
+    }
+
+    private fun checkAuth() {
+        if (mainViewModel.isAuth) {
+            navController.navigate(R.id.action_authFragment_to_todoListFragment)
         }
     }
 }
