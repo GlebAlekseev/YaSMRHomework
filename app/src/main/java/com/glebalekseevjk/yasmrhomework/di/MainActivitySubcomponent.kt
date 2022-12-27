@@ -1,11 +1,13 @@
 package com.glebalekseevjk.yasmrhomework.di
 
 import com.glebalekseevjk.yasmrhomework.di.module.ViewModelModule
+import com.glebalekseevjk.yasmrhomework.di.scope.MainActivitySubcomponentScope
 import com.glebalekseevjk.yasmrhomework.ui.activity.MainActivity
 import dagger.Subcomponent
+import javax.inject.Singleton
 
-@Subcomponent(modules = [ViewModelModule::class])
+@MainActivitySubcomponentScope
+@Subcomponent
 interface MainActivitySubcomponent {
     fun inject(activity: MainActivity)
 }
-

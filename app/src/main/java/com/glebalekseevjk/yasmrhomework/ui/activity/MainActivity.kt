@@ -5,27 +5,27 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.browser.trusted.TokenStore
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
-import com.glebalekseevjk.yasmrhomework.ui.viewmodel.ViewModelFactory
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.google.android.material.navigation.NavigationView
 import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
-    @FromViewModelFactory
     @Inject
-    lateinit var mainViewModel: MainViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var mainViewModel: MainViewModel
+
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var mainNv: NavigationView
@@ -34,11 +34,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appComponent.createMainActivitySubcomponent().inject(this)
+        mainViewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
         setContentView(R.layout.activity_main)
         initViews()
         initNavigationUI()
         initListeners()
-        checkAuth()
+        if (savedInstanceState == null){
+            checkAuth()
+        }
     }
 
     private fun checkAuth() {
@@ -75,6 +78,8 @@ class MainActivity : AppCompatActivity() {
         }
         val headerView = mainNv.getHeaderView(0)
 
+        // TODO: Сделать isAuth flow, реагировать в MainActivity.
+
         val loginTv: TextView = headerView.findViewById(R.id.login_tv)
         loginTv.text = "@${mainViewModel.getLogin()}"
         val nameTv: TextView = headerView.findViewById(R.id.name_tv)
@@ -107,6 +112,11 @@ class MainActivity : AppCompatActivity() {
                 when (result.status) {
                     ResultStatus.SUCCESS -> {
                         if (mainViewModel.isAuth) {
+                            val headerView = mainNv.getHeaderView(0)
+                            val loginTv: TextView = headerView.findViewById(R.id.login_tv)
+                            loginTv.text = "@${mainViewModel.getLogin()}"
+                            val nameTv: TextView = headerView.findViewById(R.id.name_tv)
+                            nameTv.text = mainViewModel.getDisplayName()
                             navController.navigate(R.id.action_authFragment_to_todoListFragment)
                         }
                     }

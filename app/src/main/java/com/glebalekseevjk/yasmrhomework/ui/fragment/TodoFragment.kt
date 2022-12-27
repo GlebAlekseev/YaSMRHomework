@@ -15,24 +15,25 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DAY_MILLIS
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.PLUG
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
-import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class TodoFragment : Fragment() {
-    @FromViewModelFactory
     @Inject
-    lateinit var todoViewModel: TodoViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var todoViewModel: TodoViewModel
+
+
 
     private var screenMode: String = MODE_ADD
     private var todoId: Long = TodoItem.UNDEFINED
@@ -58,6 +59,7 @@ class TodoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        todoViewModel = ViewModelProvider(this, viewModelFactory)[TodoViewModel::class.java]
         if (savedInstanceState == null) {
             parseParams()
         }

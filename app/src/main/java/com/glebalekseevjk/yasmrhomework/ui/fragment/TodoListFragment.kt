@@ -20,17 +20,16 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
-import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
@@ -42,9 +41,10 @@ import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 class TodoListFragment : Fragment() {
-    @FromViewModelFactory
     @Inject
-    lateinit var todoListViewModel: TodoListViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var todoListViewModel: TodoListViewModel
+
 
     private lateinit var headerLl: LinearLayout
     private lateinit var headerCountTv: TextView
@@ -64,6 +64,7 @@ class TodoListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        todoListViewModel = ViewModelProvider(this, viewModelFactory)[TodoListViewModel::class.java]
         synchronizeTodoList()
     }
 
@@ -83,6 +84,10 @@ class TodoListFragment : Fragment() {
         initDispatchTouchEventSettings()
         setupRecyclerView()
         observeViewModel()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 
     private fun initErrorHandler() {
