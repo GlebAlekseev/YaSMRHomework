@@ -25,6 +25,7 @@ fun bindLoginAsText(textView: TextView, text: String){
     textView.text = "@$text"
 }
 
+// fragment_todo
 @BindingAdapter("importanceAsText")
 fun bindImportanceAsText(textView: TextView, importance: TodoItem.Companion.Importance) {
     textView.text = when (importance) {
@@ -40,7 +41,4 @@ fun bindImportanceAsText(textView: TextView, importance: TodoItem.Companion.Impo
     }
 }
 
-@BindingAdapter("exitClickListener")
-fun exitClickListener(imageView: ImageView){
-    (imageView.context as MainActivity).onBackPressed()
-}
+// fragment_todo_list

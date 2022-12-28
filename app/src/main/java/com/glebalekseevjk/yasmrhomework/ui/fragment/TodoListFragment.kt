@@ -11,15 +11,19 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
+import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoListBinding
 import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
@@ -43,16 +47,14 @@ import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 class TodoListFragment : Fragment() {
+    private var _binding: FragmentTodoListBinding? = null
+    private val binding: FragmentTodoListBinding
+        get() = _binding ?: throw RuntimeException("FragmentTodoListBinding is null")
+
     @FromViewModelFactory
     @Inject
     lateinit var todoListViewModel: TodoListViewModel
 
-    private lateinit var headerLl: LinearLayout
-    private lateinit var headerCountTv: TextView
-    private lateinit var taskListRv: RecyclerView
-    private lateinit var addTaskBtn: FloatingActionButton
-    private lateinit var headerViewIv: ImageView
-    private lateinit var taskListSrl: SwipeRefreshLayout
     private lateinit var navController: NavController
 
     private val dp: Float by lazy { resources.displayMetrics.density }
@@ -72,32 +74,25 @@ class TodoListFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.fragment_todo_list, container, false)
+    ): View {
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo_list, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.todoListViewModel = todoListViewModel
         initErrorHandler()
-        initViews(view)
+        initNavigationUI()
         initListeners()
         initDispatchTouchEventSettings()
         setupRecyclerView()
         observeViewModel()
     }
 
-    private fun initErrorHandler() {
-        lifecycleScope.launch {
-            todoListViewModel.errorHandler.collect { errorMessage ->
-                if (errorMessage != OK) {
-                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun observeViewModel() {
-        observeSubmitListAdapter()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun synchronizeTodoList() {
@@ -116,81 +111,49 @@ class TodoListFragment : Fragment() {
         }
     }
 
-    private fun observeSubmitListAdapter() {
+    private fun checkAuth() {
+        if (!todoListViewModel.isAuth) {
+            navController.navigate(R.id.action_todoListFragment_to_authFragment)
+        }
+    }
+
+    private fun initErrorHandler() {
         lifecycleScope.launch {
-            with(todoListViewModel) {
-                todoListViewState
-                    .combine(isViewFinished) { state, isViewFinished ->
-                        Pair(state, isViewFinished)
-                    }
-                    .collect { (state, isViewFinished) ->
-                        submitListAdapter(state, isViewFinished)
-                    }
+            todoListViewModel.errorHandler.collect { errorMessage ->
+                if (errorMessage != OK) {
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
+                }
             }
         }
     }
 
-    private fun submitListAdapter(state: TodoListViewState, isViewFinished: Boolean) {
-        when (state.result.status) {
-            ResultStatus.SUCCESS -> {
-                val list = state.result.data
-                val newTaskList = if (isViewFinished) list.filter { !it.done } else list
-                headerCountTv.text = String.format(
-                    resources.getString(R.string.count_done),
-                    newTaskList.size
-                )
-                taskListAdapter.submitList(newTaskList.toList())
-            }
-            ResultStatus.LOADING -> {
-            }
-            ResultStatus.FAILURE -> {
-                todoListViewModel.setupOneTimeCheckSynchronize()
-                Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
-            }
-            ResultStatus.UNAUTHORIZED -> {
-                checkAuth()
-                Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun initViews(view: View) {
-        with(view) {
-            headerLl = findViewById(R.id.header_ll)
-            headerCountTv = findViewById(R.id.header_count_tv)
-            taskListRv = findViewById(R.id.task_list_rv)
-            addTaskBtn = findViewById(R.id.add_task_btn)
-            headerViewIv = findViewById(R.id.header_view_iv)
-            taskListSrl = findViewById(R.id.task_list_srl)
-            navController = findNavController()
-        }
+    private fun initNavigationUI(){
+        navController = findNavController()
     }
 
     private fun initListeners() {
-        addTaskBtn.setOnClickListener {
+        binding.addClickListener = View.OnClickListener {
             val bundle = bundleOf(TodoFragment.SCREEN_MODE to TodoViewModel.MODE_ADD)
             navController.navigate(R.id.action_todoListFragment_to_todoFragment,bundle)
         }
-        headerViewIv.setOnClickListener {
-            todoListViewModel.isViewFinished.value = !todoListViewModel.isViewFinished.value
-        }
-        taskListSrl.setOnRefreshListener {
+
+        binding.taskListSrl.setOnRefreshListener {
             todoListViewModel.synchronizeTodoList { result ->
                 when (result.status) {
                     ResultStatus.SUCCESS -> {
-                        taskListSrl.isRefreshing = false
+                        binding.taskListSrl.isRefreshing = false
                         Toast.makeText(context, "Успех", Toast.LENGTH_SHORT).show()
                     }
                     ResultStatus.LOADING -> {
                     }
                     ResultStatus.FAILURE -> {
                         todoListViewModel.setupOneTimeCheckSynchronize()
-                        taskListSrl.isRefreshing = false
+                        binding.taskListSrl.isRefreshing = false
                         Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                     }
                     ResultStatus.UNAUTHORIZED -> {
                         checkAuth()
-                        taskListSrl.isRefreshing = false
+                        binding.taskListSrl.isRefreshing = false
                         Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
                     }
                 }
@@ -198,9 +161,14 @@ class TodoListFragment : Fragment() {
         }
     }
 
+    private fun initDispatchTouchEventSettings() {
+        TouchEventSettings.maxPaddingTop = (90 * dp).toInt() + 1
+        TouchEventSettings.minPaddingTop = (15 * dp).toInt()
+    }
+
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
-        with(taskListRv) {
+        with(binding.taskListRv) {
             adapter = taskListAdapter
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
@@ -224,7 +192,7 @@ class TodoListFragment : Fragment() {
 
                 override fun onRightClicked(position: Int) {
                     todoListViewModel.deleteTodo(taskListAdapter.currentList[position],{
-                        val snackBar: Snackbar = Snackbar.make(taskListRv,"Удаление через 3..",3000)
+                        val snackBar: Snackbar = Snackbar.make(this@with,"Удаление через 3..",3000)
                         var status = false
                         val mutex = Mutex(locked = true)
                         snackBar.setAction("Отменить"){
@@ -273,8 +241,8 @@ class TodoListFragment : Fragment() {
             })
             setOnTouchListener(
                 OnTouchListener(
-                    headerLl,
-                    headerCountTv,
+                    binding.headerLl,
+                    binding.headerCountTv,
                     dp
                 )
             )
@@ -288,14 +256,45 @@ class TodoListFragment : Fragment() {
         }
     }
 
-    private fun initDispatchTouchEventSettings() {
-        TouchEventSettings.maxPaddingTop = (90 * dp).toInt() + 1
-        TouchEventSettings.minPaddingTop = (15 * dp).toInt()
+    private fun observeViewModel() {
+        observeSubmitListAdapter()
     }
 
-    private fun checkAuth() {
-        if (!todoListViewModel.isAuth) {
-            navController.navigate(R.id.action_todoListFragment_to_authFragment)
+    private fun observeSubmitListAdapter() {
+        lifecycleScope.launch {
+            with(todoListViewModel) {
+                todoListViewState
+                    .combine(isViewFinished) { state, isViewFinished ->
+                        Pair(state, isViewFinished)
+                    }
+                    .collect { (state, isViewFinished) ->
+                        submitListAdapter(state, isViewFinished)
+                    }
+            }
+        }
+    }
+
+    private fun submitListAdapter(state: TodoListViewState, isViewFinished: Boolean) {
+        when (state.result.status) {
+            ResultStatus.SUCCESS -> {
+                val list = state.result.data
+                val newTaskList = if (isViewFinished) list.filter { !it.done } else list
+                binding.headerCountTv.text = String.format(
+                    resources.getString(R.string.count_done),
+                    newTaskList.size
+                )
+                taskListAdapter.submitList(newTaskList.toList())
+            }
+            ResultStatus.LOADING -> {
+            }
+            ResultStatus.FAILURE -> {
+                todoListViewModel.setupOneTimeCheckSynchronize()
+                Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
+            }
+            ResultStatus.UNAUTHORIZED -> {
+                checkAuth()
+                Toast.makeText(context, state.result.message, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
