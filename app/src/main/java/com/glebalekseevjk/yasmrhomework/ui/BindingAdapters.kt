@@ -1,5 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.ui
 
+import android.graphics.Paint
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
@@ -42,3 +44,11 @@ fun bindImportanceAsText(textView: TextView, importance: TodoItem.Companion.Impo
 }
 
 // fragment_todo_list
+@BindingAdapter("strikeThrough")
+fun bindImportanceAsText(checkBox: CheckBox, value: Boolean) {
+    if (value) {
+        checkBox.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+    } else {
+        checkBox.paintFlags = 1283
+    }
+}
