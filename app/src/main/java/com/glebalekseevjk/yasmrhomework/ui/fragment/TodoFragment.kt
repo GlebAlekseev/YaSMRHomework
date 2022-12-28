@@ -35,15 +35,16 @@ import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
 
 class TodoFragment : Fragment() {
     private var _binding: FragmentTodoBinding? = null
     private val binding: FragmentTodoBinding
         get() = _binding ?: throw RuntimeException("FragmentTodoBinding is null")
 
-    @FromViewModelFactory
     @Inject
-    lateinit var todoViewModel: TodoViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var todoViewModel: TodoViewModel
 
     private lateinit var navController: NavController
 
@@ -54,6 +55,7 @@ class TodoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        todoViewModel = ViewModelProvider(this, viewModelFactory)[TodoViewModel::class.java]
         if (savedInstanceState == null) {
             parseParams()
         }
@@ -249,30 +251,6 @@ class TodoFragment : Fragment() {
             binding.removeLl.visibility = View.GONE
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     companion object {
         const val TODO_ID = "todo_id"

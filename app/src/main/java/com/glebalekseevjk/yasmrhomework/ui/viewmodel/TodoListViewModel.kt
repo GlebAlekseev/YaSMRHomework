@@ -21,7 +21,6 @@ class TodoListViewModel @Inject constructor(
     private val todoItemUseCase: TodoItemUseCase,
     private val schedulerUseCase: SchedulerUseCase
 ) : BaseViewModel() {
-
     override val coroutineExceptionHandler =
         CoroutineExceptionHandler { coroutineContext, exception ->
             val message = exception.message ?: "Неизвестная ошибка"

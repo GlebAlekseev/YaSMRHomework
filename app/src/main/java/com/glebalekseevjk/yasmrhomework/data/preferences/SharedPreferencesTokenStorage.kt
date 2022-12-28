@@ -23,6 +23,7 @@ open class SharedPreferencesTokenStorage @Inject constructor(context: Context) {
         ) {
             return TokenPair(accessToken, refreshToken, expiresAt, login, displayName)
         } else {
+            clear()
             return null
         }
     }
@@ -46,7 +47,6 @@ open class SharedPreferencesTokenStorage @Inject constructor(context: Context) {
     fun getExpiresAt(): Long? {
         val expiresAt = tokenPref.getLong(PREF_KEY_EXPIRES_AT, 0)
         if (expiresAt < System.currentTimeMillis()) {
-            clear()
             return null
         }
         return expiresAt

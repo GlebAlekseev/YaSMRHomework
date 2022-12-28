@@ -45,15 +45,16 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 
 class TodoListFragment : Fragment() {
     private var _binding: FragmentTodoListBinding? = null
     private val binding: FragmentTodoListBinding
         get() = _binding ?: throw RuntimeException("FragmentTodoListBinding is null")
 
-    @FromViewModelFactory
     @Inject
-    lateinit var todoListViewModel: TodoListViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var todoListViewModel: TodoListViewModel
 
     private lateinit var navController: NavController
 
@@ -67,6 +68,7 @@ class TodoListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        todoListViewModel = ViewModelProvider(this, viewModelFactory)[TodoListViewModel::class.java]
         synchronizeTodoList()
     }
 

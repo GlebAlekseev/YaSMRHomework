@@ -5,41 +5,44 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.trusted.TokenStore
-import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.databinding.ActivityMainBinding
-import com.glebalekseevjk.yasmrhomework.databinding.NavDrawerHeaderBinding
 import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
-import com.glebalekseevjk.yasmrhomework.ui.viewmodel.ViewModelFactory
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.google.android.material.navigation.NavigationView
 import javax.inject.Inject
 
 
 class MainActivity : AppCompatActivity() {
-    @FromViewModelFactory
     @Inject
-    lateinit var mainViewModel: MainViewModel
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+    private lateinit var mainViewModel: MainViewModel
+
+
     private lateinit var navController: NavController
     private lateinit var binding: ActivityMainBinding;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         appComponent.createMainActivitySubcomponent().inject(this)
+        mainViewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setContentView(binding.root)
         initNavigationUI()
         initListeners()
-        checkAuth()
+        if (savedInstanceState == null){
+            checkAuth()
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -61,6 +64,12 @@ class MainActivity : AppCompatActivity() {
                     else -> {}
                 }
             }
+        }
+    }
+
+    private fun checkAuth() {
+        if (mainViewModel.isAuth) {
+            navController.navigate(R.id.action_authFragment_to_todoListFragment)
         }
     }
 
@@ -86,6 +95,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // TODO: Сделать isAuth flow, реагировать в MainActivity.
+
         val navDrawerHeaderBinding = DataBindingUtil.inflate<NavDrawerHeaderBinding>(layoutInflater,R.layout.nav_drawer_header, binding.mainNv,false)
         navDrawerHeaderBinding.mainViewModel = mainViewModel
         binding.mainNv.addHeaderView(navDrawerHeaderBinding.root)
@@ -107,11 +118,5 @@ class MainActivity : AppCompatActivity() {
             else -> {}
         }
         return false
-    }
-
-    private fun checkAuth() {
-        if (mainViewModel.isAuth) {
-            navController.navigate(R.id.action_authFragment_to_todoListFragment)
-        }
     }
 }

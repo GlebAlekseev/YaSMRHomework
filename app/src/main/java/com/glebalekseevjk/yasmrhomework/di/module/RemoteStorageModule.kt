@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.data.remote.*
+import com.glebalekseevjk.yasmrhomework.di.scope.AppComponentScope
 import dagger.Module
 import dagger.Provides
 import okhttp3.OkHttpClient
@@ -26,6 +27,7 @@ interface RemoteStorageModule {
                 .setLevel(HttpLoggingInterceptor.Level.BODY)
         }
 
+        @AppComponentScope
         @Provides
         fun provideRetrofitBuilder(context: Context): Retrofit.Builder {
             return Retrofit.Builder()
@@ -33,6 +35,7 @@ interface RemoteStorageModule {
                 .addConverterFactory(GsonConverterFactory.create())
         }
 
+        @AppComponentScope
         @Base
         @Provides
         fun provideOkHttpClientBase(): OkHttpClient {
@@ -41,6 +44,7 @@ interface RemoteStorageModule {
                 .build()
         }
 
+        @AppComponentScope
         @Short
         @Provides
         fun provideOkHttpClientShort(
@@ -58,6 +62,7 @@ interface RemoteStorageModule {
                 .build()
         }
 
+        @AppComponentScope
         @Full
         @Provides
         fun provideOkHttpClientFull(
@@ -79,6 +84,7 @@ interface RemoteStorageModule {
                 .build()
         }
 
+        @AppComponentScope
         @Provides
         fun provideAuthService(
             retrofitBuilder: Retrofit.Builder,
@@ -90,6 +96,7 @@ interface RemoteStorageModule {
                 .create(AuthService::class.java)
         }
 
+        @AppComponentScope
         @Short
         @Provides
         fun provideTodoServiceShort(
@@ -102,7 +109,7 @@ interface RemoteStorageModule {
                 .create(TodoService::class.java)
         }
 
-
+        @AppComponentScope
         @Provides
         fun provideTodoServiceFull(
             retrofitBuilder: Retrofit.Builder,
