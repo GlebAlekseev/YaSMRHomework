@@ -8,47 +8,43 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doOnTextChanged
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.databinding.FragmentAuthBinding
+import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
+import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DAY_MILLIS
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.PLUG
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
+import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
-import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
+import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
 
 class TodoFragment : Fragment() {
+    private var _binding: FragmentTodoBinding? = null
+    private val binding: FragmentTodoBinding
+        get() = _binding ?: throw RuntimeException("FragmentTodoBinding is null")
+
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var todoViewModel: TodoViewModel
-
-
-
-    private var screenMode: String = MODE_ADD
-    private var todoId: Long = TodoItem.UNDEFINED
-
-    private lateinit var headerLl: LinearLayout
-    private lateinit var contentLl: LinearLayout
-    private lateinit var importantLl: LinearLayout
-    private lateinit var exitIv: ImageView
-    private lateinit var saveBtn: Button
-    private lateinit var contentSv: ScrollView
-    private lateinit var removeLl: LinearLayout
-    private lateinit var deadlineSw: Switch
-    private lateinit var deadlineDataTv: TextView
-    private lateinit var messageEt: TextView
-    private lateinit var importantStateTv: TextView
 
     private lateinit var navController: NavController
 
@@ -69,16 +65,36 @@ class TodoFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.fragment_todo, container, false)
+    ): View {
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        binding.todoViewModel = todoViewModel
         initErrorHandler()
-        initViews(view)
+        initNavigationUI()
         initListeners()
         initData()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    private fun parseParams() {
+        val args = requireArguments()
+        if (!args.containsKey(SCREEN_MODE)) throw RuntimeException("Param screen mode is absent")
+        val screenMode = args.getString(SCREEN_MODE).toString()
+        todoViewModel.setCurrentScreenMode(screenMode)
+
+        if (screenMode == TodoViewModel.MODE_EDIT) {
+            if (!args.containsKey(TODO_ID)) throw RuntimeException("Param todo id is absent")
+            val todoId = args.getLong(TODO_ID)
+            todoViewModel.setCurrentTodoItemById(todoId)
+        }
     }
 
     private fun initErrorHandler() {
@@ -91,75 +107,17 @@ class TodoFragment : Fragment() {
         }
     }
 
-    private fun setTextMessageView() {
-        messageEt.text = todoViewModel.currentTodoItem.text
+    private fun initNavigationUI() {
+        navController = findNavController()
     }
 
-    private fun setImportanceView() {
-        importantStateTv.text = when (todoViewModel.currentTodoItem.importance) {
-            Importance.LOW -> {
-                "Нет"
-            }
-            Importance.BASIC -> {
-                "Низкий"
-            }
-            Importance.IMPORTANT -> {
-                "Высокий"
-            }
-        }
-    }
-
-    private fun setDeadlineView() {
-        if (todoViewModel.currentTodoItem.deadline != null) {
-            deadlineSw.isChecked = true
-            deadlineDataTv.text = todoViewModel.currentTodoItem.deadline?.toString().orEmpty()
-            deadlineDataTv.visibility = View.VISIBLE
-        } else {
-            deadlineSw.isChecked = false
-            deadlineDataTv.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun setRemoveButtonView() {
-        if (screenMode == MODE_EDIT) {
-            removeLl.visibility = View.VISIBLE
-        } else if (screenMode == MODE_ADD) {
-            removeLl.visibility = View.GONE
-        }
-    }
-
-    private fun initData() {
-        setTextMessageView()
-        setImportanceView()
-        setDeadlineView()
-        setRemoveButtonView()
-    }
-
-    private fun initViews(view: View) {
-        with(view) {
-            exitIv = findViewById(R.id.exit_iv)
-            headerLl = findViewById(R.id.header_ll)
-            contentLl = findViewById(R.id.content_ll)
-            saveBtn = findViewById(R.id.save_btn)
-            contentSv = findViewById(R.id.content_sv)
-            removeLl = findViewById(R.id.remove_ll)
-            importantLl = findViewById(R.id.important_ll)
-            deadlineSw = findViewById(R.id.deadline_sw)
-            deadlineDataTv = findViewById(R.id.deadline_date_tv)
-            messageEt = findViewById(R.id.message_et)
-            importantStateTv = findViewById(R.id.important_state_tv)
-            navController = findNavController()
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
     private fun initListeners() {
-        exitIv.setOnClickListener {
+        binding.exitClickListener = View.OnClickListener {
             activity?.onBackPressed()
         }
-        saveBtn.setOnClickListener {
-            if (screenMode == MODE_EDIT) {
-                todoViewModel.editTodo(todoViewModel.currentTodoItem) { result ->
+        binding.saveClickListener = View.OnClickListener {
+            if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_EDIT) {
+                todoViewModel.editTodo(todoViewModel.currentTodoItem.value) { result ->
                     when (result.status) {
                         ResultStatus.SUCCESS -> {
                         }
@@ -175,8 +133,8 @@ class TodoFragment : Fragment() {
                         }
                     }
                 }
-            } else if (screenMode == MODE_ADD) {
-                todoViewModel.addTodo(todoViewModel.currentTodoItem) { result ->
+            } else if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_ADD) {
+                todoViewModel.addTodo(todoViewModel.currentTodoItem.value) { result ->
                     when (result.status) {
                         ResultStatus.SUCCESS -> {
                         }
@@ -195,9 +153,9 @@ class TodoFragment : Fragment() {
             }
             activity?.onBackPressed()
         }
-        removeLl.setOnClickListener {
-            if (screenMode == MODE_EDIT) {
-                todoViewModel.deleteTodo(todoViewModel.currentTodoItem, {
+        binding.removeClickListener = View.OnClickListener {
+            if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_EDIT) {
+                todoViewModel.deleteTodo(todoViewModel.currentTodoItem.value, {
                     false
                 }) { result ->
                     when (result.status) {
@@ -218,69 +176,33 @@ class TodoFragment : Fragment() {
             }
             activity?.onBackPressed()
         }
-        messageEt.addTextChangedListener {
-            todoViewModel.currentTodoItem =
-                todoViewModel.currentTodoItem.copy(text = it?.toString().orEmpty())
-        }
-        contentSv.setOnScrollChangeListener(
-            TodoOnScrollChangeListener(
-                headerLl
-            )
-        )
-        importantLl.setOnClickListener {
+        binding.importantClickListener = View.OnClickListener {
             setPopupMenu()
         }
-        deadlineSw.setOnClickListener {
-            if ((it as Switch).isChecked) {
-                todoViewModel.currentTodoItem =
-                    todoViewModel.currentTodoItem.copy(
+        binding.deadlineSwitchClickListener = View.OnClickListener {
+            if ((it as SwitchCompat).isChecked) {
+                todoViewModel.currentTodoItem.value =
+                    todoViewModel.currentTodoItem.value.copy(
                         deadline = System.currentTimeMillis() + DAY_MILLIS,
                     )
             } else {
-                todoViewModel.currentTodoItem =
-                    todoViewModel.currentTodoItem.copy(
+                todoViewModel.currentTodoItem.value =
+                    todoViewModel.currentTodoItem.value.copy(
                         deadline = null
                     )
             }
             setDeadlineView()
         }
-        deadlineDataTv.setOnClickListener {
+        binding.deadlineDateClickListener = View.OnClickListener {
             val datePickerDialog = DatePickerDialog(requireActivity())
             datePickerDialog.show()
         }
 
-    }
-
-    private fun setPopupMenu() {
-        val popup = PopupMenu(requireActivity(), importantLl)
-        popup.inflate(R.menu.popup_menu)
-        popup.setOnMenuItemClickListener {
-            val importance = when (it.toString()) {
-                "Нет" -> Importance.LOW
-                "Низкий" -> Importance.BASIC
-                "Высокий" -> Importance.IMPORTANT
-                else -> throw RuntimeException("Importance $it is bad")
-            }
-            todoViewModel.currentTodoItem =
-                todoViewModel.currentTodoItem.copy(importance = importance)
-            setImportanceView()
-            true
-        }
-        popup.show()
-    }
-
-    private fun parseParams() {
-        todoViewModel.currentTodoItem = PLUG
-        val args = requireArguments()
-        if (!args.containsKey(SCREEN_MODE)) throw RuntimeException("Param screen mode is absent")
-        screenMode = args.getString(SCREEN_MODE).toString()
-        if (screenMode != MODE_EDIT && screenMode != MODE_ADD)
-            throw RuntimeException("Unknown screen mode $screenMode")
-        if (screenMode == MODE_EDIT) {
-            if (!args.containsKey(TODO_ID)) throw RuntimeException("Param todo id is absent")
-            todoId = args.getLong(TODO_ID)
-            todoViewModel.setCurrentTodoItemById(todoId)
-        }
+        binding.contentSv.setOnScrollChangeListener(
+            TodoOnScrollChangeListener(
+                binding.headerLl
+            )
+        )
     }
 
     private fun checkAuth() {
@@ -289,10 +211,49 @@ class TodoFragment : Fragment() {
         }
     }
 
+    private fun setPopupMenu() {
+        val popup = PopupMenu(requireContext(), binding.importantLl)
+        popup.inflate(R.menu.popup_menu)
+        popup.setOnMenuItemClickListener {
+            val importance = when (it.toString()) {
+                "Нет" -> Importance.LOW
+                "Низкий" -> Importance.BASIC
+                "Высокий" -> Importance.IMPORTANT
+                else -> throw RuntimeException("Importance $it is bad")
+            }
+            todoViewModel.currentTodoItem.value =
+                todoViewModel.currentTodoItem.value.copy(importance = importance)
+            true
+        }
+        popup.show()
+    }
+
+    private fun setDeadlineView() {
+        if (todoViewModel.currentTodoItem.value.deadline != null) {
+            binding.deadlineSw.isChecked = true
+            binding.deadlineDateTv.text = todoViewModel.currentTodoItem.value.deadline?.toString().orEmpty()
+            binding.deadlineDateTv.visibility = View.VISIBLE
+        } else {
+            binding.deadlineSw.isChecked = false
+            binding.deadlineDateTv.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun initData() {
+        setDeadlineView()
+        setRemoveButtonView()
+    }
+
+    private fun setRemoveButtonView() {
+        if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_EDIT) {
+            binding.removeLl.visibility = View.VISIBLE
+        } else if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_ADD) {
+            binding.removeLl.visibility = View.GONE
+        }
+    }
+
     companion object {
         const val TODO_ID = "todo_id"
         const val SCREEN_MODE = "screen_mode"
-        const val MODE_ADD = "mode_add"
-        const val MODE_EDIT = "mode_edit"
     }
 }

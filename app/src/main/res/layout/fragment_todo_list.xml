@@ -1,95 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/back_primary"
-    tools:context=".ui.fragment.TodoListFragment">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
 
+        <variable
+            name="todoListViewModel"
+            type="com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel" />
 
-    <LinearLayout
-        android:id="@+id/header_ll"
+        <variable
+            name="add_click_listener"
+            type="android.view.View.OnClickListener" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@color/back_primary"
-        android:elevation="0dp"
-        android:orientation="horizontal"
-        android:outlineSpotShadowColor="@android:color/black"
-        android:paddingLeft="75dp"
-        android:paddingTop="90dp"
-        android:paddingRight="30dp"
-        android:paddingBottom="25dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        tools:context=".ui.fragment.TodoListFragment">
 
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/header_ll"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:background="@color/back_primary"
+            android:elevation="0dp"
+            android:orientation="horizontal"
+            android:outlineSpotShadowColor="@android:color/black"
+            android:paddingLeft="75dp"
+            android:paddingTop="90dp"
+            android:paddingRight="30dp"
+            android:paddingBottom="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
-                android:id="@+id/header_name_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/app_name"
-                android:textColor="@color/label_primary"
-                android:textFontWeight="800"
-                android:textSize="28sp" />
 
-            <TextView
-                android:id="@+id/header_count_tv"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/count_done"
-                android:textColor="@color/label_tertiary" />
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/header_name_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="@color/label_primary"
+                    android:textFontWeight="800"
+                    android:textSize="28sp" />
+
+                <TextView
+                    android:id="@+id/header_count_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/count_done"
+                    android:textColor="@color/label_tertiary" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/header_view_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:onClickListener="@{()->todoListViewModel.toggleViewFinished()}"
+                android:src="@drawable/ic_baseline_eye_24"
+                app:tint="@color/blue"
+                android:contentDescription="TODO" />
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/header_view_iv"
+        <!-- todo: accessibility - android:showAsAction -->
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/task_list_srl"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header_ll"
+            android:layout_marginHorizontal="10dp"
+            android:background="@drawable/round_corner">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/task_list_rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/task_item_rv" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add_task_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:src="@drawable/ic_baseline_eye_24"
-            app:tint="@color/blue" />
-    </LinearLayout>
+            android:layout_marginEnd="15dp"
+            android:layout_marginBottom="15dp"
+            android:clickable="true"
+            android:onClickListener="@{add_click_listener}"
+            android:contentDescription="Add new task"
+            android:focusable="true"
+            android:src="@drawable/ic_baseline_plus_24"
+            app:backgroundTint="@color/blue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/white" />
 
-    <!-- todo: accessibility - android:showAsAction -->
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/task_list_srl"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_ll"
-        android:layout_marginHorizontal="10dp"
-        android:background="@drawable/round_corner">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/task_list_rv"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/task_item_rv" />
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_task_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="15dp"
-        android:clickable="true"
-        android:contentDescription="Add new task"
-        android:focusable="true"
-        android:src="@drawable/ic_baseline_plus_24"
-        app:backgroundTint="@color/blue"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/white" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

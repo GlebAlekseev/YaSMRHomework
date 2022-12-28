@@ -145,4 +145,8 @@ class TodoListViewModel @Inject constructor(
     }
 
     var isViewFinished = MutableStateFlow(true)
+
+    fun toggleViewFinished(){
+        isViewFinished.value = !isViewFinished.value
+    }
 }

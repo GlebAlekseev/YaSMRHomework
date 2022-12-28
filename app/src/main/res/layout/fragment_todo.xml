@@ -1,193 +1,240 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/back_primary">
+<layout>
 
+    <data>
 
-    <LinearLayout
-        android:id="@+id/header_ll"
+        <variable
+            name="todoViewModel"
+            type="com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel" />
+
+        <variable
+            name="exit_click_listener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="save_click_listener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="remove_click_listener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="important_click_listener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="deadline_switch_click_listener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="deadline_date_click_listener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="message_text_changed_listener"
+            type="android.view.View.OnClickListener" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/back_primary"
-        android:elevation="0dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:outlineSpotShadowColor="@android:color/black"
-        android:paddingHorizontal="15dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent"
+        android:background="@color/back_primary">
 
-        <ImageView
-            android:id="@+id/exit_iv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:clickable="true"
-            android:rotation="45"
-            android:src="@drawable/ic_baseline_plus_24"
-            app:tint="@android:color/black" />
-
-        <Space
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <Button
-            android:id="@+id/save_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:text="Сохранить"
-            android:textColor="@color/blue" />
-
-
-    </LinearLayout>
-
-
-    <ScrollView
-        android:id="@+id/content_sv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_ll">
 
         <LinearLayout
-            android:id="@+id/content_ll"
+            android:id="@+id/header_ll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="100dp">
+            android:background="@color/back_primary"
+            android:elevation="0dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:outlineSpotShadowColor="@android:color/black"
+            android:paddingHorizontal="15dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-            <EditText
-                android:id="@+id/message_et"
-                android:layout_width="match_parent"
+            <ImageView
+                android:id="@+id/exit_iv"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dp"
-                android:background="@drawable/round_corner"
-                android:elevation="4dp"
-                android:ems="10"
-                android:gravity="start|top"
-                android:hint="Что надо сделать..."
-                android:inputType="textMultiLine"
-                android:minHeight="150dp"
-                android:outlineSpotShadowColor="@android:color/black"
-                android:padding="15dp" />
+                android:clickable="true"
+                android:onClickListener="@{exit_click_listener}"
+                android:rotation="45"
+                android:src="@drawable/ic_baseline_plus_24"
+                app:tint="@android:color/black" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/save_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:onClickListener="@{save_click_listener}"
+                android:text="Сохранить"
+                android:textColor="@color/blue" />
+
+        </LinearLayout>
+
+
+        <ScrollView
+            android:id="@+id/content_sv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/header_ll">
 
             <LinearLayout
-                android:id="@+id/important_ll"
+                android:id="@+id/content_ll"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="100dp">
 
-                <TextView
-                    android:id="@+id/important_tv"
+                <EditText
+                    android:id="@+id/message_et"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Важность"
-                    android:textColor="@color/blue"
-                    android:textSize="20sp" />
+                    android:layout_margin="15dp"
+                    android:background="@drawable/round_corner"
+                    android:elevation="4dp"
+                    android:ems="10"
+                    android:gravity="start|top"
+                    android:hint="Что надо сделать..."
+                    android:inputType="textMultiLine"
+                    android:minHeight="150dp"
+                    android:outlineSpotShadowColor="@android:color/black"
+                    android:padding="15dp"
+                    android:onTextChanged="@{(text, start, before, count)->todoViewModel.onMessageChanged(text)}"
+                    android:text="@{todoViewModel.currentTodoItem.text}" />
 
-                <TextView
-                    android:id="@+id/important_state_tv"
+                <LinearLayout
+                    android:id="@+id/important_ll"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Нет" />
+                    android:layout_height="match_parent"
+                    android:layout_margin="15dp"
+                    android:onClickListener="@{important_click_listener}"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/important_tv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Важность"
+                        android:textColor="@color/blue"
+                        android:textSize="20sp" />
+
+                    <TextView
+                        android:id="@+id/important_state_tv"
+                        importanceAsText="@{todoViewModel.currentTodoItem.importance}"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Нет" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="15dp"
+                        android:background="@color/support_separator" />
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/deadline_ll"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="15dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:paddingBottom="15dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:orientation="vertical"
+                        android:paddingBottom="15dp">
+
+                        <TextView
+                            android:id="@+id/deadline_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Сделать до"
+                            android:textColor="@color/blue"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:id="@+id/deadline_date_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:onClickListener="@{deadline_date_click_listener}"
+                            android:text="Не указано"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+
+
+                    <Space
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/deadline_sw"
+                        android:onClickListener="@{deadline_switch_click_listener}"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="15dp"
                     android:background="@color/support_separator" />
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:id="@+id/deadline_ll"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:gravity="center"
-                android:orientation="horizontal"
-                android:paddingBottom="15dp">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:id="@+id/remove_ll"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:layout_margin="15dp"
-                    android:orientation="vertical"
+                    android:clickable="true"
+                    android:onClickListener="@{remove_click_listener}"
+                    android:gravity="left"
+                    android:orientation="horizontal"
                     android:paddingBottom="15dp">
 
-                    <TextView
-                        android:id="@+id/deadline_tv"
+                    <ImageView
+                        android:id="@+id/remove_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Сделать до"
-                        android:textColor="@color/blue"
-                        android:textSize="20sp" />
+                        app:srcCompat="@drawable/ic_baseline_remove_24"
+                        app:tint="@color/red" />
 
                     <TextView
-                        android:id="@+id/deadline_date_tv"
+                        android:id="@+id/remove_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Не указано"
-                        android:visibility="invisible" />
+                        android:text="Удалить
+"
+                        android:textColor="@color/red" />
                 </LinearLayout>
 
 
-                <Space
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
-                <Switch
-                    android:id="@+id/deadline_sw"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" />
-
             </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="15dp"
-                android:background="@color/support_separator" />
-
-            <LinearLayout
-                android:id="@+id/remove_ll"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_margin="15dp"
-                android:clickable="true"
-                android:gravity="left"
-                android:orientation="horizontal"
-                android:paddingBottom="15dp">
-
-                <ImageView
-                    android:id="@+id/remove_iv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_baseline_remove_24"
-                    app:tint="@color/red" />
-
-                <TextView
-                    android:id="@+id/remove_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Удалить
-"
-                    android:textColor="@color/red" />
-            </LinearLayout>
+        </ScrollView>
 
 
-        </LinearLayout>
-    </ScrollView>
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

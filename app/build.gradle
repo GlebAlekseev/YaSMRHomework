@@ -33,6 +33,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        dataBinding true
+    }
 }
 
 dependencies {
@@ -51,11 +54,12 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview-selection:1.1.0"
 
     def coroutinesVersion = "1.6.4"
-    def lifecycle_version = "2.2.0"
+
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
-    // Lifecycle
 
+    // Lifecycle
+    def lifecycle_version = "2.2.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
 
@@ -91,4 +95,5 @@ dependencies {
     def dagger_version = "2.43"
     implementation "com.google.dagger:dagger:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
+
 }

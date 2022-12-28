@@ -5,37 +5,39 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.databinding.FragmentAuthBinding
 
 class AuthFragment : Fragment() {
-    private lateinit var yandexAuthIBtn: ImageButton
+    private var _binding: FragmentAuthBinding? = null
+    private val binding: FragmentAuthBinding
+        get() = _binding ?: throw RuntimeException("FragmentAuthBinding is null")
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.fragment_auth, container, false)
+    ): View {
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_auth, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViews(view)
         initListeners()
     }
 
-    private fun initViews(view: View) {
-        with(view) {
-            yandexAuthIBtn = findViewById(R.id.yandex_auth_ibtn)
-        }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun initListeners() {
-        yandexAuthIBtn.setOnClickListener {
+        binding.openYandexAuthClickListener = View.OnClickListener {
             val uri = getString(R.string.authorize_url).toUri()
             val customTabsIntent = CustomTabsIntent.Builder().build()
             customTabsIntent.intent.setPackage("com.android.chrome")
