@@ -1,55 +1,43 @@
 package com.glebalekseevjk.yasmrhomework.ui.viewmodel
 
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
 import com.glebalekseevjk.yasmrhomework.domain.interactor.*
-import com.glebalekseevjk.yasmrhomework.domain.repository.*
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.state.TodoListState
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class TodoListViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
-    private val tokenUseCase: TokenUseCase,
     private val revisionUseCase: RevisionUseCase,
     private val todoItemUseCase: TodoItemUseCase,
-    private val schedulerUseCase: SchedulerUseCase
-) : BaseViewModel() {
-    override val coroutineExceptionHandler =
-        CoroutineExceptionHandler { coroutineContext, exception ->
-            val message = exception.message ?: "Неизвестная ошибка"
-            _errorHandler.value = message
-            when (coroutineContext) {
-                getTodoListJob -> {
-                    _todoListViewState.value = _todoListViewState.value.copy()
-                }
-            }
-        }
-
-    private var getTodoListJob: Job? = null
-
-    private var _todoListViewState = MutableStateFlow(TodoListViewState.PLUG)
-    val todoListViewState: StateFlow<TodoListViewState> by lazy {
-        observeTodoList()
-        _todoListViewState
-    }
-
-    private fun observeTodoList() {
-        getTodoListJob = viewModelScope.launchWithExceptionHandler {
-            todoItemUseCase.getTodoListLocal().collect { result ->
-                _todoListViewState.value = _todoListViewState.value.copy(
-                    result = Result(
-                        result.status,
-                        result.data.first,
-                        result.message
-                    )
+    private val schedulerUseCase: SchedulerUseCase,
+) : BaseViewModel<TodoListState>(TodoListState()) {
+    init {
+        subscribeOnDataSource(authUseCase.isAuth().asLiveData()){ response, state ->
+            if (response.status == ResultStatus.SUCCESS){
+                state.copy(
+                    isAuth = response.data
                 )
+            } else state
+        }
+        subscribeOnDataSource(todoItemUseCase.getTodoListLocal().asLiveData()){ response, state ->
+            when (response.status) {
+                ResultStatus.SUCCESS -> {
+                    state.copy(
+                        listTodoItem = response.data.first,
+                        isLoadingListTodoItem = false
+                    )
+                }
+                ResultStatus.LOADING -> {
+                    state.copy(
+                        isLoadingListTodoItem = true
+                    )
+                }
+                else -> state
             }
         }
     }
@@ -57,6 +45,7 @@ class TodoListViewModel @Inject constructor(
     fun synchronizeTodoList(block: (Result<List<TodoItem>>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
             todoItemUseCase.getTodoListRemote().collect { result ->
+                if (result.status == ResultStatus.UNAUTHORIZED) authUseCase.logout()
                 if (result.status == ResultStatus.SUCCESS) {
                     val response = result.data
                     val replaceResult =
@@ -92,6 +81,7 @@ class TodoListViewModel @Inject constructor(
                     throw RuntimeException("БД не может добавить todoItem: $deletedItem")
             } else {
                 todoItemUseCase.deleteTodoItemRemote(deletedItem.id).collect { result ->
+                    if (result.status == ResultStatus.UNAUTHORIZED) authUseCase.logout()
                     if (result.status == ResultStatus.SUCCESS) {
                         val response = result.data
                         revisionUseCase.setRevision(response.second)
@@ -111,6 +101,7 @@ class TodoListViewModel @Inject constructor(
                 todoItemUseCase.editTodoItemLocal(newTodoItem).first { it.status != ResultStatus.LOADING }
             if (editResult.status == ResultStatus.SUCCESS) {
                 todoItemUseCase.editTodoItemRemote(newTodoItem).collect { result ->
+                    if (result.status == ResultStatus.UNAUTHORIZED) authUseCase.logout()
                     if (result.status == ResultStatus.SUCCESS) {
                         val response = result.data
                         revisionUseCase.setRevision(response.second)
@@ -129,24 +120,11 @@ class TodoListViewModel @Inject constructor(
         schedulerUseCase.setupOneTimeCheckSynchronize()
     }
 
-    val isAuth: Boolean
-        get() {
-            val tokenPair = tokenUseCase.getTokenPair()
-            return if (tokenPair == null) {
-                logout()
-                false
-            } else true
-        }
-
-    private fun logout() {
-        viewModelScope.launchWithExceptionHandler {
-            authUseCase.logout()
-        }
-    }
-
-    var isViewFinished = MutableStateFlow(true)
-
     fun toggleViewFinished(){
-        isViewFinished.value = !isViewFinished.value
+        updateState {
+            it.copy(
+                isShowFinished = !it.isShowFinished
+            )
+        }
     }
 }

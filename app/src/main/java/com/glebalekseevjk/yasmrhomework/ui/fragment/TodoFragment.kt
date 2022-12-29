@@ -21,13 +21,13 @@ import androidx.navigation.fragment.findNavController
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentAuthBinding
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
-import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DAY_MILLIS
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.PLUG
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
+import com.glebalekseevjk.yasmrhomework.ui.activity.MainActivity
 import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
@@ -36,6 +36,8 @@ import kotlinx.coroutines.flow.last
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 
 class TodoFragment : Fragment() {
     private var _binding: FragmentTodoBinding? = null
@@ -47,6 +49,7 @@ class TodoFragment : Fragment() {
     private lateinit var todoViewModel: TodoViewModel
 
     private lateinit var navController: NavController
+    private lateinit var importancePopupMenu: PopupMenu
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -73,10 +76,9 @@ class TodoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.todoViewModel = todoViewModel
-        initErrorHandler()
         initNavigationUI()
+        initImportancePopupMenu()
         initListeners()
-        initData()
     }
 
     override fun onDestroyView() {
@@ -97,16 +99,6 @@ class TodoFragment : Fragment() {
         }
     }
 
-    private fun initErrorHandler() {
-        lifecycleScope.launch {
-            todoViewModel.errorHandler.collect {
-                if (it != OK) {
-                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
     private fun initNavigationUI() {
         navController = findNavController()
     }
@@ -116,8 +108,8 @@ class TodoFragment : Fragment() {
             activity?.onBackPressed()
         }
         binding.saveClickListener = View.OnClickListener {
-            if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_EDIT) {
-                todoViewModel.editTodo(todoViewModel.currentTodoItem.value) { result ->
+            if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_EDIT) {
+                todoViewModel.editTodo(todoViewModel.currentState.todoItem) { result ->
                     when (result.status) {
                         ResultStatus.SUCCESS -> {
                         }
@@ -133,8 +125,8 @@ class TodoFragment : Fragment() {
                         }
                     }
                 }
-            } else if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_ADD) {
-                todoViewModel.addTodo(todoViewModel.currentTodoItem.value) { result ->
+            } else if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_ADD) {
+                todoViewModel.addTodo(todoViewModel.currentState.todoItem) { result ->
                     when (result.status) {
                         ResultStatus.SUCCESS -> {
                         }
@@ -154,8 +146,8 @@ class TodoFragment : Fragment() {
             activity?.onBackPressed()
         }
         binding.removeClickListener = View.OnClickListener {
-            if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_EDIT) {
-                todoViewModel.deleteTodo(todoViewModel.currentTodoItem.value, {
+            if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_EDIT) {
+                todoViewModel.deleteTodo(todoViewModel.currentState.todoItem, {
                     false
                 }) { result ->
                     when (result.status) {
@@ -177,27 +169,12 @@ class TodoFragment : Fragment() {
             activity?.onBackPressed()
         }
         binding.importantClickListener = View.OnClickListener {
-            setPopupMenu()
-        }
-        binding.deadlineSwitchClickListener = View.OnClickListener {
-            if ((it as SwitchCompat).isChecked) {
-                todoViewModel.currentTodoItem.value =
-                    todoViewModel.currentTodoItem.value.copy(
-                        deadline = System.currentTimeMillis() + DAY_MILLIS,
-                    )
-            } else {
-                todoViewModel.currentTodoItem.value =
-                    todoViewModel.currentTodoItem.value.copy(
-                        deadline = null
-                    )
-            }
-            setDeadlineView()
+            importancePopupMenu.show()
         }
         binding.deadlineDateClickListener = View.OnClickListener {
             val datePickerDialog = DatePickerDialog(requireActivity())
             datePickerDialog.show()
         }
-
         binding.contentSv.setOnScrollChangeListener(
             TodoOnScrollChangeListener(
                 binding.headerLl
@@ -206,49 +183,26 @@ class TodoFragment : Fragment() {
     }
 
     private fun checkAuth() {
-        if (!todoViewModel.isAuth) {
+        if (!todoViewModel.currentState.isAuth) {
             navController.navigate(R.id.action_todoListFragment_to_authFragment)
         }
     }
-
-    private fun setPopupMenu() {
-        val popup = PopupMenu(requireContext(), binding.importantLl)
-        popup.inflate(R.menu.popup_menu)
-        popup.setOnMenuItemClickListener {
+    private fun initImportancePopupMenu() {
+        importancePopupMenu = PopupMenu(context, binding.importantLl)
+        importancePopupMenu.inflate(R.menu.popup_menu)
+        importancePopupMenu.setOnMenuItemClickListener {
             val importance = when (it.toString()) {
                 "Нет" -> Importance.LOW
                 "Низкий" -> Importance.BASIC
                 "Высокий" -> Importance.IMPORTANT
                 else -> throw RuntimeException("Importance $it is bad")
             }
-            todoViewModel.currentTodoItem.value =
-                todoViewModel.currentTodoItem.value.copy(importance = importance)
+            todoViewModel.updateState {
+                it.copy(
+                    todoItem = it.todoItem.copy(importance = importance)
+                )
+            }
             true
-        }
-        popup.show()
-    }
-
-    private fun setDeadlineView() {
-        if (todoViewModel.currentTodoItem.value.deadline != null) {
-            binding.deadlineSw.isChecked = true
-            binding.deadlineDateTv.text = todoViewModel.currentTodoItem.value.deadline?.toString().orEmpty()
-            binding.deadlineDateTv.visibility = View.VISIBLE
-        } else {
-            binding.deadlineSw.isChecked = false
-            binding.deadlineDateTv.visibility = View.INVISIBLE
-        }
-    }
-
-    private fun initData() {
-        setDeadlineView()
-        setRemoveButtonView()
-    }
-
-    private fun setRemoveButtonView() {
-        if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_EDIT) {
-            binding.removeLl.visibility = View.VISIBLE
-        } else if (todoViewModel.currentScreenMode.value == TodoViewModel.MODE_ADD) {
-            binding.removeLl.visibility = View.GONE
         }
     }
 

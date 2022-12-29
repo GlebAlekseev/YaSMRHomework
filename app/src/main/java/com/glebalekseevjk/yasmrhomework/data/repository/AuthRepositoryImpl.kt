@@ -10,9 +10,7 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.repository.AuthRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.*
 import retrofit2.Response
 import javax.inject.Inject
 
@@ -31,6 +29,7 @@ class AuthRepositoryImpl @Inject constructor(
         val result = getResultFromAuthResponse(authResponse)
         if (result.status == ResultStatus.SUCCESS) {
             tokenStorage.setTokenPair(authResponse!!.body()!!.data!!)
+            _isAuth.emit(true)
         }
         emit(result)
     }.flowOn(Dispatchers.IO)
@@ -43,11 +42,16 @@ class AuthRepositoryImpl @Inject constructor(
             revisionStorage.clear()
             synchronizedStorage.setSynchronizedStatus(SharedPreferencesSynchronizedStorage.SYNCHRONIZED)
             todoItemDao.deleteAll()
+            _isAuth.emit(false)
         } catch (err: Exception) {
             message = "Ошибка выхода"
         }
         emit(Result(ResultStatus.SUCCESS, Unit, message))
     }.flowOn(Dispatchers.IO)
+
+    override fun isAuth(): Flow<Result<Boolean>> = _isAuth.map { Result(ResultStatus.SUCCESS, it) }
+
+    private val _isAuth: MutableStateFlow<Boolean> = MutableStateFlow(tokenStorage.getTokenPair() != null)
 
     private fun getResultFromAuthResponse(authResponse: Response<AuthResponse>?): Result<Unit> {
         var message = ""

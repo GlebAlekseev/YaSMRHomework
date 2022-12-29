@@ -13,4 +13,7 @@ class AuthUseCase @Inject constructor(
 
     fun getTokenPair(code: String): Flow<Result<Unit>> =
         authRepository.getTokenPair(code)
+
+    fun isAuth(): Flow<Result<Boolean>> =
+        authRepository.isAuth()
 }

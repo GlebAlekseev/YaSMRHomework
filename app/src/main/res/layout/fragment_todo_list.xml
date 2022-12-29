@@ -20,7 +20,6 @@
         android:background="@color/back_primary"
         tools:context=".ui.fragment.TodoListFragment">
 
-
         <LinearLayout
             android:id="@+id/header_ll"
             android:layout_width="match_parent"

@@ -20,7 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            text="@{mainViewModel.displayName}"
+            tools:text="DisplayName"
+            text="@{mainViewModel.state.displayName}"
             android:textColor="@color/label_primary"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -29,7 +30,8 @@
 
         <TextView
             android:id="@+id/login_tv"
-            loginAsText="@{mainViewModel.login}"
+            loginAsText="@{mainViewModel.state.login}"
+            tools:text="\@Login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"

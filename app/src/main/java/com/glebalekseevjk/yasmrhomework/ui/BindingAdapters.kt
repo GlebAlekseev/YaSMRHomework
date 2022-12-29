@@ -1,6 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.ui
 
 import android.graphics.Paint
+import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
@@ -8,6 +9,7 @@ import androidx.databinding.BindingAdapter
 import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.ui.activity.MainActivity
+import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener
 
@@ -51,4 +53,9 @@ fun bindImportanceAsText(checkBox: CheckBox, value: Boolean) {
     } else {
         checkBox.paintFlags = 1283
     }
+}
+
+@BindingAdapter("dateAsText")
+fun bindImportanceAsText(textView: TextView, date: Long?) {
+    textView.text = date?.toString().orEmpty()
 }

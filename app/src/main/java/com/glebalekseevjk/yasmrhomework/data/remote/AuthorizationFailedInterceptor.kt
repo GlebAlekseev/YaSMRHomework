@@ -116,12 +116,6 @@ class AuthorizationFailedInterceptor @Inject constructor(
         }
         if (tokenRefreshed) {
             tokenUpdateTime = System.currentTimeMillis()
-        } else {
-            // Неверный refresh_token, выйти из аккаунта
-            tokenStorage.clear()
-            revisionStorage.clear()
-            synchronizedStorage.setSynchronizedStatus(SharedPreferencesSynchronizedStorage.SYNCHRONIZED)
-            todoItemDao.deleteAll()
         }
         getLatch()?.countDown()
         return tokenRefreshed

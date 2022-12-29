@@ -24,16 +24,10 @@
             type="android.view.View.OnClickListener" />
 
         <variable
-            name="deadline_switch_click_listener"
-            type="android.view.View.OnClickListener" />
-
-        <variable
             name="deadline_date_click_listener"
             type="android.view.View.OnClickListener" />
 
-        <variable
-            name="message_text_changed_listener"
-            type="android.view.View.OnClickListener" />
+        <import type="android.view.View"/>
 
     </data>
 
@@ -117,7 +111,7 @@
                     android:outlineSpotShadowColor="@android:color/black"
                     android:padding="15dp"
                     android:onTextChanged="@{(text, start, before, count)->todoViewModel.onMessageChanged(text)}"
-                    android:text="@{todoViewModel.currentTodoItem.text}" />
+                    android:text="@{todoViewModel.state.todoItem.text}" />
 
                 <LinearLayout
                     android:id="@+id/important_ll"
@@ -137,10 +131,9 @@
 
                     <TextView
                         android:id="@+id/important_state_tv"
-                        importanceAsText="@{todoViewModel.currentTodoItem.importance}"
+                        importanceAsText="@{todoViewModel.state.todoItem.importance}"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Нет" />
+                        android:layout_height="wrap_content"/>
 
                     <View
                         android:layout_width="match_parent"
@@ -179,8 +172,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:onClickListener="@{deadline_date_click_listener}"
-                            android:text="Не указано"
-                            android:visibility="invisible" />
+                            dateAsText="@{todoViewModel.state.todoItem.deadline}"
+                            android:visibility="@{todoViewModel.state.todoItem.deadline == null ? View.INVISIBLE : View.VISIBLE }" />
                     </LinearLayout>
 
 
@@ -191,7 +184,8 @@
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/deadline_sw"
-                        android:onClickListener="@{deadline_switch_click_listener}"
+                        android:checked="@{todoViewModel.state.todoItem.deadline == null ? false : true }"
+                        android:onCheckedChanged="@{(view, isChecked)->todoViewModel.setDeadline(isChecked)}"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1" />
@@ -210,6 +204,7 @@
                     android:layout_height="match_parent"
                     android:layout_margin="15dp"
                     android:clickable="true"
+                    android:visibility="@{todoViewModel.state.screenMode == todoViewModel.MODE_EDIT ? View.VISIBLE : View.GONE}"
                     android:onClickListener="@{remove_click_listener}"
                     android:gravity="left"
                     android:orientation="horizontal"

@@ -6,4 +6,5 @@ import kotlinx.coroutines.flow.Flow
 interface AuthRepository {
     fun getTokenPair(code: String): Flow<Result<Unit>>
     fun logout(): Flow<Result<Unit>>
+    fun isAuth(): Flow<Result<Boolean>>
 }

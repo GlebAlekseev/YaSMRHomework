@@ -3,20 +3,20 @@ package com.glebalekseevjk.yasmrhomework.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.browser.trusted.TokenStore
+import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.di.FromViewModelFactory
+import com.glebalekseevjk.yasmrhomework.databinding.ActivityMainBinding
+import com.glebalekseevjk.yasmrhomework.databinding.NavDrawerHeaderBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
+import com.glebalekseevjk.yasmrhomework.ui.fragment.AuthFragment
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.google.android.material.navigation.NavigationView
@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private lateinit var mainViewModel: MainViewModel
-
 
     private lateinit var navController: NavController
     private lateinit var binding: ActivityMainBinding;
@@ -40,9 +39,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         initNavigationUI()
         initListeners()
-        if (savedInstanceState == null){
-            checkAuth()
-        }
+        observeIsAuth()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -52,9 +49,6 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.updateTokenPair(code) { result ->
                 when (result.status) {
                     ResultStatus.SUCCESS -> {
-                        if (mainViewModel.isAuth) {
-                            navController.navigate(R.id.action_authFragment_to_todoListFragment)
-                        }
                     }
                     ResultStatus.LOADING -> {
                     }
@@ -64,12 +58,6 @@ class MainActivity : AppCompatActivity() {
                     else -> {}
                 }
             }
-        }
-    }
-
-    private fun checkAuth() {
-        if (mainViewModel.isAuth) {
-            navController.navigate(R.id.action_authFragment_to_todoListFragment)
         }
     }
 
@@ -95,9 +83,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // TODO: Сделать isAuth flow, реагировать в MainActivity.
-
-        val navDrawerHeaderBinding = DataBindingUtil.inflate<NavDrawerHeaderBinding>(layoutInflater,R.layout.nav_drawer_header, binding.mainNv,false)
+        val navDrawerHeaderBinding = DataBindingUtil.inflate<NavDrawerHeaderBinding>(
+            layoutInflater,
+            R.layout.nav_drawer_header,
+            binding.mainNv,
+            false
+        )
+        navDrawerHeaderBinding.lifecycleOwner = this
         navDrawerHeaderBinding.mainViewModel = mainViewModel
         binding.mainNv.addHeaderView(navDrawerHeaderBinding.root)
         binding.navigationItemSelectedListener = NavigationView.OnNavigationItemSelectedListener {
@@ -108,15 +100,34 @@ class MainActivity : AppCompatActivity() {
     private fun onDrawerItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.exit_menu_item -> {
-                mainViewModel.logout {
-                    if (navController.currentDestination?.id == R.id.todoListFragment) {
-                        navController.navigate(R.id.action_todoListFragment_to_authFragment)
-                    }
-                }
+                mainViewModel.logout()
                 return true
             }
             else -> {}
         }
         return false
+    }
+
+    private fun observeIsAuth(){
+        mainViewModel.observeState(this){
+            if (it.isAuth){
+                when(navController.currentDestination?.id){
+                    R.id.authFragment ->{
+                        navController.navigate(R.id.action_authFragment_to_todoListFragment)
+                    }
+                    else->{}
+                }
+            }else{
+                when(navController.currentDestination?.id){
+                    R.id.todoFragment ->{
+                        navController.navigate(R.id.action_todoFragment_to_authFragment)
+                    }
+                    R.id.todoListFragment ->{
+                        navController.navigate(R.id.action_todoListFragment_to_authFragment)
+                    }
+                    else->{}
+                }
+            }
+        }
     }
 }
