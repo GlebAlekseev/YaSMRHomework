@@ -11,7 +11,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import com.glebalekseevjk.yasmrhomework.R
@@ -21,7 +20,13 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importa
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
-import java.sql.Timestamp
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.*
 import javax.inject.Inject
 
@@ -135,7 +140,34 @@ class TodoFragment : Fragment() {
         binding.removeClickListener = View.OnClickListener {
             if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_EDIT) {
                 todoViewModel.deleteTodo(todoViewModel.currentState.todoItem, {
-                    false
+                    val snackBar: Snackbar =
+                        Snackbar.make(
+                            requireActivity().findViewById(R.id.task_list_rv),
+                            "Удаление через 3..",
+                            3000
+                        )
+                    var status = false
+                    val mutex = Mutex(locked = true)
+                    snackBar.setAction("Отменить") {
+                        status = true
+                        if (mutex.isLocked) {
+                            mutex.unlock()
+                        }
+                    }
+                    snackBar.show()
+                    CoroutineScope(Dispatchers.Main).launch {
+                        delay(1000)
+                        snackBar.setText("Удаление через 2..")
+                        delay(1000)
+                        snackBar.setText("Удаление через 1..")
+                        delay(1000)
+                        if (mutex.isLocked) {
+                            mutex.unlock()
+                        }
+                    }
+                    mutex.withLock {
+                        status
+                    }
                 }) { result ->
                     when (result.status) {
                         ResultStatus.SUCCESS -> {

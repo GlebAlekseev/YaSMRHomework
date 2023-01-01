@@ -6,8 +6,13 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DAY_MILLIS
-import com.glebalekseevjk.yasmrhomework.domain.interactor.*
+import com.glebalekseevjk.yasmrhomework.domain.interactor.AuthUseCase
+import com.glebalekseevjk.yasmrhomework.domain.interactor.RevisionUseCase
+import com.glebalekseevjk.yasmrhomework.domain.interactor.SchedulerUseCase
+import com.glebalekseevjk.yasmrhomework.domain.interactor.TodoItemUseCase
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.state.TodoState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
@@ -19,8 +24,8 @@ class TodoViewModel @Inject constructor(
     private val schedulerUseCase: SchedulerUseCase,
 ) : BaseViewModel<TodoState>(TodoState()) {
     init {
-        subscribeOnDataSource(authUseCase.isAuth().asLiveData()){ response, state ->
-            if (response.status == ResultStatus.SUCCESS){
+        subscribeOnDataSource(authUseCase.isAuth().asLiveData()) { response, state ->
+            if (response.status == ResultStatus.SUCCESS) {
                 state.copy(
                     isAuth = response.data
                 )
@@ -58,7 +63,8 @@ class TodoViewModel @Inject constructor(
     fun addTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
             val addResult =
-                todoItemUseCase.addTodoItemLocal(todoItem).first { it.status != ResultStatus.LOADING }
+                todoItemUseCase.addTodoItemLocal(todoItem)
+                    .first { it.status != ResultStatus.LOADING }
             if (addResult.status == ResultStatus.SUCCESS) {
                 todoItemUseCase.addTodoItemRemote(todoItem).collect { result ->
                     if (result.status == ResultStatus.UNAUTHORIZED) authUseCase.logout()
@@ -66,7 +72,7 @@ class TodoViewModel @Inject constructor(
                         val response = result.data
                         revisionUseCase.setRevision(response.second)
                         block.invoke(Result(result.status, result.data.first[0], result.message))
-                    }else{
+                    } else {
                         block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
@@ -79,7 +85,8 @@ class TodoViewModel @Inject constructor(
     fun editTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
         viewModelScope.launchWithExceptionHandler {
             val editResult =
-                todoItemUseCase.editTodoItemLocal(todoItem).first { it.status != ResultStatus.LOADING }
+                todoItemUseCase.editTodoItemLocal(todoItem)
+                    .first { it.status != ResultStatus.LOADING }
             if (editResult.status == ResultStatus.UNAUTHORIZED) authUseCase.logout()
             if (editResult.status == ResultStatus.SUCCESS) {
                 todoItemUseCase.editTodoItemRemote(todoItem).collect { result ->
@@ -87,7 +94,7 @@ class TodoViewModel @Inject constructor(
                         val response = result.data
                         revisionUseCase.setRevision(response.second)
                         block.invoke(Result(result.status, result.data.first[0], result.message))
-                    }else{
+                    } else {
                         block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
@@ -100,12 +107,13 @@ class TodoViewModel @Inject constructor(
 
     fun deleteTodo(
         todoItem: TodoItem,
-        snackBarBlock: (todoItem: TodoItem) -> Boolean,
+        snackBarBlock: suspend (todoItem: TodoItem) -> Boolean,
         block: (Result<TodoItem>) -> Unit
     ) {
-        viewModelScope.launchWithExceptionHandler {
+        CoroutineScope(Dispatchers.Main).launchWithExceptionHandler {
             val deleteResult =
-                todoItemUseCase.deleteTodoItemLocal(todoItem.id).first { it.status != ResultStatus.LOADING }
+                todoItemUseCase.deleteTodoItemLocal(todoItem.id)
+                    .first { it.status != ResultStatus.LOADING }
             if (deleteResult.status == ResultStatus.UNAUTHORIZED) authUseCase.logout()
             val deletedItem = if (deleteResult.status == ResultStatus.SUCCESS) {
                 deleteResult.data.first[0]
@@ -114,7 +122,8 @@ class TodoViewModel @Inject constructor(
             }
             if (snackBarBlock.invoke(deletedItem)) {
                 val addResult =
-                    todoItemUseCase.addTodoItemLocal(deletedItem).first { it.status != ResultStatus.LOADING }
+                    todoItemUseCase.addTodoItemLocal(deletedItem)
+                        .first { it.status != ResultStatus.LOADING }
                 if (addResult.status != ResultStatus.SUCCESS) throw RuntimeException("БД не может добавить todoItem: $deletedItem")
             } else {
                 todoItemUseCase.deleteTodoItemRemote(deletedItem.id).collect { result ->
@@ -123,7 +132,7 @@ class TodoViewModel @Inject constructor(
                         val response = result.data
                         revisionUseCase.setRevision(response.second)
                         block.invoke(Result(result.status, result.data.first[0], result.message))
-                    }else{
+                    } else {
                         block.invoke(Result(result.status, TodoItem.PLUG, result.message))
                     }
                 }
@@ -131,11 +140,11 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun setupOneTimeCheckSynchronize(){
+    fun setupOneTimeCheckSynchronize() {
         schedulerUseCase.setupOneTimeCheckSynchronize()
     }
 
-    fun onMessageChanged(text: CharSequence){
+    fun onMessageChanged(text: CharSequence) {
         updateState {
             it.copy(
                 todoItem = it.todoItem.copy(text = text.toString())
@@ -143,7 +152,7 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun setCurrentScreenMode(screenMode: String){
+    fun setCurrentScreenMode(screenMode: String) {
         if (screenMode != MODE_EDIT && screenMode != MODE_ADD)
             throw RuntimeException("Unknown screen mode $screenMode")
         updateState {
@@ -153,8 +162,8 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun setDeadline(checked: Boolean){
-        if (checked){
+    fun setDeadline(checked: Boolean) {
+        if (checked) {
             updateState {
                 it.copy(
                     todoItem = it.todoItem.copy(
@@ -162,7 +171,7 @@ class TodoViewModel @Inject constructor(
                     )
                 )
             }
-        }else{
+        } else {
             updateState {
                 it.copy(
                     todoItem = it.todoItem.copy(
