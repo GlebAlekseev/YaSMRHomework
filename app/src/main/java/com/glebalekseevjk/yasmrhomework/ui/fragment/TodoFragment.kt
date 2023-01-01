@@ -1,43 +1,29 @@
 package com.glebalekseevjk.yasmrhomework.ui.fragment
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doOnTextChanged
+import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.glebalekseevjk.yasmrhomework.R
-import com.glebalekseevjk.yasmrhomework.databinding.FragmentAuthBinding
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.DAY_MILLIS
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.PLUG
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
-import com.glebalekseevjk.yasmrhomework.ui.activity.MainActivity
-import com.glebalekseevjk.yasmrhomework.ui.application.MainApplication
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
-import kotlinx.coroutines.flow.last
-import kotlinx.coroutines.launch
+import java.sql.Timestamp
+import java.util.*
 import javax.inject.Inject
-import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 
 class TodoFragment : Fragment() {
     private var _binding: FragmentTodoBinding? = null
@@ -76,6 +62,7 @@ class TodoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.todoViewModel = todoViewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         initNavigationUI()
         initImportancePopupMenu()
         initListeners()
@@ -173,6 +160,19 @@ class TodoFragment : Fragment() {
         }
         binding.deadlineDateClickListener = View.OnClickListener {
             val datePickerDialog = DatePickerDialog(requireActivity())
+            datePickerDialog.setOnDateSetListener { datePicker, _, _, _ ->
+                todoViewModel.updateState {
+                    it.copy(
+                        todoItem = it.todoItem.copy(
+                            deadline = GregorianCalendar(
+                                datePicker.year,
+                                datePicker.month,
+                                datePicker.dayOfMonth
+                            ).timeInMillis
+                        )
+                    )
+                }
+            }
             datePickerDialog.show()
         }
         binding.contentSv.setOnScrollChangeListener(
@@ -187,6 +187,7 @@ class TodoFragment : Fragment() {
             navController.navigate(R.id.action_todoListFragment_to_authFragment)
         }
     }
+
     private fun initImportancePopupMenu() {
         importancePopupMenu = PopupMenu(context, binding.importantLl)
         importancePopupMenu.inflate(R.menu.popup_menu)

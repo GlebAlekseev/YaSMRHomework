@@ -75,6 +75,7 @@ class TodoListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.todoListViewModel = todoListViewModel
+        binding.lifecycleOwner = viewLifecycleOwner
         initNavigationUI()
         initListeners()
         initDispatchTouchEventSettings()
@@ -252,7 +253,7 @@ class TodoListFragment : Fragment() {
     }
 
     private fun submitListAdapter(listTodoItem: List<TodoItem>, isShowFinished: Boolean) {
-        val newTaskList = if (isShowFinished) listTodoItem.filter { !it.done } else listTodoItem
+        val newTaskList = if (!isShowFinished) listTodoItem.filter { !it.done } else listTodoItem
         binding.headerCountTv.text = String.format(
             resources.getString(R.string.count_done),
             newTaskList.size

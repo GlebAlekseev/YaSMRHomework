@@ -6,10 +6,8 @@ import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.ui.activity.MainActivity
-import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
+import com.glebalekseevjk.yasmrhomework.utils.getFormattedDateFromTimestamp
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener
 
@@ -32,6 +30,7 @@ fun bindLoginAsText(textView: TextView, text: String){
 // fragment_todo
 @BindingAdapter("importanceAsText")
 fun bindImportanceAsText(textView: TextView, importance: TodoItem.Companion.Importance) {
+    println("***************88 Bind importanceAsText")
     textView.text = when (importance) {
         TodoItem.Companion.Importance.LOW -> {
             "Нет"
@@ -56,6 +55,10 @@ fun bindImportanceAsText(checkBox: CheckBox, value: Boolean) {
 }
 
 @BindingAdapter("dateAsText")
-fun bindImportanceAsText(textView: TextView, date: Long?) {
-    textView.text = date?.toString().orEmpty()
+fun bindImportanceAsText(textView: TextView, timestamp: Long?) {
+    if (timestamp == null){
+        textView.text = ""
+    }else{
+        textView.text = getFormattedDateFromTimestamp(timestamp, "d MMMM yyyy")
+    }
 }
