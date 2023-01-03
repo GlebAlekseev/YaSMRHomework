@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="support_separator">#33000000</color>
-    <color name="support_overlay">#0F000000</color>
+    <color name="gray_light_200">#99FFFFFF</color> <!--n label_secondary -->
+    <color name="gray_250">#26FFFFFF</color>  <!--n label_disable -->
+    <color name="gray_light_300">#33FFFFFF</color> <!--n support_separator -->
+    <color name="gray_light_400">#66FFFFFF</color> <!--n label_tertiary -->
+    <color name="gray_light_500">#F7F6F2</color> <!-- back_primary -->
+    <color name="gray_light_700">#0F000000</color> <!-- support_overlay -->
 
-    <color name="label_primary">@android:color/black</color>
-    <color name="label_secondary">#99000000</color>
-    <color name="label_tertiary">#4D000000</color>
-    <color name="label_disable">#26000000</color>
+    <color name="gray_300">#D1D1D6</color> <!-- gray_light -->
+    <color name="gray_400">#26000000</color> <!-- label_disable -->
+    <color name="gray_500">#33000000</color> <!-- support_separator -->
+    <color name="gray_600">#4D000000</color> <!-- label_tertiary -->
+    <color name="gray_700">#52000000</color> <!--n support_overlay -->
+    <color name="gray_800">#8E8E93</color> <!-- gray --> <!--n gray -->
+f
+    <color name="gray_dark_400">#99000000</color> <!-- label_secondary -->
+    <color name="gray_dark_500">#48484A</color> <!--n gray_light -->
+    <color name="gray_dark_600">#3C3C3F</color> <!--n back_elevated -->
+    <color name="gray_dark_700">#161618</color> <!--n back_primary -->
+    <color name="gray_dark_800">#252528</color> <!--n back_secondary -->
 
-    <color name="red">#FF3B30</color>
-    <color name="green">#34C759</color>
-    <color name="blue">#007AFF</color>
-    <color name="gray">#8E8E93</color>
-    <color name="gray_light">#D1D1D6</color>
-    <color name="white">#FFFFFF</color>
-
-
-    <color name="back_primary">#F7F6F2</color>
-    <color name="back_secondary">#FFFFFF</color>
-    <color name="back_elevated">#FFFFFF</color>
+    <color name="black">#000000</color> <!-- label_primary -->
+    <color name="red_400">#FF453A</color> <!--n red -->
+    <color name="red_600">#FF3B30</color> <!-- red -->
+    <color name="green_400">#32D74B</color> <!--n green -->
+    <color name="green_600">#34C759</color> <!-- green -->
+    <color name="blue_400">#0A84FF</color> <!--n blue -->
+    <color name="blue_600">#007AFF</color> <!-- blue -->
+    <color name="white">#FFFFFF</color> <!-- white --> <!--n white --> <!--n label_primary --> <!-- back_elevated --> <!-- back_secondary -->
 </resources>

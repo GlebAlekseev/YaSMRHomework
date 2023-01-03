@@ -3,6 +3,7 @@
 <layout>
 
     <data>
+
         <variable
             name="todoItem"
             type="com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem" />
@@ -12,45 +13,44 @@
             type="android.view.View.OnClickListener" />
     </data>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="horizontal"
-    android:paddingTop="15dp"
-    android:paddingBottom="7dp"
-    android:paddingHorizontal="15dp"
-    android:background="@color/white"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:outlineSpotShadowColor="@color/white"
-    android:outlineAmbientShadowColor="@color/white"
-    android:elevation="0dp">
-
-
-    <CheckBox
-        android:id="@+id/status_cb"
-        android:textColor="@{todoItem.done ? @color/label_disable : @color/label_primary}"
-        strikeThrough="@{todoItem.done}"
-        android:layout_width="wrap_content"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:text="At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!
-At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!"
-        android:text="@{todoItem.text}"
-        android:checked="@{todoItem.done}"
-        android:maxLines="3"
-        android:gravity="top"
-        android:layout_weight="1"
-        android:layout_marginRight="10dp"
-        android:ellipsize="end" />
+        android:background="@color/white"
+        android:elevation="0dp"
+        android:orientation="horizontal"
+        android:outlineAmbientShadowColor="@color/white"
+        android:outlineSpotShadowColor="@color/white"
+        android:paddingHorizontal="15dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="7dp">
 
-    <ImageView
-        android:id="@+id/info_iv"
-        android:onClickListener="@{edit_click_listener}"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        tools:src="@drawable/ic_baseline_info_24"
-        android:src="@drawable/ic_baseline_info_24"
-        app:tint="@color/gray" />
+        <CheckBox
+            android:id="@+id/status_cb"
+            strikeThrough="@{todoItem.done}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:checked="@{todoItem.done}"
+            android:ellipsize="end"
+            android:gravity="top"
+            android:maxLines="3"
+            android:text="@{todoItem.text}"
+            android:textColor="@{todoItem.done ? android.R.attr.textColorPrimaryDisableOnly : android.R.attr.textColorPrimary }"
+            tools:text="At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!
+At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/info_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClickListener="@{edit_click_listener}"
+            android:src="@drawable/ic_baseline_info_24"
+            app:tint="?attr/colorOnTertiary"
+            tools:src="@drawable/ic_baseline_info_24" />
+
+    </LinearLayout>
 </layout>

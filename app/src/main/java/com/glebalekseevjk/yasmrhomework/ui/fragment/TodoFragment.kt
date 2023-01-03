@@ -76,7 +76,6 @@ class TodoFragment : Fragment() {
         initNavigationUI()
         initImportancePopupMenu()
         initListeners()
-        setHasOptionsMenu(true)
         setupToolbar()
     }
 
@@ -243,7 +242,7 @@ class TodoFragment : Fragment() {
     }
 
     private fun initImportancePopupMenu() {
-        importancePopupMenu = PopupMenu(context, binding.importantLl)
+        importancePopupMenu = PopupMenu(context, binding.messageEt)
         importancePopupMenu.inflate(R.menu.popup_menu)
         importancePopupMenu.setOnMenuItemClickListener {
             val importance = when (it.toString()) {

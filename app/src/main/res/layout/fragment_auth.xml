@@ -11,7 +11,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/back_primary">
+        android:background="?attr/colorPrimary">
 
         <ImageButton
             android:id="@+id/yandex_auth_ibtn"

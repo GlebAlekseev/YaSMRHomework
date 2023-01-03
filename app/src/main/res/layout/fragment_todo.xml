@@ -55,6 +55,7 @@
                 android:orientation="vertical">
 
                 <EditText
+                    android:id="@+id/message_et"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/spacing_normal"
@@ -95,7 +96,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginTop="@dimen/spacing_normal"
-                        android:background="@color/support_separator" />
+                        android:background="?attr/separatorColor" />
                 </LinearLayout>
 
 
@@ -150,7 +151,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginTop="@dimen/spacing_normal"
-                    android:background="@color/support_separator" />
+                    android:background="?attr/separatorColor" />
 
                 <LinearLayout
                     android:id="@+id/remove_ll"
@@ -168,20 +169,19 @@
                         android:id="@+id/remove_iv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:contentDescription="TODO"
-                        android:alpha="@{todoViewModel.state.screenMode == todoViewModel.MODE_EDIT ? 1f : 0.2f}"
-                        app:srcCompat="@drawable/ic_baseline_remove_24"
-                        android:tint="@{todoViewModel.state.screenMode == todoViewModel.MODE_EDIT ? @color/red : @color/label_secondary}"
-                        />
+                        android:contentDescription="?attr/colorError"
+                        isShowRemove="@{todoViewModel.state.screenMode == todoViewModel.MODE_EDIT}"
+                        android:tint="?attr/colorOnPrimary"
+                        app:srcCompat="@drawable/ic_baseline_remove_24" />
 
                     <TextView
                         android:id="@+id/remove_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/spacing_small"
-                        android:alpha="@{todoViewModel.state.screenMode == todoViewModel.MODE_EDIT ? 1f : 0.2f}"
                         android:text="@string/delete_text"
-                        android:textColor="@{todoViewModel.state.screenMode == todoViewModel.MODE_EDIT ? @color/red : @color/label_secondary}" />
+                        isShowRemove="@{todoViewModel.state.screenMode == todoViewModel.MODE_EDIT}"
+                        android:textColor="?attr/colorOnPrimary" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

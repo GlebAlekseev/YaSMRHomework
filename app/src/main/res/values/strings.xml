@@ -12,11 +12,14 @@
     <string name="authorize_url">https://192.168.0.102:443/auth/authorize</string>
     <string name="base_url">https://192.168.0.102:443/</string>
 
-
     <string name="save_text">Сохранить</string>
     <string name="message_target_text">Что надо сделать...</string>
     <string name="important_text">Важность</string>
     <string name="deadline_text">Сделать до</string>
     <string name="ok_text">готово</string>
     <string name="delete_text">Удалить</string>
+
+    <string name="no_text">Нет</string>
+    <string name="low_text">Низкий</string>
+    <string name="high_text">Высокий</string>
 </resources>

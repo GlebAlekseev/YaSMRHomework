@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/one"
-        android:title="Нет" />
+        android:title="@string/no_text" />
     <item
         android:id="@+id/two"
-        android:title="Низкий" />
+        android:title="@string/low_text" />
     <item
         android:id="@+id/three"
-        android:title="Высокий" />
+        android:title="@string/high_text" />
 </menu>

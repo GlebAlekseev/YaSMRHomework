@@ -12,7 +12,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="@color/back_primary"
+        android:background="?attr/colorPrimary"
         android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
         <TextView
@@ -22,7 +22,7 @@
             android:layout_marginTop="20dp"
             tools:text="DisplayName"
             text="@{mainViewModel.state.displayName}"
-            android:textColor="@color/label_primary"
+            android:textColor="?attr/colorOnPrimary"
             android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:textColor="@color/label_secondary"
+            android:textColor="?attr/colorOnSecondary"
             app:layout_constraintStart_toStartOf="@+id/name_tv"
             app:layout_constraintTop_toBottomOf="@+id/name_tv" />
 

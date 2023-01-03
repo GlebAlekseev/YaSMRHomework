@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Theme.YaSMR">
+        <attr format="reference|color" name="separatorColor"/>
+        <attr format="reference|color" name="overlayColor"/>
+    </declare-styleable>
+</resources>

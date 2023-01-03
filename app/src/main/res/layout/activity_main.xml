@@ -20,7 +20,7 @@
                 android:name="androidx.navigation.fragment.NavHostFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/back_primary"
+                android:background="?attr/colorPrimary"
                 app:defaultNavHost="true"
                 app:navGraph="@navigation/app_navigation"
                 tools:context=".ui.fragment.AuthFragment"
