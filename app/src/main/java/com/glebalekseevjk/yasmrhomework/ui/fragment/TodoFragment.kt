@@ -3,16 +3,20 @@ package com.glebalekseevjk.yasmrhomework.ui.fragment
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.setupWithNavController
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
@@ -20,6 +24,7 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importa
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
+import com.glebalekseevjk.yasmrhomework.utils.dpToIntPx
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,7 +76,64 @@ class TodoFragment : Fragment() {
         initNavigationUI()
         initImportancePopupMenu()
         initListeners()
+        setHasOptionsMenu(true)
+        setupToolbar()
     }
+
+    private fun setupToolbar() {
+        val toolbar = binding.toolbar
+        toolbar.setNavigationIcon(R.drawable.ic_baseline_cross_24)
+        toolbar.setNavigationOnClickListener {
+            activity?.onBackPressed()
+        }
+        toolbar.inflateMenu(R.menu.todo_fragment_menu)
+        toolbar.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.save_todo ->{
+                    if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_EDIT) {
+                        todoViewModel.editTodo(todoViewModel.currentState.todoItem) { result ->
+                            when (result.status) {
+                                ResultStatus.SUCCESS -> {
+                                }
+                                ResultStatus.LOADING -> {
+                                }
+                                ResultStatus.FAILURE -> {
+                                    todoViewModel.setupOneTimeCheckSynchronize()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                }
+                                ResultStatus.UNAUTHORIZED -> {
+                                    checkAuth()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    } else if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_ADD) {
+                        todoViewModel.addTodo(todoViewModel.currentState.todoItem) { result ->
+                            when (result.status) {
+                                ResultStatus.SUCCESS -> {
+                                }
+                                ResultStatus.LOADING -> {
+                                }
+                                ResultStatus.FAILURE -> {
+                                    todoViewModel.setupOneTimeCheckSynchronize()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                }
+                                ResultStatus.UNAUTHORIZED -> {
+                                    checkAuth()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    }
+                    activity?.onBackPressed()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -96,47 +158,6 @@ class TodoFragment : Fragment() {
     }
 
     private fun initListeners() {
-        binding.exitClickListener = View.OnClickListener {
-            activity?.onBackPressed()
-        }
-        binding.saveClickListener = View.OnClickListener {
-            if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_EDIT) {
-                todoViewModel.editTodo(todoViewModel.currentState.todoItem) { result ->
-                    when (result.status) {
-                        ResultStatus.SUCCESS -> {
-                        }
-                        ResultStatus.LOADING -> {
-                        }
-                        ResultStatus.FAILURE -> {
-                            todoViewModel.setupOneTimeCheckSynchronize()
-                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-                        }
-                        ResultStatus.UNAUTHORIZED -> {
-                            checkAuth()
-                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            } else if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_ADD) {
-                todoViewModel.addTodo(todoViewModel.currentState.todoItem) { result ->
-                    when (result.status) {
-                        ResultStatus.SUCCESS -> {
-                        }
-                        ResultStatus.LOADING -> {
-                        }
-                        ResultStatus.FAILURE -> {
-                            todoViewModel.setupOneTimeCheckSynchronize()
-                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-                        }
-                        ResultStatus.UNAUTHORIZED -> {
-                            checkAuth()
-                            Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-            activity?.onBackPressed()
-        }
         binding.removeClickListener = View.OnClickListener {
             if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_EDIT) {
                 todoViewModel.deleteTodo(todoViewModel.currentState.todoItem, {
@@ -184,14 +205,15 @@ class TodoFragment : Fragment() {
                         }
                     }
                 }
+                activity?.onBackPressed()
             }
-            activity?.onBackPressed()
         }
         binding.importantClickListener = View.OnClickListener {
             importancePopupMenu.show()
         }
         binding.deadlineDateClickListener = View.OnClickListener {
             val datePickerDialog = DatePickerDialog(requireActivity())
+            datePickerDialog.setButton(DatePickerDialog.BUTTON_POSITIVE, getString(R.string.ok_text), datePickerDialog)
             datePickerDialog.setOnDateSetListener { datePicker, _, _, _ ->
                 todoViewModel.updateState {
                     it.copy(
@@ -207,11 +229,11 @@ class TodoFragment : Fragment() {
             }
             datePickerDialog.show()
         }
-        binding.contentSv.setOnScrollChangeListener(
-            TodoOnScrollChangeListener(
-                binding.headerLl
-            )
-        )
+//        binding.contentSv.setOnScrollChangeListener(
+//            TodoOnScrollChangeListener(
+//                binding.headerLl
+//            )
+//        )
     }
 
     private fun checkAuth() {

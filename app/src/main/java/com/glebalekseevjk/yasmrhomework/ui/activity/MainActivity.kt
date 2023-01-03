@@ -3,8 +3,11 @@ package com.glebalekseevjk.yasmrhomework.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +22,7 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.ui.fragment.AuthFragment
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
+import com.glebalekseevjk.yasmrhomework.utils.dpToIntPx
 import com.google.android.material.navigation.NavigationView
 import javax.inject.Inject
 
@@ -40,6 +44,8 @@ class MainActivity : AppCompatActivity() {
         initNavigationUI()
         initListeners()
         observeIsAuth()
+        delegate.localNightMode = if(mainViewModel.currentState.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
+        else AppCompatDelegate.MODE_NIGHT_NO
     }
 
     override fun onNewIntent(intent: Intent?) {

@@ -223,13 +223,13 @@ class TodoListFragment : Fragment() {
                     swipeController.onDraw(c)
                 }
             })
-            setOnTouchListener(
-                OnTouchListener(
-                    binding.headerLl,
-                    binding.headerCountTv,
-                    dp
-                )
-            )
+//            setOnTouchListener(
+//                OnTouchListener(
+//                    binding.headerLl,
+//                    binding.headerCountTv,
+//                    dp
+//                )
+//            )
             taskListAdapter.editClickListener = { id ->
                 val bundle = bundleOf(
                     TodoFragment.SCREEN_MODE to TodoViewModel.MODE_EDIT,
@@ -254,10 +254,10 @@ class TodoListFragment : Fragment() {
 
     private fun submitListAdapter(listTodoItem: List<TodoItem>, isShowFinished: Boolean) {
         val newTaskList = if (!isShowFinished) listTodoItem.filter { !it.done } else listTodoItem
-        binding.headerCountTv.text = String.format(
-            resources.getString(R.string.count_done),
-            newTaskList.size
-        )
+//        binding.headerCountTv.text = String.format(
+//            resources.getString(R.string.count_done),
+//            newTaskList.size
+//        )
         taskListAdapter.submitList(newTaskList.toList())
     }
 }

@@ -4,6 +4,7 @@ import android.graphics.Paint
 import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem

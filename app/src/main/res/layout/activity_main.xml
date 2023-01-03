@@ -15,25 +15,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/main_nhf"
-            android:name="androidx.navigation.fragment.NavHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/back_primary"
-            app:defaultNavHost="true"
-            app:navGraph="@navigation/app_navigation"
-            tools:context=".ui.fragment.AuthFragment"
-            tools:layout="@layout/fragment_auth" />
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/main_nhf"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/back_primary"
+                app:defaultNavHost="true"
+                app:navGraph="@navigation/app_navigation"
+                tools:context=".ui.fragment.AuthFragment"
+                tools:layout="@layout/fragment_auth" />
 
-        <com.google.android.material.navigation.NavigationView
-            android:id="@+id/main_nv"
-            onNavigationItemSelectedListener="@{navigation_item_selected_listener}"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            app:headerLayout="@layout/nav_drawer_header"
-            app:menu="@menu/nav_drawer_menu" />
+            <com.google.android.material.navigation.NavigationView
+                android:id="@+id/main_nv"
+                onNavigationItemSelectedListener="@{navigation_item_selected_listener}"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                app:headerLayout="@layout/nav_drawer_header"
+                app:menu="@menu/nav_drawer_menu" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
 </layout>

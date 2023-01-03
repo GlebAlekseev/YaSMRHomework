@@ -9,7 +9,14 @@
     <string name="edit_todo_item_exception">БД не может отредактировать запись</string>
     <string name="get_todo_item_exception">БД не может получить запись</string>
 
-
     <string name="authorize_url">https://192.168.0.102:443/auth/authorize</string>
     <string name="base_url">https://192.168.0.102:443/</string>
+
+
+    <string name="save_text">Сохранить</string>
+    <string name="message_target_text">Что надо сделать...</string>
+    <string name="important_text">Важность</string>
+    <string name="deadline_text">Сделать до</string>
+    <string name="ok_text">готово</string>
+    <string name="delete_text">Удалить</string>
 </resources>

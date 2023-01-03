@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
+
     <data>
 
         <variable
@@ -12,100 +13,127 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/task_list_srl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/back_primary"
-        tools:context=".ui.fragment.TodoListFragment">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:id="@+id/header_ll"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:background="@color/back_primary"
-            android:elevation="0dp"
-            android:orientation="horizontal"
-            android:outlineSpotShadowColor="@android:color/black"
-            android:paddingLeft="75dp"
-            android:paddingTop="90dp"
-            android:paddingRight="30dp"
-            android:paddingBottom="25dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            tools:context=".ui.fragment.TodoListFragment">
 
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/red">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:elevation="4dp"
+                    android:theme="@style/TodoBarTheme"
+                    app:layout_scrollFlags="scroll|enterAlwaysCollapsed"
+                    app:logo="@drawable/logo_placeholder"
+                    app:subtitle="loading..."
+                    app:subtitleTextColor="@color/red"
+                    app:title="@string/app_name"
+                    app:titleTextColor="@color/red" />
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <!--        <LinearLayout-->
+            <!--            android:id="@+id/header_ll"-->
+            <!--            android:layout_width="match_parent"-->
+            <!--            android:layout_height="wrap_content"-->
+            <!--            android:background="@color/back_primary"-->
+            <!--            android:elevation="0dp"-->
+            <!--            android:orientation="horizontal"-->
+            <!--            android:outlineSpotShadowColor="@android:color/black"-->
+            <!--            android:paddingLeft="75dp"-->
+            <!--            android:paddingTop="90dp"-->
+            <!--            android:paddingRight="30dp"-->
+            <!--            android:paddingBottom="25dp"-->
+            <!--            app:layout_constraintEnd_toEndOf="parent"-->
+            <!--            app:layout_constraintStart_toStartOf="parent"-->
+            <!--            app:layout_constraintTop_toTopOf="parent">-->
+
+
+            <!--            <LinearLayout-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_weight="1"-->
+            <!--                android:orientation="vertical">-->
+
+            <!--                <TextView-->
+            <!--                    android:id="@+id/header_name_tv"-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:text="@string/app_name"-->
+            <!--                    android:textColor="@color/label_primary"-->
+            <!--                    android:textFontWeight="800"-->
+            <!--                    android:textSize="28sp" />-->
+
+            <!--                <TextView-->
+            <!--                    android:id="@+id/header_count_tv"-->
+            <!--                    android:layout_width="wrap_content"-->
+            <!--                    android:layout_height="wrap_content"-->
+            <!--                    android:layout_weight="1"-->
+            <!--                    android:text="@string/count_done"-->
+            <!--                    android:textColor="@color/label_tertiary" />-->
+            <!--            </LinearLayout>-->
+
+            <!--            <ImageView-->
+            <!--                android:id="@+id/header_view_iv"-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_gravity="bottom"-->
+            <!--                android:onClickListener="@{()->todoListViewModel.toggleViewFinished()}"-->
+            <!--                android:src="@drawable/ic_baseline_eye_24"-->
+            <!--                app:tint="@color/blue"-->
+            <!--                android:contentDescription="TODO" />-->
+            <!--        </LinearLayout>-->
+
+            <!-- todo: accessibility - android:showAsAction -->
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:background="@drawable/round_corner"
+                android:orientation="vertical"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
-                <TextView
-                    android:id="@+id/header_name_tv"
-                    android:layout_width="wrap_content"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/task_list_rv"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textColor="@color/label_primary"
-                    android:textFontWeight="800"
-                    android:textSize="28sp" />
-
-                <TextView
-                    android:id="@+id/header_count_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/count_done"
-                    android:textColor="@color/label_tertiary" />
+                    android:layout_marginHorizontal="10dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/task_item_rv" />
             </LinearLayout>
 
-            <ImageView
-                android:id="@+id/header_view_iv"
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/add_task_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:onClickListener="@{()->todoListViewModel.toggleViewFinished()}"
-                android:src="@drawable/ic_baseline_eye_24"
-                app:tint="@color/blue"
-                android:contentDescription="TODO" />
-        </LinearLayout>
+                android:layout_gravity="bottom|right"
+                android:layout_marginEnd="15dp"
+                android:layout_marginBottom="15dp"
+                android:clickable="true"
+                android:contentDescription="Add new task"
+                android:focusable="true"
+                android:onClickListener="@{add_click_listener}"
+                android:src="@drawable/ic_baseline_plus_24"
+                app:backgroundTint="@color/blue"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_dodgeInsetEdges="bottom"
+                app:tint="@color/white" />
 
-        <!-- todo: accessibility - android:showAsAction -->
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/task_list_srl"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/header_ll"
-            android:layout_marginHorizontal="10dp"
-            android:background="@drawable/round_corner">
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/task_list_rv"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/task_item_rv" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_task_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
-            android:layout_marginBottom="15dp"
-            android:clickable="true"
-            android:onClickListener="@{add_click_listener}"
-            android:contentDescription="Add new task"
-            android:focusable="true"
-            android:src="@drawable/ic_baseline_plus_24"
-            app:backgroundTint="@color/blue"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/white" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
