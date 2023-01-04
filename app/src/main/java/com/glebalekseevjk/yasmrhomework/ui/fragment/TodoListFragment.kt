@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.math.MathUtils
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -30,6 +32,7 @@ import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener.Companion
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
+import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
@@ -37,6 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
+import kotlin.math.pow
 
 class TodoListFragment : Fragment() {
     private var _binding: FragmentTodoListBinding? = null
@@ -79,6 +83,7 @@ class TodoListFragment : Fragment() {
         initNavigationUI()
         initListeners()
         initDispatchTouchEventSettings()
+        initAppBar()
         setupRecyclerView()
         observeViewModel()
     }
@@ -149,6 +154,14 @@ class TodoListFragment : Fragment() {
         TouchEventSettings.minPaddingTop = (15 * dp).toInt()
     }
 
+    private fun initAppBar(){
+      binding.appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+          val relativePosition = (appBarLayout.totalScrollRange + verticalOffset).toFloat() / appBarLayout.totalScrollRange
+          val alpha = relativePosition.toDouble().pow(3.0).toFloat()
+          binding.countDoneTv.alpha =  if (alpha < 0.1) 0f else alpha
+      }
+    }  
+    
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
         with(binding.taskListRv) {
