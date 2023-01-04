@@ -1,7 +1,11 @@
 package com.glebalekseevjk.yasmrhomework.ui.viewmodel
 
+import android.view.View
+import android.view.View.OnClickListener
+import android.widget.Spinner
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
@@ -11,6 +15,7 @@ import com.glebalekseevjk.yasmrhomework.domain.interactor.RevisionUseCase
 import com.glebalekseevjk.yasmrhomework.domain.interactor.SchedulerUseCase
 import com.glebalekseevjk.yasmrhomework.domain.interactor.TodoItemUseCase
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.state.TodoState
+import com.glebalekseevjk.yasmrhomework.utils.CustomOnClickListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -162,7 +167,7 @@ class TodoViewModel @Inject constructor(
         }
     }
 
-    fun setDeadline(checked: Boolean) {
+    fun setDeadline(checked: Boolean, openDatePicker: CustomOnClickListener) {
         if (checked) {
             updateState {
                 it.copy(
@@ -171,6 +176,7 @@ class TodoViewModel @Inject constructor(
                     )
                 )
             }
+            openDatePicker.invoke()
         } else {
             updateState {
                 it.copy(
@@ -179,6 +185,23 @@ class TodoViewModel @Inject constructor(
                     )
                 )
             }
+        }
+    }
+
+//    fun setImportant(view: Spinner, value: String){
+    fun setImportant(view: View, pos: Int){
+        val important = when(pos){
+            0 -> TodoItem.Companion.Importance.LOW
+            1 -> TodoItem.Companion.Importance.BASIC
+            2 -> TodoItem.Companion.Importance.IMPORTANT
+            else -> throw RuntimeException("Unknown Importance type")
+        }
+        updateState {
+            it.copy(
+                todoItem = it.todoItem.copy(
+                    importance = important
+                )
+            )
         }
     }
 

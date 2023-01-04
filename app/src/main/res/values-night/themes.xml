@@ -16,6 +16,7 @@
         <item name="android:statusBarColor">?attr/colorPrimary</item>
         <item name="android:textAppearance">@style/TextAppearance</item>
         <item name="android:datePickerDialogTheme">@style/Theme.YaSMR.DatePicker</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItemStyle</item>
     </style>
 
     <style name="Theme.YaSMR" parent="Theme.YaSMR.Night"/>

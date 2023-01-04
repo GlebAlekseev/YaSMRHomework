@@ -19,7 +19,11 @@
     <string name="ok_text">готово</string>
     <string name="delete_text">Удалить</string>
 
-    <string name="no_text">Нет</string>
-    <string name="low_text">Низкий</string>
-    <string name="high_text">Высокий</string>
+    <string-array name="important_array">
+        <item>Нет</item>
+        <item>Низкий</item>
+        <item><font fgcolor="#FF453A">!! Высокий</font></item>
+    </string-array>
+
+    <string name="show_finished_text">Показать завершенные</string>
 </resources>

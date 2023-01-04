@@ -23,6 +23,7 @@ import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
+import com.glebalekseevjk.yasmrhomework.utils.CustomOnClickListener
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
 import com.glebalekseevjk.yasmrhomework.utils.dpToIntPx
 import com.google.android.material.snackbar.Snackbar
@@ -45,7 +46,7 @@ class TodoFragment : Fragment() {
     private lateinit var todoViewModel: TodoViewModel
 
     private lateinit var navController: NavController
-    private lateinit var importancePopupMenu: PopupMenu
+    private lateinit var datePickerDialog: DatePickerDialog
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -74,14 +75,32 @@ class TodoFragment : Fragment() {
         binding.todoViewModel = todoViewModel
         binding.lifecycleOwner = viewLifecycleOwner
         initNavigationUI()
-        initImportancePopupMenu()
+//        initImportancePopupMenu()
+        initDatePicker()
         initListeners()
         setupToolbar()
     }
 
+    private fun initDatePicker(){
+        datePickerDialog = DatePickerDialog(requireActivity())
+        datePickerDialog.setButton(DatePickerDialog.BUTTON_POSITIVE, getString(R.string.ok_text), datePickerDialog)
+        datePickerDialog.setOnDateSetListener { datePicker, _, _, _ ->
+            todoViewModel.updateState {
+                it.copy(
+                    todoItem = it.todoItem.copy(
+                        deadline = GregorianCalendar(
+                            datePicker.year,
+                            datePicker.month,
+                            datePicker.dayOfMonth
+                        ).timeInMillis
+                    )
+                )
+            }
+        }
+    }
+
     private fun setupToolbar() {
         val toolbar = binding.toolbar
-        toolbar.setNavigationIcon(R.drawable.ic_baseline_cross_24)
         toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
@@ -207,26 +226,13 @@ class TodoFragment : Fragment() {
                 activity?.onBackPressed()
             }
         }
-        binding.importantClickListener = View.OnClickListener {
-            importancePopupMenu.show()
-        }
         binding.deadlineDateClickListener = View.OnClickListener {
-            val datePickerDialog = DatePickerDialog(requireActivity())
-            datePickerDialog.setButton(DatePickerDialog.BUTTON_POSITIVE, getString(R.string.ok_text), datePickerDialog)
-            datePickerDialog.setOnDateSetListener { datePicker, _, _, _ ->
-                todoViewModel.updateState {
-                    it.copy(
-                        todoItem = it.todoItem.copy(
-                            deadline = GregorianCalendar(
-                                datePicker.year,
-                                datePicker.month,
-                                datePicker.dayOfMonth
-                            ).timeInMillis
-                        )
-                    )
-                }
-            }
             datePickerDialog.show()
+        }
+        binding.openDatePickerClickListener = object : CustomOnClickListener{
+            override fun invoke() {
+                datePickerDialog.show()
+            }
         }
 //        binding.contentSv.setOnScrollChangeListener(
 //            TodoOnScrollChangeListener(
@@ -241,24 +247,24 @@ class TodoFragment : Fragment() {
         }
     }
 
-    private fun initImportancePopupMenu() {
-        importancePopupMenu = PopupMenu(context, binding.messageEt)
-        importancePopupMenu.inflate(R.menu.popup_menu)
-        importancePopupMenu.setOnMenuItemClickListener {
-            val importance = when (it.toString()) {
-                "Нет" -> Importance.LOW
-                "Низкий" -> Importance.BASIC
-                "Высокий" -> Importance.IMPORTANT
-                else -> throw RuntimeException("Importance $it is bad")
-            }
-            todoViewModel.updateState {
-                it.copy(
-                    todoItem = it.todoItem.copy(importance = importance)
-                )
-            }
-            true
-        }
-    }
+//    private fun initImportancePopupMenu() {
+//        importancePopupMenu = PopupMenu(context, binding.messageEt)
+//        importancePopupMenu.inflate(R.menu.popup_menu)
+//        importancePopupMenu.setOnMenuItemClickListener {
+//            val importance = when (it.toString()) {
+//                "Нет" -> Importance.LOW
+//                "Низкий" -> Importance.BASIC
+//                "Высокий" -> Importance.IMPORTANT
+//                else -> throw RuntimeException("Importance $it is bad")
+//            }
+//            todoViewModel.updateState {
+//                it.copy(
+//                    todoItem = it.todoItem.copy(importance = importance)
+//                )
+//            }
+//            true
+//        }
+//    }
 
     companion object {
         const val TODO_ID = "todo_id"

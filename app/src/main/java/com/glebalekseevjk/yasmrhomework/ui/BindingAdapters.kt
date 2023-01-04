@@ -5,10 +5,12 @@ import android.graphics.Paint
 import android.util.TypedValue
 import android.view.View
 import android.widget.CheckBox
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance.*
 import com.glebalekseevjk.yasmrhomework.utils.getFormattedDateFromTimestamp
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener
@@ -32,20 +34,14 @@ fun bindLoginAsText(textView: TextView, text: String) {
 }
 
 // fragment_todo
-@BindingAdapter("importanceAsText")
-fun bindImportanceAsText(textView: TextView, importance: TodoItem.Companion.Importance) {
-    println("***************88 Bind importanceAsText")
-    textView.text = when (importance) {
-        TodoItem.Companion.Importance.LOW -> {
-            "Нет"
-        }
-        TodoItem.Companion.Importance.BASIC -> {
-            "Низкий"
-        }
-        TodoItem.Companion.Importance.IMPORTANT -> {
-            "Высокий"
-        }
+@BindingAdapter("importanceAsSpinner")
+fun bindImportanceAsSpinner(view: Spinner, importance: TodoItem.Companion.Importance) {
+    val position = when(importance){
+        LOW -> 0
+        BASIC -> 1
+        IMPORTANT -> 2
     }
+    view.setSelection(position)
 }
 
 // fragment_todo_list
@@ -64,27 +60,5 @@ fun bindImportanceAsText(textView: TextView, timestamp: Long?) {
         textView.text = ""
     } else {
         textView.text = getFormattedDateFromTimestamp(timestamp, "d MMMM yyyy")
-    }
-}
-
-@BindingAdapter("isShowRemove")
-fun bindIsShowRemove(view: View, isShow: Boolean) {
-    if (isShow) {
-        view.alpha = 1f
-    } else {
-        view.alpha = 0.2f
-    }
-    val typedValueColor = TypedValue()
-    view.context.theme.resolveAttribute(R.attr.colorError, typedValueColor, true)
-    if (isShow) {
-        when (view) {
-            is TextView -> {
-                view.setTextColor(typedValueColor.data)
-            }
-            is AppCompatImageView -> {
-                view.setColorFilter(typedValueColor.data)
-            }
-            else -> {}
-        }
     }
 }
