@@ -7,8 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.math.MathUtils
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -22,25 +20,22 @@ import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoListBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoListViewState.Companion.OK
 import com.glebalekseevjk.yasmrhomework.ui.rv.adapter.TaskListAdapter
 import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeController
 import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeControllerActions
-import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener
 import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener.Companion.TouchEventSettings
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
-import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.shape.CornerFamily
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import kotlin.math.pow
+
 
 class TodoListFragment : Fragment() {
     private var _binding: FragmentTodoListBinding? = null
@@ -111,7 +106,7 @@ class TodoListFragment : Fragment() {
 
     private fun checkAuth() {
         if (!todoListViewModel.currentState.isAuth) {
-            navController.navigate(R.id.action_todoListFragment_to_authFragment)
+            navController.navigate(com.glebalekseevjk.yasmrhomework.R.id.action_todoListFragment_to_authFragment)
         }
     }
 
@@ -159,6 +154,21 @@ class TodoListFragment : Fragment() {
           val relativePosition = (appBarLayout.totalScrollRange + verticalOffset).toFloat() / appBarLayout.totalScrollRange
           val alpha = relativePosition.toDouble().pow(3.0).toFloat()
           binding.countDoneTv.alpha =  if (alpha < 0.1) 0f else alpha
+
+          val radius = resources.getDimension(R.dimen.spacing_small)
+          binding.materialCardView.shapeAppearanceModel = if (relativePosition == 0f){
+              binding.appbar.elevation = resources.getDimension(R.dimen.elevation_large)
+              binding.materialCardView.shapeAppearanceModel.toBuilder()
+                  .setAllCorners(CornerFamily.ROUNDED,radius)
+                  .setTopLeftCornerSize(0f)
+                  .setTopRightCornerSize(0f)
+                  .build()
+          }else {
+              binding.appbar.elevation = 0f
+              binding.materialCardView.shapeAppearanceModel.toBuilder()
+                  .setAllCorners(CornerFamily.ROUNDED,radius)
+                  .build()
+          }
       }
     }  
     
@@ -267,10 +277,6 @@ class TodoListFragment : Fragment() {
 
     private fun submitListAdapter(listTodoItem: List<TodoItem>, isShowFinished: Boolean) {
         val newTaskList = if (!isShowFinished) listTodoItem.filter { !it.done } else listTodoItem
-//        binding.headerCountTv.text = String.format(
-//            resources.getString(R.string.count_done),
-//            newTaskList.size
-//        )
         taskListAdapter.submitList(newTaskList.toList())
     }
 }
