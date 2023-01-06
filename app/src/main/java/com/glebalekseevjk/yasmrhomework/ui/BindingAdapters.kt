@@ -125,21 +125,33 @@ fun bindIsShowFinishedDrawable(appCompatImageButton: AppCompatImageButton, isSho
 
 @BindingAdapter("isDarkTheme")
 fun bindIsDarkTheme(materialCardView: MaterialCardView, isDarkTheme: Boolean) {
-    val colorOnPrimary = TypedValue()
+    fun reCreate(){
+        (materialCardView.context as FragmentActivity).recreate()
+    }
+
     val theme = materialCardView.context.theme
+    val colorOnPrimary = TypedValue()
     theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, colorOnPrimary, true)
     materialCardView.setCardBackgroundColor(colorOnPrimary.data)
-    val delegate = (materialCardView.context as AppCompatActivity).delegate
-    when(delegate.localNightMode){
-       AppCompatDelegate.MODE_NIGHT_YES->{
-           if (!isDarkTheme){
-               delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
-           }
-       }
-       AppCompatDelegate.MODE_NIGHT_NO->{
-           if (isDarkTheme){
-               delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
-           }
-       }
+
+    val themeType = TypedValue()
+    theme.resolveAttribute(R.attr.themeType, themeType, true)
+
+    when(themeType.data){
+        THEME_WHITE-> {
+            if (isDarkTheme){
+                materialCardView.context.setTheme(R.style.Theme_YaSMR_Night)
+                reCreate()
+            }
+        }
+        THEME_BLACK->{
+            if (!isDarkTheme){
+                materialCardView.context.setTheme(R.style.Theme_YaSMR)
+                reCreate()
+            }
+        }
     }
 }
+
+private const val THEME_BLACK = 0
+private const val THEME_WHITE = 1

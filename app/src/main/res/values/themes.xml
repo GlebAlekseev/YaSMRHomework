@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.YaSMR" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="themeType">WHITE</item>
         <item name="colorPrimary">@color/gray_light_500</item>
         <item name="colorOnPrimary">@color/black</item>
         <item name="colorSecondary">@color/white</item>
@@ -41,4 +42,31 @@
         <item name="colorPrimary">@color/blue_600</item>
     </style>
 
+    <style name="Theme.YaSMR.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
+        <!-- для Android 5+ вы можете поменять цвет colorPrimaryDark, чтобы соответствовать цвету windowBackground -->
+         <item name="colorPrimaryDark">@android:color/white</item>
+    </style>
+
+
+    <style name="Theme.YaSMR.Night" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="themeType">BLACK</item>
+        <item name="colorPrimary">@color/gray_dark_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/gray_dark_800</item>
+        <item name="colorOnSecondary">@color/gray_light_200</item>
+        <item name="colorOnTertiary">@color/gray_light_400</item>
+        <item name="colorAccent">@color/blue_400</item>
+        <item name="colorError">@color/red_400</item>
+        <item name="colorSuccess">@color/green_400</item>
+        <item name="overlayColor">@color/gray_700</item>
+        <item name="separatorColor">@color/gray_light_300</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimaryDisableOnly">@color/gray_250</item>
+
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:textAppearance">@style/TextAppearance</item>
+        <item name="android:datePickerDialogTheme">@style/Theme.YaSMR.DatePicker</item>
+        <item name="android:spinnerItemStyle">@style/SpinnerItemStyle</item>
+    </style>
 </resources>

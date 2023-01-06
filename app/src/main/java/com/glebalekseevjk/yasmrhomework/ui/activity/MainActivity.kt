@@ -37,11 +37,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding;
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         appComponent.createMainActivitySubcomponent().inject(this)
         mainViewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
-        delegate.localNightMode = if(mainViewModel.getDarkMode()) AppCompatDelegate.MODE_NIGHT_YES
-        else AppCompatDelegate.MODE_NIGHT_NO
+        if(mainViewModel.getDarkMode()) setTheme(R.style.Theme_YaSMR_Night) else setTheme(R.style.Theme_YaSMR)
+        super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setContentView(binding.root)
         initNavigationUI()

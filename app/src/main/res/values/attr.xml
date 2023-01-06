@@ -4,5 +4,10 @@
         <attr format="reference|color" name="separatorColor"/>
         <attr format="reference|color" name="overlayColor"/>
         <attr format="reference|color" name="colorSuccess"/>
+
+        <attr format="enum" name="themeType">
+            <enum name="BLACK" value="0"/>
+            <enum name="WHITE" value="1"/>
+        </attr>
     </declare-styleable>
 </resources>
