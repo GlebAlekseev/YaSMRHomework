@@ -106,7 +106,7 @@ class TodoListFragment : Fragment() {
 
     private fun checkAuth() {
         if (!todoListViewModel.currentState.isAuth) {
-            navController.navigate(com.glebalekseevjk.yasmrhomework.R.id.action_todoListFragment_to_authFragment)
+            navController.navigate(R.id.action_todoListFragment_to_authFragment)
         }
     }
 
@@ -174,11 +174,12 @@ class TodoListFragment : Fragment() {
     
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
+        taskListAdapter.todoListViewModel = todoListViewModel
         with(binding.taskListRv) {
             adapter = taskListAdapter
             val swipeController = SwipeController(object : SwipeControllerActions() {
                 override fun onLeftClicked(position: Int) {
-                    todoListViewModel.finishTodo(taskListAdapter.currentList[position]) { result ->
+                    todoListViewModel.changeDoneTodo(taskListAdapter.currentList[position]) { result ->
                         when (result.status) {
                             ResultStatus.SUCCESS -> {
                             }

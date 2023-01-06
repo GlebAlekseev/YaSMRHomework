@@ -39,4 +39,19 @@
         <item name="android:textSize">16sp</item>
         <item name="android:textColor">?attr/colorOnSecondary</item>
     </style>
+
+    <style name="CheckBoxStyle" parent="Widget.AppCompat.CompoundButton.CheckBox">
+<!--        <item name="android:textAppearance">?attr/textAppearanceBodyMedium</item>-->
+<!--        <item name="errorAccessibilityLabel">@string/error_a11y_label</item>-->
+        <item name="buttonTint">@color/red_600</item>
+<!--        <item name="buttonIconTint">@color/blue_400</item>-->
+<!--        <item name="android:button">@drawable/theme_checkbox_button</item>-->
+<!--        <item name="android:drawableLeft">@android:color/transparent</item>-->
+<!--        <item name="android:drawablePadding">10dp</item>-->
+<!--        <item name="android:buttonTint">@android:color/transparent</item>-->
+<!--        <item name="android:button">?android:attr/listChoiceIndicatorMultiple</item>-->
+<!--        <item name="buttonCompat">?attr/listChoiceIndicatorMultipleAnimated</item>-->
+<!--        <item name="android:background">?attr/colorAccent</item>-->
+
+    </style>
 </resources>

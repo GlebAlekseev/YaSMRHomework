@@ -10,6 +10,7 @@
         <item name="overlayColor">@color/gray_light_700</item>
         <item name="separatorColor">@color/gray_500</item>
         <item name="colorError">@color/red_600</item>
+        <item name="colorSuccess">@color/green_600</item>
         <!--        <item name="colorPrimaryVariant">@color/red</item>-->
 <!--        <item name="colorSecondaryVariant">@color/red</item>-->
 <!--        <item name="colorOnError">@color/red_600</item>-->
@@ -22,6 +23,7 @@
         <item name="android:datePickerDialogTheme">@style/Theme.YaSMR.DatePicker</item>
 <!--        <item name="android:textColorPrimaryDisableOnly">@color/gray_400</item>-->
         <item name="android:spinnerItemStyle">@style/SpinnerItemStyle</item>
+
     </style>
 
     <style name="TodoBarTheme">

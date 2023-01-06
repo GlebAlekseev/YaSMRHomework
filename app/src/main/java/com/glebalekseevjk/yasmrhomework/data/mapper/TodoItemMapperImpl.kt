@@ -1,6 +1,7 @@
 package com.glebalekseevjk.yasmrhomework.data.mapper
 
 import com.glebalekseevjk.yasmrhomework.data.local.model.TodoItemDbModel
+import com.glebalekseevjk.yasmrhomework.domain.entity.Importance
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.domain.mapper.Mapper
 import javax.inject.Inject
@@ -14,9 +15,9 @@ class TodoItemMapperImpl @Inject constructor() : Mapper<TodoItem, TodoItemDbMode
                 id,
                 text,
                 when (importance) {
-                    TodoItem.Companion.Importance.LOW -> TodoItemDbModel.Companion.Importance.LOW
-                    TodoItem.Companion.Importance.BASIC -> TodoItemDbModel.Companion.Importance.BASIC
-                    TodoItem.Companion.Importance.IMPORTANT -> TodoItemDbModel.Companion.Importance.IMPORTANT
+                    Importance.LOW -> TodoItemDbModel.Companion.Importance.LOW
+                    Importance.BASIC -> TodoItemDbModel.Companion.Importance.BASIC
+                    Importance.IMPORTANT -> TodoItemDbModel.Companion.Importance.IMPORTANT
                 },
                 deadline,
                 done,
@@ -35,9 +36,9 @@ class TodoItemMapperImpl @Inject constructor() : Mapper<TodoItem, TodoItemDbMode
                 id,
                 text,
                 when (importance) {
-                    TodoItemDbModel.Companion.Importance.LOW -> TodoItem.Companion.Importance.LOW
-                    TodoItemDbModel.Companion.Importance.BASIC -> TodoItem.Companion.Importance.BASIC
-                    TodoItemDbModel.Companion.Importance.IMPORTANT -> TodoItem.Companion.Importance.IMPORTANT
+                    TodoItemDbModel.Companion.Importance.LOW -> Importance.LOW
+                    TodoItemDbModel.Companion.Importance.BASIC -> Importance.BASIC
+                    TodoItemDbModel.Companion.Importance.IMPORTANT -> Importance.IMPORTANT
                 },
                 deadline,
                 done,

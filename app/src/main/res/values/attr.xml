@@ -3,5 +3,6 @@
     <declare-styleable name="Theme.YaSMR">
         <attr format="reference|color" name="separatorColor"/>
         <attr format="reference|color" name="overlayColor"/>
+        <attr format="reference|color" name="colorSuccess"/>
     </declare-styleable>
 </resources>

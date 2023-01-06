@@ -6,6 +6,7 @@ import android.widget.Spinner
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.domain.entity.Importance
 import com.glebalekseevjk.yasmrhomework.domain.entity.Result
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
@@ -191,9 +192,9 @@ class TodoViewModel @Inject constructor(
 //    fun setImportant(view: Spinner, value: String){
     fun setImportant(view: View, pos: Int){
         val important = when(pos){
-            0 -> TodoItem.Companion.Importance.LOW
-            1 -> TodoItem.Companion.Importance.BASIC
-            2 -> TodoItem.Companion.Importance.IMPORTANT
+            0 -> Importance.LOW
+            1 -> Importance.BASIC
+            2 -> Importance.IMPORTANT
             else -> throw RuntimeException("Unknown Importance type")
         }
         updateState {

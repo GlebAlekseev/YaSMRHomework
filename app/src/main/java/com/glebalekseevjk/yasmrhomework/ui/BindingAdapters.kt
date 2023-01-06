@@ -12,8 +12,8 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
 import com.glebalekseevjk.yasmrhomework.R
+import com.glebalekseevjk.yasmrhomework.domain.entity.Importance
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance.*
 import com.glebalekseevjk.yasmrhomework.utils.getFormattedDateFromTimestamp
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener
@@ -38,27 +38,61 @@ fun bindLoginAsText(textView: TextView, text: String) {
 
 // fragment_todo
 @BindingAdapter("importanceAsSpinner")
-fun bindImportanceAsSpinner(view: Spinner, importance: TodoItem.Companion.Importance) {
+fun bindImportanceAsSpinner(view: Spinner, importance: Importance) {
     val position = when (importance) {
-        LOW -> 0
-        BASIC -> 1
-        IMPORTANT -> 2
+        Importance.LOW -> 0
+        Importance.BASIC -> 1
+        Importance.IMPORTANT -> 2
     }
     view.setSelection(position)
 }
 
 // fragment_todo_list
-@BindingAdapter("strikeThrough")
-fun bindImportanceAsText(checkBox: CheckBox, value: Boolean) {
-    if (value) {
-        checkBox.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+@BindingAdapter("isDone")
+fun bindImAsText(textView: TextView, isDone: Boolean) {
+    val colorOnPrimary = TypedValue()
+    val colorOnTertiary = TypedValue()
+    val theme = textView.context.theme
+    theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, colorOnPrimary, true)
+    theme.resolveAttribute(com.google.android.material.R.attr.colorOnTertiary, colorOnTertiary, true)
+    if (isDone) {
+        textView.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+        textView.setTextColor(colorOnTertiary.data)
     } else {
-        checkBox.paintFlags = 1283
+        textView.paintFlags = 1283
+        textView.setTextColor(colorOnPrimary.data)
     }
 }
 
+@BindingAdapter("importanceTypeAsText")
+fun bindImportanceTypeAsText(textView: TextView, importance: Importance) {
+    val colorError = TypedValue()
+    val colorOnTertiary = TypedValue()
+    val theme = textView.context.theme
+    theme.resolveAttribute(com.google.android.material.R.attr.colorError, colorError, true)
+    theme.resolveAttribute(com.google.android.material.R.attr.colorOnTertiary, colorOnTertiary, true)
+    when(importance){
+        Importance.LOW -> textView.visibility = View.GONE
+        Importance.BASIC -> {
+            textView.text = "↓"
+            textView.setTextColor(colorOnTertiary.data)
+            textView.visibility = View.VISIBLE
+        }
+        Importance.IMPORTANT -> {
+            textView.text = "!!"
+            textView.setTextColor(colorError.data)
+            textView.visibility = View.VISIBLE
+        }
+    }
+//    if (value) {
+//        checkBox.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+//    } else {
+//        checkBox.paintFlags = 1283
+//    }
+}
+
 @BindingAdapter("dateAsText")
-fun bindImportanceAsText(textView: TextView, timestamp: Long?) {
+fun bindImrtanceAsText(textView: TextView, timestamp: Long?) {
     if (timestamp == null) {
         textView.text = ""
     } else {

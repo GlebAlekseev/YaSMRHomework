@@ -26,4 +26,5 @@
     </string-array>
 
     <string name="show_finished_text">Показать завершенные</string>
+    <string name="new_text">Новое</string>
 </resources>

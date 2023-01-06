@@ -13,12 +13,6 @@ data class TodoItem(
     val lastUpdatedBy: Long = UNDEFINED
 ) {
     companion object {
-        enum class Importance {
-            LOW,
-            BASIC,
-            IMPORTANT
-        }
-
         const val UNDEFINED = 0L
         val PLUG = TodoItem(
             text = "plug",
@@ -26,4 +20,9 @@ data class TodoItem(
         )
         const val DAY_MILLIS = 86400000
     }
+}
+enum class Importance {
+    LOW,
+    BASIC,
+    IMPORTANT
 }

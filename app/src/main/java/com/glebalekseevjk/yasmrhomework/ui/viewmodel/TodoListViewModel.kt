@@ -94,8 +94,8 @@ class TodoListViewModel @Inject constructor(
         }
     }
 
-    fun finishTodo(todoItem: TodoItem, block: (Result<TodoItem>) -> Unit) {
-        val newTodoItem = todoItem.copy(done = true)
+    fun changeDoneTodo(todoItem: TodoItem, status: Boolean = true, block: (Result<TodoItem>) -> Unit) {
+        val newTodoItem = todoItem.copy(done = status)
         viewModelScope.launchWithExceptionHandler {
             val editResult =
                 todoItemUseCase.editTodoItemLocal(newTodoItem).first { it.status != ResultStatus.LOADING }
@@ -126,5 +126,9 @@ class TodoListViewModel @Inject constructor(
                 isShowFinished = !it.isShowFinished
             )
         }
+    }
+
+    fun setDoneStatus(status: Boolean, todoItem: TodoItem){
+        changeDoneTodo(todoItem, status,{})
     }
 }

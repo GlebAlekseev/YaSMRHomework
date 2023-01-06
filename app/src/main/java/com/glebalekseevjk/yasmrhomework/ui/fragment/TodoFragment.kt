@@ -20,7 +20,6 @@ import androidx.navigation.ui.setupWithNavController
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem.Companion.Importance
 import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.CustomOnClickListener

@@ -123,6 +123,17 @@
                             android:layout_height="wrap_content"
                             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                             tools:listitem="@layout/task_item_rv" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/new_text"
+                            android:layout_marginStart="@dimen/spacing_big"
+                            android:layout_marginTop="@dimen/spacing_small"
+                            android:layout_marginBottom="@dimen/spacing_huge"
+                            android:onClickListener="@{add_click_listener}"
+                            android:textAppearance="@style/TextAppearance.Toolbar.Subtitle"
+                            />
                     </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>

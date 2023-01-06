@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
+        <variable
+            name="todoListViewModel"
+            type="com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel" />
+
 
         <variable
             name="todoItem"
@@ -11,46 +18,123 @@
         <variable
             name="edit_click_listener"
             type="android.view.View.OnClickListener" />
-    </data>
-<!--    android:background="@color/white"-->
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+        <import type="com.glebalekseevjk.yasmrhomework.domain.entity.Importance" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="0dp"
-        android:orientation="horizontal"
-        android:outlineAmbientShadowColor="@color/white"
-        android:outlineSpotShadowColor="@color/white"
-        android:paddingHorizontal="15dp"
-        android:paddingTop="15dp"
-        android:paddingBottom="7dp">
+        android:orientation="horizontal">
 
-        <CheckBox
-            android:id="@+id/status_cb"
-            strikeThrough="@{todoItem.done}"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="76dp"
+            android:layout_height="0dp"
+            android:background="?attr/colorSuccess"
+            android:src="@drawable/ic_baseline_accept_24"
+            android:tint="@color/white"
+            android:layout_marginEnd="@dimen/spacing_tiny"
+            app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
+            app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+            app:layout_constraintTop_toTopOf="@+id/linearLayout" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:checked="@{todoItem.done}"
-            android:ellipsize="end"
-            android:gravity="top"
-            android:maxLines="3"
-            android:text="@{todoItem.text}"
-            android:textColor="@{todoItem.done ? android.R.attr.textColorPrimaryDisableOnly : android.R.attr.textColorPrimary }"
-            tools:text="At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!
+            android:elevation="0dp"
+            android:paddingHorizontal="@dimen/spacing_normal"
+            android:paddingTop="@dimen/spacing_normal"
+            android:paddingBottom="@dimen/spacing_small"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <CheckBox
+                android:id="@+id/status_cb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@{todoItem.done}"
+                android:buttonTint="@{todoItem.importance == Importance.IMPORTANT ? @colorStateList/high_importance_checkbox : @colorStateList/default_checkbox}"
+                tools:checked="true"
+                android:onCheckedChanged="@{(_,status)->todoListViewModel.setDoneStatus(status,todoItem)}"
+                tools:buttonTint="@color/default_checkbox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/linearLayout2" />
+
+            <TextView
+                android:id="@+id/importance_tv"
+                android:layout_width="24dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toEndOf="@+id/status_cb"
+                app:layout_constraintTop_toTopOf="@+id/linearLayout2"
+                importanceTypeAsText="@{todoItem.importance}"
+                android:textSize="24sp"
+                android:textAlignment="center"
+                android:layout_marginTop="@dimen/spacing_small"
+                tools:text="!!" />
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="@dimen/spacing_small"
+                android:paddingEnd="@dimen/spacing_normal"
+                app:layout_constraintEnd_toStartOf="@+id/info_iv"
+                app:layout_constraintStart_toEndOf="@+id/importance_tv"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="RtlSymmetry">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    android:layout_marginTop="@dimen/spacing_tiny"
+                    android:textAppearance="@style/TextAppearance.Content.Title"
+                    android:text="@{todoItem.text}"
+                    isDone="@{todoItem.done}"
+                    tools:text="At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!
 At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat aut galisum sunt aut molestias nostrum!" />
 
-        <ImageView
-            android:id="@+id/info_iv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClickListener="@{edit_click_listener}"
-            android:src="@drawable/ic_baseline_info_24"
-            app:tint="?attr/colorOnTertiary"
-            tools:src="@drawable/ic_baseline_info_24" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    dateAsText="@{todoItem.deadline}"
+                    android:textAppearance="@style/TextAppearance.Content.Subtitle"
+                    tools:text="20 января 2023" />
 
-    </LinearLayout>
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/info_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_normal"
+                android:background="@android:color/transparent"
+                android:onClickListener="@{edit_click_listener}"
+                android:src="@drawable/ic_baseline_info_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/linearLayout2"
+                app:tint="?attr/colorOnTertiary"
+                tools:src="@drawable/ic_baseline_info_24" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.appcompat.widget.AppCompatImageButton
+            android:layout_width="76dp"
+            android:layout_height="0dp"
+            android:background="?attr/colorError"
+            android:src="@drawable/ic_baseline_remove_24"
+            android:tint="@color/white"
+            android:layout_marginStart="@dimen/spacing_tiny"
+            app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
+            app:layout_constraintStart_toEndOf="@+id/linearLayout"
+            app:layout_constraintTop_toTopOf="@+id/linearLayout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </layout>
