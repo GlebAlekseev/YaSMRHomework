@@ -10,4 +10,6 @@
 
     <dimen name="elevation_normal">4dp</dimen>
     <dimen name="elevation_large">16dp</dimen>
+
+    <dimen name="todolist_swipe_width">80dp</dimen>
 </resources>

@@ -19,6 +19,10 @@
             name="edit_click_listener"
             type="android.view.View.OnClickListener" />
 
+        <variable
+            name="swipeControllerActions"
+            type="com.glebalekseevjk.yasmrhomework.ui.rv.SwipeControllerActions" />
+
         <import type="com.glebalekseevjk.yasmrhomework.domain.entity.Importance" />
 
     </data>
@@ -35,6 +39,7 @@
             android:src="@drawable/ic_baseline_accept_24"
             android:tint="@color/white"
             android:layout_marginEnd="@dimen/spacing_tiny"
+            android:onClickListener="@{(view)->swipeControllerActions.onLeftClicked(view,todoItem)}"
             app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
             app:layout_constraintEnd_toStartOf="@+id/linearLayout"
             app:layout_constraintTop_toTopOf="@+id/linearLayout" />
@@ -130,6 +135,7 @@ At quibusdam maiores ea animi rerum hic debitis commodi est explicabo quaerat au
             android:background="?attr/colorError"
             android:src="@drawable/ic_baseline_remove_24"
             android:tint="@color/white"
+            android:onClickListener="@{(view)->swipeControllerActions.onRightClicked(view,todoItem)}"
             android:layout_marginStart="@dimen/spacing_tiny"
             app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
             app:layout_constraintStart_toEndOf="@+id/linearLayout"

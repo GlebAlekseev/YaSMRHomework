@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.TaskItemRvBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.ui.rv.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.ui.rv.callback.TodoItemDiffCallBack
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel
 
@@ -16,6 +17,7 @@ class TaskListAdapter :
     ListAdapter<TodoItem, TaskListAdapter.TaskItemViewHolder>(TodoItemDiffCallBack()) {
     var editClickListener: ((id: Long) -> Unit)? = null
     var todoListViewModel: TodoListViewModel? = null
+    var swipeControllerActions: SwipeControllerActions? = null
 
     override fun getItemViewType(position: Int): Int {
         return VIEW_TYPE
@@ -41,6 +43,7 @@ class TaskListAdapter :
             // Запустить TodoFragment MODE_EDIT
             editClickListener?.invoke(todoItem.id)
         }
+        binding.swipeControllerActions = swipeControllerActions
     }
 
     inner class TaskItemViewHolder(val binding: TaskItemRvBinding) :

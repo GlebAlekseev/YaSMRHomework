@@ -1,7 +1,6 @@
 package com.glebalekseevjk.yasmrhomework.ui.fragment
 
 import android.content.Context
-import android.graphics.Canvas
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,15 +14,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.RecyclerView
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoListBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
+import com.glebalekseevjk.yasmrhomework.ui.rv.SwipeControllerActions
 import com.glebalekseevjk.yasmrhomework.ui.rv.adapter.TaskListAdapter
-import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeController
-import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeControllerActions
-import com.glebalekseevjk.yasmrhomework.ui.rv.listener.OnTouchListener.Companion.TouchEventSettings
+import com.glebalekseevjk.yasmrhomework.ui.rv.callback.SwipeCallback
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoListViewModel
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
@@ -48,7 +45,6 @@ class TodoListFragment : Fragment() {
 
     private lateinit var navController: NavController
 
-    private val dp: Float by lazy { resources.displayMetrics.density }
     private lateinit var taskListAdapter: TaskListAdapter
 
     override fun onAttach(context: Context) {
@@ -77,7 +73,6 @@ class TodoListFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         initNavigationUI()
         initListeners()
-        initDispatchTouchEventSettings()
         initAppBar()
         setupRecyclerView()
         observeViewModel()
@@ -144,42 +139,42 @@ class TodoListFragment : Fragment() {
         }
     }
 
-    private fun initDispatchTouchEventSettings() {
-        TouchEventSettings.maxPaddingTop = (90 * dp).toInt() + 1
-        TouchEventSettings.minPaddingTop = (15 * dp).toInt()
+    private fun initAppBar() {
+        binding.appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+            val relativePosition =
+                (appBarLayout.totalScrollRange + verticalOffset).toFloat() / appBarLayout.totalScrollRange
+            val alpha = relativePosition.toDouble().pow(3.0).toFloat()
+            binding.countDoneTv.alpha = if (alpha < 0.1) 0f else alpha
+
+            val radius = resources.getDimension(R.dimen.spacing_small)
+            binding.materialCardView.shapeAppearanceModel = if (relativePosition == 0f) {
+                binding.appbar.elevation = resources.getDimension(R.dimen.elevation_large)
+                binding.materialCardView.shapeAppearanceModel.toBuilder()
+                    .setAllCorners(CornerFamily.ROUNDED, radius)
+                    .setTopLeftCornerSize(0f)
+                    .setTopRightCornerSize(0f)
+                    .build()
+            } else {
+                binding.appbar.elevation = 0f
+                binding.materialCardView.shapeAppearanceModel.toBuilder()
+                    .setAllCorners(CornerFamily.ROUNDED, radius)
+                    .build()
+            }
+        }
     }
 
-    private fun initAppBar(){
-      binding.appbar.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
-          val relativePosition = (appBarLayout.totalScrollRange + verticalOffset).toFloat() / appBarLayout.totalScrollRange
-          val alpha = relativePosition.toDouble().pow(3.0).toFloat()
-          binding.countDoneTv.alpha =  if (alpha < 0.1) 0f else alpha
-
-          val radius = resources.getDimension(R.dimen.spacing_small)
-          binding.materialCardView.shapeAppearanceModel = if (relativePosition == 0f){
-              binding.appbar.elevation = resources.getDimension(R.dimen.elevation_large)
-              binding.materialCardView.shapeAppearanceModel.toBuilder()
-                  .setAllCorners(CornerFamily.ROUNDED,radius)
-                  .setTopLeftCornerSize(0f)
-                  .setTopRightCornerSize(0f)
-                  .build()
-          }else {
-              binding.appbar.elevation = 0f
-              binding.materialCardView.shapeAppearanceModel.toBuilder()
-                  .setAllCorners(CornerFamily.ROUNDED,radius)
-                  .build()
-          }
-      }
-    }  
-    
     private fun setupRecyclerView() {
         taskListAdapter = TaskListAdapter()
         taskListAdapter.todoListViewModel = todoListViewModel
         with(binding.taskListRv) {
             adapter = taskListAdapter
-            val swipeController = SwipeController(object : SwipeControllerActions() {
-                override fun onLeftClicked(position: Int) {
-                    todoListViewModel.changeDoneTodo(taskListAdapter.currentList[position]) { result ->
+            val swipeCallback = SwipeCallback(resources.getDimension(R.dimen.todolist_swipe_width))
+            ItemTouchHelper(swipeCallback).attachToRecyclerView(this)
+
+            taskListAdapter.swipeControllerActions = object : SwipeControllerActions() {
+                override fun onLeftClicked(view: View, todoItem: TodoItem) {
+                    swipeCallback.resetViewHolder((view.parent as View))
+                    todoListViewModel.changeDoneTodo(todoItem) { result ->
                         when (result.status) {
                             ResultStatus.SUCCESS -> {
                             }
@@ -197,8 +192,9 @@ class TodoListFragment : Fragment() {
                     }
                 }
 
-                override fun onRightClicked(position: Int) {
-                    todoListViewModel.deleteTodo(taskListAdapter.currentList[position], {
+                override fun onRightClicked(view: View, todoItem: TodoItem) {
+                    swipeCallback.resetViewHolder((view.parent as View))
+                    todoListViewModel.deleteTodo(todoItem, {
                         val snackBar: Snackbar =
                             Snackbar.make(this@with, "Удаление через 3..", 3000)
                         var status = false
@@ -240,20 +236,8 @@ class TodoListFragment : Fragment() {
                         }
                     }
                 }
-            })
-            ItemTouchHelper(swipeController).attachToRecyclerView(this)
-            addItemDecoration(object : RecyclerView.ItemDecoration() {
-                override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
-                    swipeController.onDraw(c)
-                }
-            })
-//            setOnTouchListener(
-//                OnTouchListener(
-//                    binding.headerLl,
-//                    binding.headerCountTv,
-//                    dp
-//                )
-//            )
+            }
+
             taskListAdapter.editClickListener = { id ->
                 val bundle = bundleOf(
                     TodoFragment.SCREEN_MODE to TodoViewModel.MODE_EDIT,
@@ -270,7 +254,7 @@ class TodoListFragment : Fragment() {
 
     private fun observeSubmitListAdapter() {
         lifecycleScope.launch {
-            todoListViewModel.observeState(viewLifecycleOwner){
+            todoListViewModel.observeState(viewLifecycleOwner) {
                 submitListAdapter(it.listTodoItem, it.isShowFinished)
             }
         }

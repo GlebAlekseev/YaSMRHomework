@@ -3,28 +3,21 @@ package com.glebalekseevjk.yasmrhomework.ui.fragment
 import android.app.DatePickerDialog
 import android.content.Context
 import android.os.Bundle
-import android.view.*
-import android.widget.ImageView
-import android.widget.PopupMenu
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
-import androidx.core.view.MenuHost
-import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.setupWithNavController
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
-import com.glebalekseevjk.yasmrhomework.ui.listener.TodoOnScrollChangeListener
 import com.glebalekseevjk.yasmrhomework.ui.viewmodel.TodoViewModel
 import com.glebalekseevjk.yasmrhomework.utils.CustomOnClickListener
 import com.glebalekseevjk.yasmrhomework.utils.appComponent
-import com.glebalekseevjk.yasmrhomework.utils.dpToIntPx
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,9 +73,13 @@ class TodoFragment : Fragment() {
         setupToolbar()
     }
 
-    private fun initDatePicker(){
+    private fun initDatePicker() {
         datePickerDialog = DatePickerDialog(requireActivity())
-        datePickerDialog.setButton(DatePickerDialog.BUTTON_POSITIVE, getString(R.string.ok_text), datePickerDialog)
+        datePickerDialog.setButton(
+            DatePickerDialog.BUTTON_POSITIVE,
+            getString(R.string.ok_text),
+            datePickerDialog
+        )
         datePickerDialog.setOnDateSetListener { datePicker, _, _, _ ->
             todoViewModel.updateState {
                 it.copy(
@@ -105,8 +102,8 @@ class TodoFragment : Fragment() {
         }
         toolbar.inflateMenu(R.menu.todo_fragment_menu)
         toolbar.setOnMenuItemClickListener {
-            when(it.itemId){
-                R.id.save_todo ->{
+            when (it.itemId) {
+                R.id.save_todo -> {
                     if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_EDIT) {
                         todoViewModel.editTodo(todoViewModel.currentState.todoItem) { result ->
                             when (result.status) {
@@ -116,11 +113,13 @@ class TodoFragment : Fragment() {
                                 }
                                 ResultStatus.FAILURE -> {
                                     todoViewModel.setupOneTimeCheckSynchronize()
-                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                                 ResultStatus.UNAUTHORIZED -> {
                                     checkAuth()
-                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             }
                         }
@@ -133,11 +132,13 @@ class TodoFragment : Fragment() {
                                 }
                                 ResultStatus.FAILURE -> {
                                     todoViewModel.setupOneTimeCheckSynchronize()
-                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                                 ResultStatus.UNAUTHORIZED -> {
                                     checkAuth()
-                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, result.message, Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             }
                         }
@@ -149,7 +150,6 @@ class TodoFragment : Fragment() {
             }
         }
     }
-
 
 
     override fun onDestroyView() {
@@ -228,7 +228,7 @@ class TodoFragment : Fragment() {
         binding.deadlineDateClickListener = View.OnClickListener {
             datePickerDialog.show()
         }
-        binding.openDatePickerClickListener = object : CustomOnClickListener{
+        binding.openDatePickerClickListener = object : CustomOnClickListener {
             override fun invoke() {
                 datePickerDialog.show()
             }
