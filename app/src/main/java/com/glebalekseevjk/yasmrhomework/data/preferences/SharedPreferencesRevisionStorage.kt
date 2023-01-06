@@ -30,7 +30,7 @@ open class SharedPreferencesRevisionStorage @Inject constructor(context: Context
     }
 
     companion object {
-        private val PREF_PACKAGE_NAME = "com.glebalekseevjk.yasmrhomework"
-        private val PREF_KEY_REVISION = "revision"
+        private const val PREF_PACKAGE_NAME = "com.glebalekseevjk.yasmrhomework"
+        private const val PREF_KEY_REVISION = "revision"
     }
 }

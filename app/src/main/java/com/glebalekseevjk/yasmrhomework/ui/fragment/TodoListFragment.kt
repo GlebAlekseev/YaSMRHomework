@@ -111,8 +111,7 @@ class TodoListFragment : Fragment() {
 
     private fun initListeners() {
         binding.addClickListener = View.OnClickListener {
-            val bundle = bundleOf(TodoFragment.SCREEN_MODE to TodoViewModel.MODE_ADD)
-            navController.navigate(R.id.action_todoListFragment_to_todoFragment, bundle)
+            navigateToTodoFragmentWithAddMode()
         }
 
         binding.taskListSrl.setOnRefreshListener {
@@ -239,13 +238,18 @@ class TodoListFragment : Fragment() {
             }
 
             taskListAdapter.editClickListener = { id ->
-                val bundle = bundleOf(
-                    TodoFragment.SCREEN_MODE to TodoViewModel.MODE_EDIT,
-                    TodoFragment.TODO_ID to id
-                )
-                navController.navigate(R.id.action_todoListFragment_to_todoFragment, bundle)
+                navigateToTodoFragmentWithEditMode(id)
             }
         }
+    }
+
+    private fun navigateToTodoFragmentWithEditMode(todoId: Long){
+        val action = TodoListFragmentDirections.actionTodoListFragmentToTodoFragment(todoId)
+        navController.navigate(action)
+    }
+
+    private fun navigateToTodoFragmentWithAddMode(){
+        navigateToTodoFragmentWithEditMode(TodoFragment.NONE)
     }
 
     private fun observeViewModel() {

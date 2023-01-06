@@ -6,12 +6,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.databinding.FragmentTodoBinding
 import com.glebalekseevjk.yasmrhomework.domain.entity.ResultStatus
@@ -32,6 +35,8 @@ class TodoFragment : Fragment() {
     private var _binding: FragmentTodoBinding? = null
     private val binding: FragmentTodoBinding
         get() = _binding ?: throw RuntimeException("FragmentTodoBinding is null")
+
+    private val args: TodoFragmentArgs by navArgs()
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -67,10 +72,19 @@ class TodoFragment : Fragment() {
         binding.todoViewModel = todoViewModel
         binding.lifecycleOwner = viewLifecycleOwner
         initNavigationUI()
-//        initImportancePopupMenu()
         initDatePicker()
         initListeners()
         setupToolbar()
+        if (todoViewModel.currentState.screenMode == TodoViewModel.MODE_ADD){
+            openKeyBoardForInput()
+        }
+    }
+
+    private fun openKeyBoardForInput(){
+        binding.messageEt.requestFocus()
+        val inputMethodManager: InputMethodManager? =
+            ContextCompat.getSystemService(requireContext(), InputMethodManager::class.java)
+        inputMethodManager?.showSoftInput(binding.messageEt, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun initDatePicker() {
@@ -158,15 +172,11 @@ class TodoFragment : Fragment() {
     }
 
     private fun parseParams() {
-        val args = requireArguments()
-        if (!args.containsKey(SCREEN_MODE)) throw RuntimeException("Param screen mode is absent")
-        val screenMode = args.getString(SCREEN_MODE).toString()
-        todoViewModel.setCurrentScreenMode(screenMode)
-
-        if (screenMode == TodoViewModel.MODE_EDIT) {
-            if (!args.containsKey(TODO_ID)) throw RuntimeException("Param todo id is absent")
-            val todoId = args.getLong(TODO_ID)
-            todoViewModel.setCurrentTodoItemById(todoId)
+        if (args.todoId != NONE){
+            todoViewModel.setCurrentTodoItemById(args.todoId)
+            todoViewModel.setCurrentScreenMode(TodoViewModel.MODE_EDIT)
+        } else {
+            todoViewModel.setCurrentScreenMode(TodoViewModel.MODE_ADD)
         }
     }
 
@@ -233,11 +243,6 @@ class TodoFragment : Fragment() {
                 datePickerDialog.show()
             }
         }
-//        binding.contentSv.setOnScrollChangeListener(
-//            TodoOnScrollChangeListener(
-//                binding.headerLl
-//            )
-//        )
     }
 
     private fun checkAuth() {
@@ -246,27 +251,7 @@ class TodoFragment : Fragment() {
         }
     }
 
-//    private fun initImportancePopupMenu() {
-//        importancePopupMenu = PopupMenu(context, binding.messageEt)
-//        importancePopupMenu.inflate(R.menu.popup_menu)
-//        importancePopupMenu.setOnMenuItemClickListener {
-//            val importance = when (it.toString()) {
-//                "Нет" -> Importance.LOW
-//                "Низкий" -> Importance.BASIC
-//                "Высокий" -> Importance.IMPORTANT
-//                else -> throw RuntimeException("Importance $it is bad")
-//            }
-//            todoViewModel.updateState {
-//                it.copy(
-//                    todoItem = it.todoItem.copy(importance = importance)
-//                )
-//            }
-//            true
-//        }
-//    }
-
     companion object {
-        const val TODO_ID = "todo_id"
-        const val SCREEN_MODE = "screen_mode"
+        const val NONE = -1L
     }
 }

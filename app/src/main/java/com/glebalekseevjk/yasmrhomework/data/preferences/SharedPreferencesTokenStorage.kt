@@ -74,11 +74,11 @@ open class SharedPreferencesTokenStorage @Inject constructor(context: Context) {
 
 
     companion object {
-        private val PREF_PACKAGE_NAME = "com.glebalekseevjk.yasmrhomework"
-        private val PREF_KEY_ACCESS_TOKEN = "access_token"
-        private val PREF_KEY_REFRESH_TOKEN = "refresh_token"
-        private val PREF_KEY_EXPIRES_AT = "expires_at"
-        private val PREF_KEY_LOGIN = "login"
-        private val PREF_KEY_DISPLAY_NAME = "display_name"
+        private const val PREF_PACKAGE_NAME = "com.glebalekseevjk.yasmrhomework"
+        private const val PREF_KEY_ACCESS_TOKEN = "access_token"
+        private const val PREF_KEY_REFRESH_TOKEN = "refresh_token"
+        private const val PREF_KEY_EXPIRES_AT = "expires_at"
+        private const val PREF_KEY_LOGIN = "login"
+        private const val PREF_KEY_DISPLAY_NAME = "display_name"
     }
 }

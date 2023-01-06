@@ -1,43 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
             name="mainViewModel"
             type="com.glebalekseevjk.yasmrhomework.ui.viewmodel.MainViewModel"
             />
+
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="?attr/colorPrimary"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
+        android:layout_height="wrap_content"
+        android:padding="0dp"
+        android:layout_margin="0dp"
+        android:background="?attr/colorPrimary">
 
-        <TextView
-            android:id="@+id/name_tv"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/toggleDarkThemeCardView"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_margin="@dimen/spacing_normal"
+            tools:cardBackgroundColor="?attr/colorOnPrimary"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="@dimen/elevation_large"
+            android:onClickListener="@{()->mainViewModel.setDarkTheme(mainViewModel.currentState.darkMode)}"
+            isDarkTheme="@{mainViewModel.state.darkMode}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            tools:text="DisplayName"
-            text="@{mainViewModel.state.displayName}"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="24sp"
+            android:orientation="vertical"
+            android:layout_marginVertical="@dimen/spacing_large"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/login_tv"
-            loginAsText="@{mainViewModel.state.login}"
-            tools:text="\@Login"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:textColor="?attr/colorOnSecondary"
-            app:layout_constraintStart_toStartOf="@+id/name_tv"
-            app:layout_constraintTop_toBottomOf="@+id/name_tv" />
+            <TextView
+                android:id="@+id/name_tv"
+                text="@{mainViewModel.state.displayName}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="DisplayName" />
+
+            <TextView
+                android:id="@+id/login_tv"
+                loginAsText="@{mainViewModel.state.login}"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="?attr/colorOnSecondary"
+                app:layout_constraintStart_toStartOf="@+id/name_tv"
+                app:layout_constraintTop_toBottomOf="@+id/name_tv"
+                tools:text="\@Login" />
+        </LinearLayout>
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

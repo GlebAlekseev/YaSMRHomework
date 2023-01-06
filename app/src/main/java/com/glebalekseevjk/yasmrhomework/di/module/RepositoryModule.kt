@@ -29,4 +29,7 @@ interface RepositoryModule {
     @AppComponentScope
     @Binds
     fun bindTokenRepository(tokenRepositoryImpl: TokenRepositoryImpl): TokenRepository
+    @AppComponentScope
+    @Binds
+    fun bindSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository
 }

@@ -190,7 +190,7 @@ class TodoViewModel @Inject constructor(
     }
 
 //    fun setImportant(view: Spinner, value: String){
-    fun setImportant(view: View, pos: Int){
+    fun setImportant(pos: Int){
         val important = when(pos){
             0 -> Importance.LOW
             1 -> Importance.BASIC

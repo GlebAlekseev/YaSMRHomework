@@ -27,4 +27,6 @@
 
     <string name="show_finished_text">Показать завершенные</string>
     <string name="new_text">Новое</string>
+
+    <string name="quit_text">Выйти</string>
 </resources>

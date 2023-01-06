@@ -3,6 +3,7 @@ package com.glebalekseevjk.yasmrhomework.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -39,13 +40,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         appComponent.createMainActivitySubcomponent().inject(this)
         mainViewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
+        delegate.localNightMode = if(mainViewModel.getDarkMode()) AppCompatDelegate.MODE_NIGHT_YES
+        else AppCompatDelegate.MODE_NIGHT_NO
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setContentView(binding.root)
         initNavigationUI()
         initListeners()
         observeIsAuth()
-        delegate.localNightMode = if(mainViewModel.currentState.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES
-        else AppCompatDelegate.MODE_NIGHT_NO
     }
 
     override fun onNewIntent(intent: Intent?) {

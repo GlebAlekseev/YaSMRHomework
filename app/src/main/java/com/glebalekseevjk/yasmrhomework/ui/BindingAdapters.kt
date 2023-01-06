@@ -7,14 +7,19 @@ import android.view.View
 import android.widget.CheckBox
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
+import androidx.fragment.app.FragmentActivity
 import com.glebalekseevjk.yasmrhomework.R
 import com.glebalekseevjk.yasmrhomework.domain.entity.Importance
 import com.glebalekseevjk.yasmrhomework.domain.entity.TodoItem
 import com.glebalekseevjk.yasmrhomework.utils.getFormattedDateFromTimestamp
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener
 
@@ -115,4 +120,26 @@ fun bindIsShowFinishedDrawable(appCompatImageButton: AppCompatImageButton, isSho
     val drawable = if (isShowFinished) ResourcesCompat.getDrawable(appCompatImageButton.resources,R.drawable.ic_baseline_eye_24,appCompatImageButton.context.theme)
     else ResourcesCompat.getDrawable(appCompatImageButton.resources,R.drawable.ic_baseline_eyeoff_24, appCompatImageButton.context.theme)
     appCompatImageButton.setImageDrawable(drawable)
+}
+
+
+@BindingAdapter("isDarkTheme")
+fun bindIsDarkTheme(materialCardView: MaterialCardView, isDarkTheme: Boolean) {
+    val colorOnPrimary = TypedValue()
+    val theme = materialCardView.context.theme
+    theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, colorOnPrimary, true)
+    materialCardView.setCardBackgroundColor(colorOnPrimary.data)
+    val delegate = (materialCardView.context as AppCompatActivity).delegate
+    when(delegate.localNightMode){
+       AppCompatDelegate.MODE_NIGHT_YES->{
+           if (!isDarkTheme){
+               delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_NO
+           }
+       }
+       AppCompatDelegate.MODE_NIGHT_NO->{
+           if (isDarkTheme){
+               delegate.localNightMode = AppCompatDelegate.MODE_NIGHT_YES
+           }
+       }
+    }
 }

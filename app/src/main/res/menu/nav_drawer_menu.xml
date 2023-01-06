@@ -2,12 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/settings_menu_item"
-        android:icon="@drawable/ic_baseline_settings_24"
-        android:title="Настройки"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/exit_menu_item"
         android:icon="@drawable/ic_baseline_exit_24"
-        android:title="Выйти" />
+        android:iconTint="?attr/colorOnSecondary"
+        android:title="@string/quit_text" />
 </menu>

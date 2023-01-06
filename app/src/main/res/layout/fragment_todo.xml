@@ -91,7 +91,7 @@
                         android:textAppearance="?android:attr/textAppearance" />
 
                     <Spinner
-                        android:onItemSelected="@{(parent, view, pos, id)->todoViewModel.setImportant(view,pos)}"
+                        android:onItemSelected="@{(parent, view, pos, id)->todoViewModel.setImportant(pos)}"
                         android:id="@+id/important_state_tv"
                         importanceAsSpinner="@{todoViewModel.state.todoItem.importance}"
                         android:layout_width="wrap_content"
